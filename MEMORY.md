@@ -6,6 +6,7 @@ Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete i
 - General architecture and standards consolidated in `AGENTS.md`.
 - Project Constitution defined and approved in `docs/constitution.md` (6 non-negotiable principles).
 - SDD methodology and Git workflow skills (`git-commit-msg`, `git-pr-msg`) active in `.agents/skills/`.
+- Initial codebase pushed to GitHub (`https://github.com/sebix7/Prydrive.git`).
 - Next step: Draft the first spec via `/sdd-spec 001-desktop-shell` (or storage explorer).
 
 ## Decisions (and why)
