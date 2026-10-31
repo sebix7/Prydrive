@@ -185,7 +185,7 @@ The project adopts **SDD** as its formal engineering methodology. Every new feat
 $$\text{Constitution} \rightarrow \text{Spec} \rightarrow \text{Clarification} \rightarrow \text{Plan} \rightarrow \text{Tasks} \rightarrow \text{Implementation} \rightarrow \text{Validation} \rightarrow \text{Change}$$
 
 1. **The Spec is the single source of truth**: No code is written unless specified in `specs/NNN-feature-name/spec.md`.
-2. **Strict Implementation Cycle**: Test first (failing/red) $\rightarrow$ minimal code $\rightarrow$ suite passing (green) $\rightarrow$ mark task as completed in `tasks.md`.
+2. **Strict Implementation Cycle**: Test first (failing/red) $\rightarrow$ minimal code $\rightarrow$ suite passing (green) $\rightarrow$ mark task as completed in `tasks.md`. Each task delivers the complete vertical slice of exactly one User Story (`US-x`), respecting declared task dependencies.
 3. **Change Control (`sdd-change`)**: Any new requirement updates the spec first, then the plan and tasks, and finally the codebase.
 
 ### Available Agent Skills (`.agents/skills/`)
@@ -196,7 +196,7 @@ $$\text{Constitution} \rightarrow \text{Spec} \rightarrow \text{Clarification} \
 | `sdd-spec` | `/sdd-spec NNN-name idea` | Interviews user and drafts functional specification with EARS requirements. |
 | `sdd-clarify` | `/sdd-clarify NNN-name` | Reviews specification as a QA engineer to uncover ambiguities and edge cases. |
 | `sdd-plan` | `/sdd-plan NNN-name` | Designs technical solution, interfaces, and architecture (`plan.md`). |
-| `sdd-tasks` | `/sdd-tasks NNN-name` | Breaks down technical plan into small, ordered, verifiable tasks (`tasks.md`). |
+| `sdd-tasks` | `/sdd-tasks NNN-name` | Breaks down technical plan into tasks with 1-to-1 correspondence to User Stories and explicit dependencies (`tasks.md`). |
 | `sdd-implement` | `/sdd-implement NNN-name Tn` | Implements a single task using strict TDD (test first). |
 | `sdd-validate` | `/sdd-validate NNN-name` | Validates all functional requirements (FRs) via automated tests. |
 | `sdd-change` | `/sdd-change NNN-name detail` | Applies requirement changes following the disciplined SDD lifecycle. |

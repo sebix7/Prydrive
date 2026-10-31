@@ -41,8 +41,9 @@ Generate the technical plan exhaustively covering:
 6. **Automated Testing Strategy:**
    - Test suites using the project's standard test runner (TDD: tests failing red first, minimal code second).
    - Comprehensive coverage of edge cases, anomalous inputs, and data backward compatibility.
-7. **Traceability Matrix:**
-   - Explicit mapping indicating which FR and NFR is satisfied by each function, module, and test.
+7. **Traceability Matrix & Story Dependencies:**
+   - Explicit mapping indicating which User Story (`US-x`), FR, and NFR is satisfied by each function, module, and test.
+   - Identified technical and operational dependencies between stories to inform the `Depends on:` declarations in `tasks.md`.
 
 ---
 Arguments received:

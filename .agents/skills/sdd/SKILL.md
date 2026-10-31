@@ -54,11 +54,14 @@ Files and responsibilities → Decoupled logic and pure/deterministic functions 
 
 ## Tasks (tasks.md)
 ```markdown
-- [ ] **Tn. <Description>.** FR-x, FR-y
-  - Done when: <verifiable check>.
+- [ ] **Tn. <Description fulfilling US-n>.** US-n (FR-x, FR-y)
+  - Depends on: <None | T1, T2>
+  - Done when: <verifiable check confirming US-n is satisfied>.
 ```
-- Maximum 20-30 min per task, ordered by dependency.
-- If more than 10 tasks emerge, propose splitting the spec.
+- Strict 1-to-1 correspondence with User Stories: Exactly one task per User Story from `spec.md` ($N$ User Stories = $N$ Tasks).
+- Each task represents a complete vertical slice fulfilling that user story end-to-end (domain logic, UI/wiring, and tests).
+- Every task must explicitly declare dependencies on prior tasks (`Depends on:`).
+- If more than 10 user stories/tasks emerge, propose splitting the spec.
 
 ## Implementation
 - Implement a single task at a time.

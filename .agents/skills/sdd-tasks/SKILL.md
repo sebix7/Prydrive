@@ -1,42 +1,42 @@
 ---
 name: sdd-tasks
-description: SDD — Break down plan into small, verifiable tasks (usage: /sdd-tasks NNN-name).
+description: SDD — Break down plan into one verifiable task per User Story (usage: /sdd-tasks NNN-name).
 ---
 
-# SDD — Work Task Decomposition
+# SDD — Work Task Decomposition (User Story Driven)
 
 ## Role and Operating Mode
 Operate strictly in **Planning Mode** (agent: plan).
-CRITICAL RULE: DO NOT start implementing code. Your exclusive goal in this phase is to break down the technical plan into a sequential list of atomic tasks in `specs/$1/tasks.md`.
+CRITICAL RULE: DO NOT start implementing code. Your exclusive goal in this phase is to break down the technical plan into tasks in `specs/$1/tasks.md` where each task fulfills exactly one User Story.
 
 ## Required Context
 Before starting:
 1. Read `specs/$1/spec.md` (must state `Status: approved`).
-2. Read `specs/$1/plan.md` to understand the agreed technical design.
+2. Read `specs/$1/plan.md` to understand the agreed technical design and traceability.
 3. Review `docs/constitution.md` and align with guidelines from the `sdd` skill.
 
 ## Decomposition Procedure
 
 Based on the spec and plan, generate `specs/$1/tasks.md` respecting the following directives:
 
-### 1. Granularity and Sequence
-- **Small, atomic tasks:** Maximum 20 to 30 minutes of estimated work per task.
-- **Logical dependency order (tailored to architecture):**
-  - **Phase 1 (Domain and pure logic):** Entities, models, and business functions with unit tests first (TDD).
-  - **Phase 2 (Infrastructure / Services / UI):** UI components, endpoints, services, or storage based on architecture.
-  - **Phase 3 (Integration and wiring):** Layer connection, controllers, event handling, and end-to-end flow.
-  - **Phase 4 (Full test suite and verification):** Integration tests, regression tests, and acceptance criteria verification.
+### 1. Strict 1-to-1 Mapping (1 User Story = 1 Task)
+- **Direct Correspondence:** Each task in `tasks.md` must have the sole purpose of satisfying **one User Story** (`US-x`) from `spec.md`.
+- **Exact Count:** If `specs/$1/spec.md` has $N$ User Stories (e.g., 5 User Stories: US-1 to US-5), `tasks.md` must contain **exactly $N$ tasks** (T1 to TN).
+- **Vertical Slice:** Each task implements the complete vertical slice required to satisfy that story (domain/logic, UI/IPC wiring, and automated tests validating the story's acceptance criteria).
+- **Sequence:** Tasks are ordered logically by story dependencies (foundation stories first, dependent user interactions next).
 
 ### 2. Strict Task Format
 ```markdown
-- [ ] **T[Phase.Number]. <Concise action description>.** FR-x, FR-y, NFR-z
-  - Done when: <100% objective check verifiable via test or inspection>.
+- [ ] **T[Number]. <Concise action description fulfilling US-X>.** US-x (FR-a, FR-b, NFR-c)
+  - Depends on: <None | T1, T2>
+  - Done when: <100% objective check verifiable via test or inspection confirming US-x is satisfied>.
 ```
 
 ### 3. Control Rules
-- Every task must explicitly declare which **FR / NFR** it covers.
-- Use Markdown checklist format (`- [ ]`).
-- **Limit:** Maximum 10 tasks in total. If more than 10 tasks emerge after decomposition, **formally propose splitting the spec** into independent incremental deliveries before proceeding.
+- **Explicit Dependencies:** Every task must clearly specify whether it requires the development of a previous task using `- Depends on: <None | T1, T2>`.
+- **Requirements Traceability:** Every task must explicitly declare which **US-x** it satisfies and list the corresponding **FR / NFR** requirements it covers.
+- **Checklist format:** Use Markdown checklist format (`- [ ]`).
+- **Limit:** Maximum 10 user stories/tasks per spec. If more than 10 emerge, **formally propose splitting the spec** into independent incremental deliveries before proceeding.
 
 ---
 Arguments received:
