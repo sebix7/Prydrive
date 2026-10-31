@@ -172,6 +172,8 @@ Prydrive/
   - Saved within the app's `userData` directory:
     - Default download folder (defaults to the operating system's Downloads folder).
     - View preference (grid vs. list).
+- **Product Backlog & Future Capabilities**:
+  - **Settings Menu & Theme Management (Light/Dark Mode)**: A dedicated settings modal/drawer allowing users to customize preferences, including toggling between Light and Dark themes and persistent language preferences (deferred from Spec 001 to a dedicated future spec).
 - **Google Workspace Files**:
   - Automatic detection of Google Docs, Sheets, and Slides by MIME type with conversion on download (Docs -> `.pdf`/`.docx`; Sheets -> `.xlsx`/`.csv`).
 

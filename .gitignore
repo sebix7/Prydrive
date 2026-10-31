@@ -10,6 +10,7 @@ build/
 *.exe
 *.dmg
 *.AppImage
+*.tsbuildinfo
 
 # Credentials, secrets, and signing certificates (NEVER COMMIT)
 credentials/
