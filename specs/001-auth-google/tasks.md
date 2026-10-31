@@ -8,7 +8,7 @@
   - Depends on: T1
   - Done when: The waiting modal displays an animated indicator, explanatory message, and enabled "Cancel" button; clicking "Cancel" or reaching the 60-second timeout terminates the loopback server cleanly and returns the application to the welcome screen without orphan processes or state locks. Verified via automated unit and timer abort tests.
 
-- [ ] **T3. Implement background startup session restoration with non-destructive offline handling.** US-3 (FR-6, FR-7, FR-8, EC-2, EC-5)
+- [x] **T3. Implement background startup session restoration with non-destructive offline handling.** US-3 (FR-6, FR-7, FR-8, EC-2, EC-5)
   - Depends on: T1
   - Done when: Application startup checks for saved credentials and validates them silently in the background; confirmed revoked/invalid tokens (`invalid_grant`) are purged with an alert notification, whereas network offline errors preserve the encrypted credentials and display a non-destructive offline alert with a retry button. Verified via unit tests on error categorization and startup mock tests.
 

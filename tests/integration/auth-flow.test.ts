@@ -7,6 +7,7 @@ import type { IpcResult, UserProfile } from '../../src/shared/types';
 import * as path from 'path';
 import * as fs from 'fs';
 import http from 'http';
+import dns from 'dns';
 
 // In-memory mock for ipcMain
 type IpcHandler = (...args: unknown[]) => Promise<unknown>;
@@ -41,9 +42,11 @@ describe('Auth Flow Integration (US-1 / T1)', () => {
   let tokenStorage: TokenStorage;
   let googleClient: GoogleAuthClient;
   let authController: AuthIpcController;
+  let isNetworkOnline = true;
 
   beforeEach(() => {
     registeredHandlers.clear();
+    isNetworkOnline = true;
     if (fs.existsSync(testDir)) {
       fs.rmSync(testDir, { recursive: true, force: true });
     }
@@ -62,7 +65,11 @@ describe('Auth Flow Integration (US-1 / T1)', () => {
       displayName: 'Alex Smith'
     });
 
-    authController = new AuthIpcController(tokenStorage, googleClient);
+    authController = new AuthIpcController(
+      tokenStorage,
+      googleClient,
+      async () => isNetworkOnline
+    );
     authController.register();
   });
 
@@ -150,6 +157,89 @@ describe('Auth Flow Integration (US-1 / T1)', () => {
     const loginResult = await loginPromise;
     expect(loginResult.success).toBe(false);
     expect(loginResult.error?.code).toBe('AUTH_CANCELLED');
+    expect(authController.isAwaiting()).toBe(false);
+  });
+
+  it('should silently restore session on startup when saved session is valid (FR-6, US-3)', async () => {
+    // Save existing session to disk
+    await tokenStorage.saveSession({
+      refreshToken: 'mock_saved_token',
+      email: 'alex@example.com',
+      displayName: 'Alex Smith',
+      savedAt: Date.now()
+    });
+
+    const restoreHandler = registeredHandlers.get(IPC_CHANNELS.AUTH_RESTORE_SESSION);
+    expect(restoreHandler).toBeDefined();
+
+    const result = (await restoreHandler!()) as IpcResult<{ profile: UserProfile; state: string }>;
+    expect(result.success).toBe(true);
+    expect(result.data?.state).toBe('authenticated');
+    expect(result.data?.profile.email).toBe('alex@example.com');
+  });
+
+  it('should purge credentials and report revocation when provider returns invalid_grant (FR-7, US-3)', async () => {
+    await tokenStorage.saveSession({
+      refreshToken: 'mock_revoked_token',
+      email: 'alex@example.com',
+      savedAt: Date.now()
+    });
+
+    // Make fetchUserProfile fail with invalid_grant
+    vi.spyOn(googleClient, 'fetchUserProfile').mockRejectedValueOnce({
+      message: 'invalid_grant: Token has been expired or revoked.',
+      response: { status: 400 }
+    });
+
+    const restoreHandler = registeredHandlers.get(IPC_CHANNELS.AUTH_RESTORE_SESSION);
+    const result = (await restoreHandler!()) as IpcResult<{ profile: UserProfile; state: string }>;
+
+    expect(result.success).toBe(false);
+    expect(result.error?.code).toBe('TOKEN_REVOKED');
+
+    // Confirm credentials were wiped from disk
+    const saved = await tokenStorage.loadSession();
+    expect(saved).toBeNull();
+  });
+
+  it('should preserve credentials and report offline state on network failure (FR-8, EC-5, US-3)', async () => {
+    await tokenStorage.saveSession({
+      refreshToken: 'mock_valid_token',
+      email: 'alex@example.com',
+      savedAt: Date.now()
+    });
+
+    // Make fetchUserProfile fail with network offline error
+    vi.spyOn(googleClient, 'fetchUserProfile').mockRejectedValueOnce({
+      code: 'ENOTFOUND',
+      message: 'getaddrinfo ENOTFOUND accounts.google.com'
+    });
+
+    const restoreHandler = registeredHandlers.get(IPC_CHANNELS.AUTH_RESTORE_SESSION);
+    const result = (await restoreHandler!()) as IpcResult<{ profile: UserProfile; state: string }>;
+
+    expect(result.success).toBe(false);
+    expect(result.error?.code).toBe('NETWORK_OFFLINE');
+    expect(result.data?.profile?.email).toBe('alex@example.com');
+
+    // Confirm credentials were NOT wiped from disk
+    const saved = await tokenStorage.loadSession();
+    expect(saved).not.toBeNull();
+    expect(saved?.refreshToken).toBe('mock_valid_token');
+  });
+
+  it('should abort and NOT launch browser when offline prior to initiating login (EC-2)', async () => {
+    isNetworkOnline = false;
+
+    const { shell } = await import('electron');
+    vi.mocked(shell.openExternal).mockClear();
+
+    const initiateHandler = registeredHandlers.get(IPC_CHANNELS.AUTH_INITIATE);
+    const result = (await initiateHandler!()) as IpcResult<UserProfile>;
+
+    expect(result.success).toBe(false);
+    expect(result.error?.code).toBe('NETWORK_OFFLINE');
+    expect(shell.openExternal).not.toHaveBeenCalled();
     expect(authController.isAwaiting()).toBe(false);
   });
 });
