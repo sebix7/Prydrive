@@ -183,6 +183,24 @@ export class AuthIpcController {
         }
       }
     );
+
+    ipcMain.handle(
+      IPC_CHANNELS.AUTH_DISCONNECT,
+      async (): Promise<IpcResult<void>> => {
+        try {
+          await this.tokenStorage.wipeSession();
+          return { success: true };
+        } catch (err) {
+          return {
+            success: false,
+            error: {
+              code: 'DISCONNECT_FAILED',
+              message: (err as Error).message || 'Failed to wipe local session'
+            }
+          };
+        }
+      }
+    );
   }
 
   isAwaiting(): boolean {

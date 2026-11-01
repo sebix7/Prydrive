@@ -242,4 +242,25 @@ describe('Auth Flow Integration (US-1 / T1)', () => {
     expect(shell.openExternal).not.toHaveBeenCalled();
     expect(authController.isAwaiting()).toBe(false);
   });
+
+  it('should disconnect account and purge local session file from disk (FR-13, US-5)', async () => {
+    // 1. Setup saved active session
+    await tokenStorage.saveSession({
+      refreshToken: 'mock_active_refresh_token',
+      email: 'user@example.com',
+      savedAt: Date.now()
+    });
+    expect(await tokenStorage.loadSession()).not.toBeNull();
+
+    // 2. Call AUTH_DISCONNECT handler
+    const disconnectHandler = registeredHandlers.get(IPC_CHANNELS.AUTH_DISCONNECT);
+    expect(disconnectHandler).toBeDefined();
+
+    const result = (await disconnectHandler!()) as IpcResult<void>;
+    expect(result.success).toBe(true);
+
+    // 3. Verify session was purged
+    const saved = await tokenStorage.loadSession();
+    expect(saved).toBeNull();
+  });
 });

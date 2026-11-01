@@ -12,6 +12,9 @@ export const api = {
     },
     restoreSession: (): Promise<IpcResult<{ profile?: UserProfile; state: AuthState }>> => {
       return ipcRenderer.invoke(IPC_CHANNELS.AUTH_RESTORE_SESSION);
+    },
+    disconnect: (): Promise<IpcResult<void>> => {
+      return ipcRenderer.invoke(IPC_CHANNELS.AUTH_DISCONNECT);
     }
   },
   storage: {

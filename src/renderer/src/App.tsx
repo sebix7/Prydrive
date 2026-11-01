@@ -3,6 +3,7 @@ import { WifiOff, RefreshCw, Loader2, Cloud } from 'lucide-react';
 import type { AuthState, UserProfile, StorageQuota } from '../../shared/types';
 import { WelcomeScreen } from './components/auth/WelcomeScreen';
 import { AwaitingAuthModal } from './components/auth/AwaitingAuthModal';
+import { DisconnectModal } from './components/auth/DisconnectModal';
 import { Header } from './components/layout/Header';
 
 export const App: React.FC = () => {
@@ -13,6 +14,27 @@ export const App: React.FC = () => {
   const [quota, setQuota] = useState<StorageQuota | null>(null);
   const [isLoadingQuota, setIsLoadingQuota] = useState(false);
   const [quotaError, setQuotaError] = useState<string | null>(null);
+  const [isDisconnectModalOpen, setIsDisconnectModalOpen] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+
+  const handleConfirmDisconnect = async () => {
+    setIsDisconnecting(true);
+    try {
+      if (window.api?.auth) {
+        await window.api.auth.disconnect();
+      }
+      setUserProfile(null);
+      setQuota(null);
+      setAuthState('unauthenticated');
+      setIsOffline(false);
+      setErrorMessage(null);
+    } catch (err) {
+      setErrorMessage((err as Error).message || 'Failed to disconnect account');
+    } finally {
+      setIsDisconnecting(false);
+      setIsDisconnectModalOpen(false);
+    }
+  };
 
   const loadQuota = async () => {
     setIsLoadingQuota(true);
@@ -209,9 +231,7 @@ export const App: React.FC = () => {
             isLoadingQuota={isLoadingQuota}
             quotaError={quotaError}
             onRetryQuota={loadQuota}
-            onDisconnect={() => {
-              // Disconnect flow handled in T5
-            }}
+            onDisconnect={() => setIsDisconnectModalOpen(true)}
           />
           <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
             <div className="bg-white border border-slate-200/90 rounded-2xl p-8 shadow-sm max-w-sm w-full flex flex-col items-center">
@@ -234,6 +254,13 @@ export const App: React.FC = () => {
       <AwaitingAuthModal
         isOpen={authState === 'awaiting_authorization'}
         onCancel={handleCancel}
+      />
+
+      <DisconnectModal
+        isOpen={isDisconnectModalOpen}
+        isDisconnecting={isDisconnecting}
+        onConfirm={handleConfirmDisconnect}
+        onCancel={() => setIsDisconnectModalOpen(false)}
       />
     </div>
   );

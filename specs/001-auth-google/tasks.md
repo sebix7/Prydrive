@@ -16,7 +16,7 @@
   - Depends on: T1, T3
   - Done when: The authenticated header displays the user's email address and a storage quota progress bar (used vs. total space formatted in GB/MB); displays a skeleton loader during data fetching, adapts cleanly to unmetered accounts, and falls back to a "Storage details unavailable" state with a refresh option if the Google Drive quota API fails. Verified via pure unit tests for quota formatting and component render tests.
 
-- [ ] **T5. Implement account disconnection flow with confirmation modal and local credential purge.** US-5 (FR-12, FR-13, FR-14)
+- [x] **T5. Implement account disconnection flow with confirmation modal and local credential purge.** US-5 (FR-12, FR-13, FR-14)
   - Depends on: T1, T3
   - Done when: Clicking the "Disconnect" button in the header triggers a confirmation dialog; canceling dismisses the dialog while confirming purges the encrypted session file from disk and returns the user immediately to the welcome screen. Verified via IPC integration tests.
 

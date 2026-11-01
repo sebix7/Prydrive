@@ -5,6 +5,7 @@ export interface ElectronApi {
     initiateLogin: () => Promise<IpcResult<UserProfile>>;
     cancelLogin: () => Promise<IpcResult<void>>;
     restoreSession: () => Promise<IpcResult<{ profile?: UserProfile; state: AuthState }>>;
+    disconnect: () => Promise<IpcResult<void>>;
   };
   storage: {
     getQuota: () => Promise<IpcResult<StorageQuota>>;
