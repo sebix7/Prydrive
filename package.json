@@ -13,7 +13,12 @@
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json",
-    "clean:session": "node -e \"const fs = require('fs'); const path = require('path'); const p = path.join(process.env.APPDATA, 'prydrive', 'auth_session.enc'); if (fs.existsSync(p)) { fs.unlinkSync(p); console.log('Session wiped successfully.'); } else { console.log('No active session file found.'); }\""
+    "clean:session": "node -e \"const fs = require('fs'); const path = require('path'); const p = path.join(process.env.APPDATA, 'prydrive', 'auth_session.enc'); if (fs.existsSync(p)) { fs.unlinkSync(p); console.log('Session wiped successfully.'); } else { console.log('No active session file found.'); }\"",
+    "release": "commit-and-tag-version",
+    "release:first": "commit-and-tag-version --first-release",
+    "release:patch": "commit-and-tag-version --release-as patch",
+    "release:minor": "commit-and-tag-version --release-as minor",
+    "release:major": "commit-and-tag-version --release-as major"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -29,6 +34,7 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
     "autoprefixer": "^10.4.20",
+    "commit-and-tag-version": "^12.7.3",
     "electron": "^31.3.1",
     "electron-vite": "^2.3.0",
     "postcss": "^8.4.47",

@@ -75,9 +75,13 @@ Present exclusively the drafted commit message inside a clean markdown block. Ne
 - <bullet point 1>
 - <bullet point 2>
 ```
+
+#### Next Steps
+- To verify quality checks and push regular commits: use `/git-push`
+- If completing a milestone or release: use `/git-release`
 ```
 
-CRITICAL RULE: Under NO circumstances should you output a "Ready-to-run Command" or bash/git command block. Return ONLY the "### Proposed Commit Message" block above.
+CRITICAL RULE: Under NO circumstances should you output a "Ready-to-run Command" or bash/git command block. Return ONLY the "### Proposed Commit Message" block above with its next steps guidance.
 
 ---
 Arguments received:

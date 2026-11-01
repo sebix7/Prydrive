@@ -5,15 +5,17 @@ Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete i
 ## Current Status
 - General architecture and standards consolidated in `AGENTS.md`.
 - Project Constitution defined and approved in `docs/constitution.md` (6 non-negotiable principles).
-- SDD methodology and Git workflow skills (`git-commit-msg`, `git-pr-msg`) active in `.agents/skills/`.
+- SDD methodology and Git workflow skills (`git-commit-msg`, `git-push`, `git-release`, `git-pr-msg`) active in `.agents/skills/`.
 - `specs/001-auth-google/` fully implemented (T1-T6 completed: US-1 through US-6).
+- GitHub Actions CI (`ci.yml`) and automated SemVer release pipeline (`commit-and-tag-version`, `release.yml`) implemented.
 - Next step: Run full specification validation via `/sdd-validate 001-auth-google`.
 
 ## Decisions (and why)
 - **Multi-provider decoupled architecture (`StorageProvider`)**: Unified adapter pattern allowing future cloud hosting providers beyond Google Drive without refactoring UI or core controllers.
 - **Electron + React + Tailwind + Vite**: Native performance, stream handling, and visual UI with Drag & Drop.
 - **Exclusive Google Sign-In (OAuth 2.0 Desktop / RFC 8252 Loopback)**: Replaces Service Accounts with a single "Sign in with Google" button. Opens OS default browser, receives token via local loopback, and refreshes silently.
-- **Git workflow skills (`git-commit-msg`, `git-pr-msg`)**: Standardizes Conventional Commits and PR templates with human review gates.
+- **Git workflow skills (`git-commit-msg`, `git-push`, `git-release`, `git-pr-msg`)**: Standardizes Conventional Commits, pre-push quality checks, PR templates, and SemVer releases with human review gates.
+- **CI/CD & SemVer Automation (`commit-and-tag-version` + GitHub Actions)**: Multi-platform verification (Ubuntu/Windows) for PRs/pushes and automated changelog/release generation based on Conventional Commits.
 - **Zero cost and scalability**: Google Drive API and OAuth are free ($0). Each user uses their own Google quota and storage.
 - **Local encryption with `safeStorage`**: Refresh tokens are stored encrypted using the OS keychain (DPAPI / Keychain), never in plain text.
 - **Electron security**: `contextIsolation: true`, `nodeIntegration: false`, strongly typed IPC channels.

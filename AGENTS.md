@@ -204,6 +204,8 @@ $$\text{Constitution} \rightarrow \text{Spec} \rightarrow \text{Clarification} \
 | `sdd-change` | `/sdd-change NNN-name detail` | Applies requirement changes following the disciplined SDD lifecycle. |
 | `sdd-status` | `/sdd-status NNN-name` | Reports current development phase and next action for a spec. |
 | `git-commit-msg` | `/git-commit-msg [hints]` | Generates a Conventional Commit message based on current git status and diff. |
+| `git-push` | `/git-push [remote] [branch]` | Verifies unpushed commits, quality gates, and pushes to remote. |
+| `git-release` | `/git-release [first\|patch\|minor\|major]` | Automates SemVer release, dry-run changelog, and pushes with tags. |
 | `git-pr-msg` | `/git-pr-msg [base-branch]` | Generates a structured Pull Request title and description based on branch diff. |
 
 ### Application User Workflow
@@ -257,6 +259,9 @@ The project operates with two clearly defined memory layers:
   - Integration tests for IPC handlers using Google Drive API mocks.
 - **Dry-Run Mode**:
   - Environment flag to simulate file transfers and deletions without modifying real data in Google Drive.
+- **Continuous Integration (GitHub Actions)**:
+  - `.github/workflows/ci.yml`: Runs on PRs and pushes to `main` across Ubuntu and Windows, executing `typecheck`, `test`, and `build`.
+  - `.github/workflows/release.yml`: Automatically publishes GitHub Releases with auto-generated notes on `v*` tag pushes.
 
 ---
 
@@ -271,6 +276,11 @@ The project operates with two clearly defined memory layers:
 | `npm run verify:auth` | Validates stored token and tests Google Drive API connection without launching GUI. |
 | `npm run typecheck` | Runs the TypeScript compiler without emitting files (`tsc --noEmit`). |
 | `npm run lint` | Runs ESLint to verify code quality across Main and Renderer. |
+| `npm run release` | Bumps version, generates `CHANGELOG.md`, and creates git tag based on Conventional Commits. |
+| `npm run release:first` | Initializes baseline release (`v0.1.0`), creates `CHANGELOG.md`, and tags without incrementing version. |
+| `npm run release:patch` | Forces a patch version bump (`0.1.x`), updates changelog, and tags release. |
+| `npm run release:minor` | Forces a minor version bump (`0.x.0`), updates changelog, and tags release. |
+| `npm run release:major` | Forces a major version bump (`x.0.0`), updates changelog, and tags release. |
 
 ---
 
