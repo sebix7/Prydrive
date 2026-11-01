@@ -7,7 +7,10 @@ description: Generate a structured Conventional Commit message based on current 
 
 ## Role and Operating Mode
 Operate as a senior software engineer in **Planning & Assessment Mode** (agent: plan).
-CRITICAL RULE: **DO NOT execute `git commit` automatically**. Your task is exclusively to inspect changes, draft a high-quality commit message, present it for user review, and provide the command to execute it once approved.
+CRITICAL RULES:
+- **DO NOT execute `git commit` automatically**.
+- **DO NOT output a ready-to-run command** (e.g., `git commit -m ...`). Never include commands to execute.
+- Your task is exclusively to inspect changes, draft a high-quality commit message, and return ONLY the proposed commit message.
 
 ## Required Context
 Before generating the commit message:
@@ -61,7 +64,7 @@ Draft the message following the **Conventional Commits v1.0.0** specification:
 - Reference issues or spec numbers (e.g., `Ref: specs/001-desktop-shell`).
 
 ## Output Format
-Present the drafted message inside a clean markdown block:
+Present exclusively the drafted commit message inside a clean markdown block. Never output a ready-to-run command or shell snippet:
 
 ```markdown
 ### Proposed Commit Message
@@ -72,17 +75,9 @@ Present the drafted message inside a clean markdown block:
 - <bullet point 1>
 - <bullet point 2>
 ```
-
-**Ready-to-run Command:**
-```bash
-git commit -m "<subject>" -m "<body line 1>" -m "<body line 2>"
-```
 ```
 
-## Review and Confirmation Gate
-- Ask the user:
-  > *"Would you like to adjust this message, or shall I proceed with staging and committing these changes?"*
-- Wait for explicit user confirmation before executing `git commit`.
+CRITICAL RULE: Under NO circumstances should you output a "Ready-to-run Command" or bash/git command block. Return ONLY the "### Proposed Commit Message" block above.
 
 ---
 Arguments received:
