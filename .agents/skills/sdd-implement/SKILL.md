@@ -38,9 +38,14 @@ Before starting the task:
 3. **Automated Verification:**
    - Run the project test suite and display the output in the response (confirming all tests pass green).
 
-4. **Task Register:**
+4. **Task Register & Testing Scenarios:**
    - Mark task `$2` as completed with `- [x]` in `specs/$1/tasks.md`.
    - Explicitly state in your message which User Story (`US-x`) and Functional Requirements (FRs) are covered.
+   - **Enumerate 1 or more concrete test scenarios** detailing how to test and verify this particular task:
+     - **Scenario Name / Objective**: What specific behavior, flow, or acceptance criterion is being verified.
+     - **Preconditions / Setup**: Required state (e.g., authenticated vs. unauthenticated, network status, mock active).
+     - **Action Steps**: Step-by-step user or tester actions (e.g., click button, disconnect WiFi, trigger error).
+     - **Expected Observable Result**: Concrete UI changes, toasts, error messages, or state updates.
 
 5. **IMMEDIATE STOP RULE (STOP):**
    - Halt tool execution immediately.

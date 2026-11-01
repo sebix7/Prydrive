@@ -65,4 +65,4 @@ Files and responsibilities → Decoupled logic and pure/deterministic functions 
 
 ## Implementation
 - Implement a single task at a time.
-- Strict TDD cycle: test first (red), then minimal code, test suite passing (green), mark task complete, and stop.
+- Strict TDD cycle: test first (red), then minimal code, test suite passing (green), mark task complete in `tasks.md`, enumerate 1 or more test scenarios for that particular task, and stop.
