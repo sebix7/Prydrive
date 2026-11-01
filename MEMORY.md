@@ -8,6 +8,7 @@ Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete i
 - SDD methodology and Git workflow skills (`git-commit-msg`, `git-push`, `git-release`, `git-pr-msg`) active in `.agents/skills/`.
 - `specs/001-auth-google/` fully implemented (T1-T6 completed: US-1 through US-6).
 - GitHub Actions CI (`ci.yml`) and automated SemVer release pipeline (`commit-and-tag-version`, `release.yml`) implemented.
+- Baseline release `v0.1.0` published to remote with automated changelog (`CHANGELOG.md`).
 - Next step: Run full specification validation via `/sdd-validate 001-auth-google`.
 
 ## Decisions (and why)
