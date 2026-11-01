@@ -56,4 +56,20 @@ export class GoogleAuthClient {
       avatarUrl: userinfo.data.picture || undefined
     };
   }
+
+  async fetchStorageQuota(refreshToken: string): Promise<{ usage: string | number; limit?: string | number | null }> {
+    const client = this.createOAuthClient('http://127.0.0.1');
+    client.setCredentials({ refresh_token: refreshToken });
+
+    const drive = google.drive({ version: 'v3', auth: client });
+    const about = await drive.about.get({
+      fields: 'storageQuota'
+    });
+
+    const quota = about.data.storageQuota;
+    return {
+      usage: quota?.usage ?? 0,
+      limit: quota?.limit ?? null
+    };
+  }
 }

@@ -12,7 +12,7 @@
   - Depends on: T1
   - Done when: Application startup checks for saved credentials and validates them silently in the background; confirmed revoked/invalid tokens (`invalid_grant`) are purged with an alert notification, whereas network offline errors preserve the encrypted credentials and display a non-destructive offline alert with a retry button. Verified via unit tests on error categorization and startup mock tests.
 
-- [ ] **T4. Implement authenticated header view with storage quota bar, skeleton loader, and API error fallback.** US-4 (FR-9, FR-10, FR-11, EC-3)
+- [x] **T4. Implement authenticated header view with storage quota bar, skeleton loader, and API error fallback.** US-4 (FR-9, FR-10, FR-11, EC-3)
   - Depends on: T1, T3
   - Done when: The authenticated header displays the user's email address and a storage quota progress bar (used vs. total space formatted in GB/MB); displays a skeleton loader during data fetching, adapts cleanly to unmetered accounts, and falls back to a "Storage details unavailable" state with a refresh option if the Google Drive quota API fails. Verified via pure unit tests for quota formatting and component render tests.
 

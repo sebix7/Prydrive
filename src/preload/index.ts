@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { IPC_CHANNELS } from '../shared/ipc-channels';
-import type { IpcResult, UserProfile, AuthState } from '../shared/types';
+import type { IpcResult, UserProfile, AuthState, StorageQuota } from '../shared/types';
 
 export const api = {
   auth: {
@@ -12,6 +12,11 @@ export const api = {
     },
     restoreSession: (): Promise<IpcResult<{ profile?: UserProfile; state: AuthState }>> => {
       return ipcRenderer.invoke(IPC_CHANNELS.AUTH_RESTORE_SESSION);
+    }
+  },
+  storage: {
+    getQuota: (): Promise<IpcResult<StorageQuota>> => {
+      return ipcRenderer.invoke(IPC_CHANNELS.STORAGE_GET_QUOTA);
     }
   }
 };

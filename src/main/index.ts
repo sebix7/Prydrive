@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { app, BrowserWindow, shell } from 'electron';
 import { join } from 'path';
 import { AuthIpcController } from './ipc/auth-ipc';
+import { StorageIpcController } from './ipc/storage-ipc';
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -40,6 +41,9 @@ app.whenReady().then(() => {
   // Register IPC controllers
   const authController = new AuthIpcController();
   authController.register();
+
+  const storageController = new StorageIpcController();
+  storageController.register();
 
   createWindow();
 

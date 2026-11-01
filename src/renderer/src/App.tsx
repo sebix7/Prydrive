@@ -1,14 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { WifiOff, RefreshCw, Loader2, Cloud } from 'lucide-react';
-import type { AuthState, UserProfile } from '../../shared/types';
+import type { AuthState, UserProfile, StorageQuota } from '../../shared/types';
 import { WelcomeScreen } from './components/auth/WelcomeScreen';
 import { AwaitingAuthModal } from './components/auth/AwaitingAuthModal';
+import { Header } from './components/layout/Header';
 
 export const App: React.FC = () => {
   const [authState, setAuthState] = useState<AuthState>('restoring_session');
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isOffline, setIsOffline] = useState(false);
+  const [quota, setQuota] = useState<StorageQuota | null>(null);
+  const [isLoadingQuota, setIsLoadingQuota] = useState(false);
+  const [quotaError, setQuotaError] = useState<string | null>(null);
+
+  const loadQuota = async () => {
+    setIsLoadingQuota(true);
+    setQuotaError(null);
+    try {
+      if (window.api?.storage) {
+        const result = await window.api.storage.getQuota();
+        if (result.success && result.data) {
+          setQuota(result.data);
+        } else {
+          setQuotaError(result.error?.message || 'Storage details unavailable');
+        }
+      }
+    } catch (err) {
+      setQuotaError((err as Error).message || 'Storage details unavailable');
+    } finally {
+      setIsLoadingQuota(false);
+    }
+  };
 
   const checkSession = async () => {
     setAuthState('restoring_session');
@@ -54,6 +77,12 @@ export const App: React.FC = () => {
   useEffect(() => {
     checkSession();
   }, []);
+
+  useEffect(() => {
+    if (authState === 'authenticated') {
+      loadQuota();
+    }
+  }, [authState]);
 
   const handleSignIn = async () => {
     if (!navigator.onLine) {
@@ -173,16 +202,27 @@ export const App: React.FC = () => {
           </div>
         </div>
       ) : authState === 'authenticated' && userProfile ? (
-        <div className="flex-1 flex flex-col items-center justify-center p-6 bg-slate-50">
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-8 shadow-sm text-center max-w-sm w-full flex flex-col items-center">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 bg-blue-50 text-blue-600">
-              <Cloud className="w-7 h-7" />
+        <div className="flex-1 flex flex-col w-full h-full bg-slate-50 overflow-hidden">
+          <Header
+            userProfile={userProfile}
+            quota={quota}
+            isLoadingQuota={isLoadingQuota}
+            quotaError={quotaError}
+            onRetryQuota={loadQuota}
+            onDisconnect={() => {
+              // Disconnect flow handled in T5
+            }}
+          />
+          <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-8 shadow-sm max-w-sm w-full flex flex-col items-center">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 bg-blue-50 text-blue-600">
+                <Cloud className="w-7 h-7" />
+              </div>
+              <h2 className="text-xl font-bold text-slate-800 mb-1">Google Drive Connected</h2>
+              <p className="text-sm font-medium text-slate-600 mb-2">{userProfile.email}</p>
+              <p className="text-xs text-slate-400">Authenticated and ready for file explorer</p>
             </div>
-
-            <h2 className="text-xl font-bold text-slate-800 mb-1">Connected to Google</h2>
-            <p className="text-sm font-medium text-slate-600 mb-2">{userProfile.email}</p>
-            <p className="text-xs text-slate-400 mb-2">Ready for file explorer</p>
-          </div>
+          </main>
         </div>
       ) : (
         <WelcomeScreen
