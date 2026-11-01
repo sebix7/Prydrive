@@ -1,13 +1,17 @@
 import React from 'react';
 import { Cloud, LogOut, User } from 'lucide-react';
-import type { UserProfile, StorageQuota } from '../../../../shared/types';
+import type { UserProfile, StorageQuota, LanguageCode } from '../../../../shared/types';
+import { getTranslation } from '../../../../shared/i18n/translations';
 import { QuotaBar } from '../storage/QuotaBar';
+import { LanguageToggle } from '../ui/LanguageToggle';
 
 export interface HeaderProps {
   userProfile: UserProfile;
   quota: StorageQuota | null;
   isLoadingQuota: boolean;
   quotaError: string | null;
+  language?: LanguageCode;
+  onLanguageChange?: (lang: LanguageCode) => void;
   onRetryQuota?: () => void;
   onDisconnect?: () => void;
 }
@@ -17,6 +21,8 @@ export const Header: React.FC<HeaderProps> = ({
   quota,
   isLoadingQuota,
   quotaError,
+  language = 'en',
+  onLanguageChange,
   onRetryQuota,
   onDisconnect
 }) => {
@@ -29,23 +35,34 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
         <div className="flex flex-col">
           <span className="font-bold text-slate-800 text-sm tracking-tight leading-none">
-            Prydrive
+            {getTranslation(language, 'app_name')}
           </span>
           <span className="text-[10px] text-slate-400 font-medium tracking-wide uppercase mt-0.5">
-            Google Drive
+            {getTranslation(language, 'service_name')}
           </span>
         </div>
       </div>
 
-      {/* Right Controls: Quota, User Badge & Disconnect */}
-      <div className="flex items-center gap-6">
+      {/* Right Controls: Quota, Language Toggle, User Badge & Disconnect */}
+      <div className="flex items-center gap-5">
         {/* Storage Quota Indicator (FR-9, FR-10, FR-11, EC-3) */}
         <QuotaBar
           quota={quota}
           isLoading={isLoadingQuota}
           error={quotaError}
+          language={language}
           onRetry={onRetryQuota}
         />
+
+        <div className="h-6 w-px bg-slate-200" />
+
+        {/* Language Switch Control (FR-15, US-6) */}
+        {onLanguageChange && (
+          <LanguageToggle
+            currentLanguage={language}
+            onLanguageChange={onLanguageChange}
+          />
+        )}
 
         <div className="h-6 w-px bg-slate-200" />
 
@@ -69,11 +86,11 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               data-testid="disconnect-button"
               onClick={onDisconnect}
-              title="Disconnect account"
+              title={getTranslation(language, 'disconnect')}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-red-600 hover:bg-red-50 border border-slate-200 hover:border-red-200 rounded-lg transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Disconnect</span>
+              <span>{getTranslation(language, 'disconnect')}</span>
             </button>
           )}
         </div>

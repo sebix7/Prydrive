@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { Loader2, ExternalLink, XCircle } from 'lucide-react';
+import type { LanguageCode } from '../../../../shared/types';
+import { getTranslation } from '../../../../shared/i18n/translations';
 
 interface AwaitingAuthModalProps {
   isOpen: boolean;
   onCancel: () => Promise<void>;
   totalSeconds?: number;
+  language?: LanguageCode;
 }
 
 export const AwaitingAuthModal: React.FC<AwaitingAuthModalProps> = ({
   isOpen,
   onCancel,
-  totalSeconds = 60
+  totalSeconds = 60,
+  language = 'en'
 }) => {
   const [secondsRemaining, setSecondsRemaining] = useState(totalSeconds);
   const [isCanceling, setIsCanceling] = useState(false);
@@ -59,11 +63,11 @@ export const AwaitingAuthModal: React.FC<AwaitingAuthModalProps> = ({
         </div>
 
         <h3 className="text-lg font-bold text-slate-900 mb-2">
-          Waiting for Authorization
+          {getTranslation(language, 'awaiting_title')}
         </h3>
 
         <p className="text-xs text-slate-500 mb-5 leading-relaxed">
-          We opened a tab in your default web browser. Please choose your Google account and grant permissions to continue.
+          {getTranslation(language, 'awaiting_desc')}
         </p>
 
         {/* Progress bar & Timer */}
@@ -74,7 +78,7 @@ export const AwaitingAuthModal: React.FC<AwaitingAuthModalProps> = ({
           />
         </div>
         <span className="text-[11px] text-slate-400 font-medium mb-6">
-          Timeout in {secondsRemaining}s
+          {secondsRemaining}s
         </span>
 
         {/* Actions */}
@@ -86,13 +90,17 @@ export const AwaitingAuthModal: React.FC<AwaitingAuthModalProps> = ({
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 rounded-xl transition-colors disabled:opacity-50"
           >
             <XCircle className="w-4 h-4 text-slate-500" />
-            <span>{isCanceling ? 'Canceling...' : 'Cancel Authorization'}</span>
+            <span>
+              {isCanceling
+                ? getTranslation(language, 'validating_session')
+                : getTranslation(language, 'awaiting_cancel')}
+            </span>
           </button>
         </div>
 
         <div className="mt-4 flex items-center gap-1.5 text-[11px] text-slate-400">
           <ExternalLink className="w-3.5 h-3.5" />
-          <span>Check your browser window</span>
+          <span>Google Accounts</span>
         </div>
       </div>
     </div>

@@ -20,6 +20,6 @@
   - Depends on: T1, T3
   - Done when: Clicking the "Disconnect" button in the header triggers a confirmation dialog; canceling dismisses the dialog while confirming purges the encrypted session file from disk and returns the user immediately to the welcome screen. Verified via IPC integration tests.
 
-- [ ] **T6. Implement interactive English/Spanish language toggle across all views and dialogs.** US-6 (FR-15)
+- [x] **T6. Implement interactive English/Spanish language toggle across all views and dialogs.** US-6 (FR-15)
   - Depends on: T1
   - Done when: An interactive language toggle allows switching between English (default) and Spanish, dynamically updating all visible text labels, waiting messages, dialogs, and alert banners with 100% dictionary key parity between languages. Verified via dictionary symmetry unit tests.

@@ -1,11 +1,13 @@
 import React from 'react';
 import { RefreshCw, AlertCircle, HardDrive } from 'lucide-react';
-import type { StorageQuota } from '../../../../shared/types';
+import type { StorageQuota, LanguageCode } from '../../../../shared/types';
+import { getTranslation } from '../../../../shared/i18n/translations';
 
 export interface QuotaBarProps {
   quota: StorageQuota | null;
   isLoading: boolean;
   error: string | null;
+  language?: LanguageCode;
   onRetry?: () => void;
 }
 
@@ -13,6 +15,7 @@ export const QuotaBar: React.FC<QuotaBarProps> = ({
   quota,
   isLoading,
   error,
+  language = 'en',
   onRetry
 }) => {
   // Skeleton State (FR-9)
@@ -39,12 +42,14 @@ export const QuotaBar: React.FC<QuotaBarProps> = ({
         className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50/90 border border-amber-200/60 px-2.5 py-1 rounded-lg"
       >
         <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-600" />
-        <span className="truncate font-medium">Storage details unavailable</span>
+        <span className="truncate font-medium">
+          {getTranslation(language, 'quota_unavailable')}
+        </span>
         {onRetry && (
           <button
             type="button"
             onClick={onRetry}
-            title="Retry loading storage quota"
+            title={getTranslation(language, 'quota_retry_tooltip')}
             className="p-1 hover:bg-amber-200/50 rounded transition-colors text-amber-800"
           >
             <RefreshCw className="w-3 h-3" />
@@ -70,11 +75,16 @@ export const QuotaBar: React.FC<QuotaBarProps> = ({
       <div className="flex-1 flex flex-col gap-1">
         <div className="flex items-center justify-between text-[11px] font-medium text-slate-600">
           {quota.isUnmetered ? (
-            <span>{quota.formattedUsed} used (Unlimited)</span>
+            <span>
+              {getTranslation(language, 'quota_unmetered', { used: quota.formattedUsed })}
+            </span>
           ) : (
             <>
               <span>
-                {quota.formattedUsed} / {quota.formattedTotal}
+                {getTranslation(language, 'quota_usage_format', {
+                  used: quota.formattedUsed,
+                  total: quota.formattedTotal
+                })}
               </span>
               <span className="text-slate-400 font-normal">{quota.percentage}%</span>
             </>

@@ -6,8 +6,8 @@ Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete i
 - General architecture and standards consolidated in `AGENTS.md`.
 - Project Constitution defined and approved in `docs/constitution.md` (6 non-negotiable principles).
 - SDD methodology and Git workflow skills (`git-commit-msg`, `git-pr-msg`) active in `.agents/skills/`.
-- `specs/001-auth-google/` T1 through T5 completed (US-1: login/safeStorage, US-2: modal/cancel/timeout, US-3: silent restore & offline, US-4: header/quota bar/fallback, US-5: disconnect flow).
-- Next step: Implement T6 via `/sdd-implement 001-auth-google T6`.
+- `specs/001-auth-google/` fully implemented (T1-T6 completed: US-1 through US-6).
+- Next step: Run full specification validation via `/sdd-validate 001-auth-google`.
 
 ## Decisions (and why)
 - **Multi-provider decoupled architecture (`StorageProvider`)**: Unified adapter pattern allowing future cloud hosting providers beyond Google Drive without refactoring UI or core controllers.

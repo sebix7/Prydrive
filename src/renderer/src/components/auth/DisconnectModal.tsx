@@ -1,18 +1,22 @@
 import React from 'react';
 import { AlertTriangle, Loader2 } from 'lucide-react';
+import type { LanguageCode } from '../../../../shared/types';
+import { getTranslation } from '../../../../shared/i18n/translations';
 
 export interface DisconnectModalProps {
   isOpen: boolean;
   isDisconnecting?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
+  language?: LanguageCode;
 }
 
 export const DisconnectModal: React.FC<DisconnectModalProps> = ({
   isOpen,
   isDisconnecting = false,
   onConfirm,
-  onCancel
+  onCancel,
+  language = 'en'
 }) => {
   if (!isOpen) return null;
 
@@ -34,10 +38,10 @@ export const DisconnectModal: React.FC<DisconnectModalProps> = ({
           id="disconnect-modal-title"
           className="text-base font-bold text-slate-900 mb-1.5"
         >
-          Disconnect Google Account?
+          {getTranslation(language, 'disconnect_modal_title')}
         </h3>
         <p className="text-xs text-slate-500 mb-6 leading-relaxed">
-          Your saved session credentials will be completely purged from this computer. You will need to sign in again to access your Google Drive files.
+          {getTranslation(language, 'disconnect_modal_desc')}
         </p>
 
         {/* Action Buttons (FR-13, FR-14) */}
@@ -49,7 +53,7 @@ export const DisconnectModal: React.FC<DisconnectModalProps> = ({
             onClick={onCancel}
             className="flex-1 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors disabled:opacity-50"
           >
-            Cancel
+            {getTranslation(language, 'disconnect_modal_cancel')}
           </button>
           <button
             type="button"
@@ -61,10 +65,10 @@ export const DisconnectModal: React.FC<DisconnectModalProps> = ({
             {isDisconnecting ? (
               <>
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Disconnecting...</span>
+                <span>{getTranslation(language, 'disconnecting')}</span>
               </>
             ) : (
-              <span>Disconnect</span>
+              <span>{getTranslation(language, 'disconnect_modal_confirm')}</span>
             )}
           </button>
         </div>

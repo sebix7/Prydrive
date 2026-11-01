@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
 import { Cloud, ArrowRight } from 'lucide-react';
+import type { LanguageCode } from '../../../../shared/types';
+import { getTranslation } from '../../../../shared/i18n/translations';
+import { LanguageToggle } from '../ui/LanguageToggle';
 
 interface WelcomeScreenProps {
   onSignIn: () => Promise<void>;
   disabled?: boolean;
+  language?: LanguageCode;
+  onLanguageChange?: (lang: LanguageCode) => void;
 }
 
-export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, disabled = false }) => {
+export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
+  onSignIn,
+  disabled = false,
+  language = 'en',
+  onLanguageChange
+}) => {
   const [isClicking, setIsClicking] = useState(false);
 
   const handleClick = async () => {
@@ -22,17 +32,27 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, disabled
   const isButtonDisabled = disabled || isClicking;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-6 select-none">
+    <div className="relative flex flex-col items-center justify-center min-h-screen bg-slate-50 p-6 select-none">
+      {/* Top right language switch */}
+      {onLanguageChange && (
+        <div className="absolute top-6 right-6">
+          <LanguageToggle
+            currentLanguage={language}
+            onLanguageChange={onLanguageChange}
+          />
+        </div>
+      )}
+
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8 text-center flex flex-col items-center">
         <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-blue-100/50">
           <Cloud className="w-9 h-9" />
         </div>
 
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-2">
-          Welcome to Prydrive
+          {getTranslation(language, 'welcome_title')}
         </h1>
         <p className="text-sm text-slate-500 mb-8 leading-relaxed max-w-xs">
-          Fast, visual, and native desktop management for your Google Drive files.
+          {getTranslation(language, 'welcome_subtitle')}
         </p>
 
         <button
@@ -64,12 +84,12 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, disabled
               d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.27 2.57 1.25 6.58l4.03 3.13c.95-2.83 3.6-4.96 6.72-4.96z"
             />
           </svg>
-          <span>Sign in with Google</span>
+          <span>{getTranslation(language, 'sign_in_google')}</span>
           <ArrowRight className="w-4 h-4 ml-auto text-slate-400" />
         </button>
 
         <p className="text-xs text-slate-400 mt-6">
-          Authentication is safely handled in your default system browser.
+          {getTranslation(language, 'browser_notice')}
         </p>
       </div>
     </div>
