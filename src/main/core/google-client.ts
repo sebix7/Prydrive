@@ -1,7 +1,8 @@
 import 'dotenv/config';
 import { google } from 'googleapis';
-import type { OAuth2Client } from 'google-auth-library';
 import type { UserProfile } from '../../shared/types';
+
+type OAuth2Client = InstanceType<typeof google.auth.OAuth2>;
 
 export class GoogleAuthClient {
   private readonly clientId: string;

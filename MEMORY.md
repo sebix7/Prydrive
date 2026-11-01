@@ -5,7 +5,7 @@ Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete i
 ## Current Status
 - General architecture and standards consolidated in `AGENTS.md`.
 - Project Constitution defined and approved in `docs/constitution.md` (6 non-negotiable principles).
-- SDD methodology and Git workflow skills (`git-commit-msg`, `git-push`, `git-release`, `git-pr-msg`) active in `.agents/skills/`.
+- SDD methodology, Git workflow skills, `frontend-design` skill, and `pnpm` manager active.
 - `specs/001-auth-google/` fully implemented (T1-T6 completed: US-1 through US-6).
 - GitHub Actions CI (`ci.yml`) and automated SemVer release pipeline (`commit-and-tag-version`, `release.yml`) implemented.
 - Baseline release `v0.1.0` published to remote with automated changelog (`CHANGELOG.md`).
@@ -23,6 +23,7 @@ Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete i
 - **100% English for code and comments**: Variables, functions, types, commits, and comments are strictly written in English.
 - **SDD methodology**: Nothing is coded without an approved spec, technical plan, and atomic TDD tasks.
 - **1:1 User Story to Task mapping & dependencies (`sdd-tasks`)**: In `tasks.md`, each task fulfills exactly one User Story ($N$ stories = $N$ tasks) as a vertical slice, declaring `Depends on:` to enforce execution order.
+- **pnpm package manager**: Replaced npm across the project for ultra-fast installs, content-addressable store deduplication, and deterministic lockfile, with `.npmrc` (`shamefully-hoist=true`) for Electron compatibility.
 
 ## Learnings and errors to avoid
 - Do not use embedded WebViews for Google login; Google blocks them for security. Always use the system default browser with an ephemeral loopback server.

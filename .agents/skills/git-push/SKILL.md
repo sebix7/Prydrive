@@ -27,8 +27,8 @@ Before proposing the push:
    - `git diff <remote>/<branch>..HEAD --name-only`
    - If any sensitive file (`.env`, `.env.local`, `credentials/*`) is detected, **STOP IMMEDIATELY AND WARN THE USER**.
 6. Run quality verification gates:
-   - `npm run typecheck`
-   - `npm test`
+   - `pnpm run typecheck`
+   - `pnpm test`
    - If any check fails, **STOP AND ALERT THE USER** to fix issues before pushing.
 
 ## Invocation Parameters
@@ -42,8 +42,8 @@ Execute:
 ```bash
 git branch --show-current
 git log origin/<current-branch>..HEAD --oneline
-npm run typecheck
-npm test
+pnpm run typecheck
+pnpm test
 ```
 
 ### 2. Presentation & Confirmation Gate

@@ -47,8 +47,8 @@ Grouped by component or architectural layer:
 
 ## Verification & Testing
 - [x] Unit / automated tests executed and passing.
-- [x] Typecheck passed (`npm run typecheck`).
-- [x] Linter passed (`npm run lint`).
+- [x] Typecheck passed (`pnpm run typecheck`).
+- [x] Linter passed (`pnpm run lint`).
 - Manual verification steps performed:
   - Step 1: <Description of manual check>
   - Step 2: <Observed expected behavior>

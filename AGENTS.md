@@ -207,6 +207,7 @@ $$\text{Constitution} \rightarrow \text{Spec} \rightarrow \text{Clarification} \
 | `git-push` | `/git-push [remote] [branch]` | Verifies unpushed commits, quality gates, and pushes to remote. |
 | `git-release` | `/git-release [first\|patch\|minor\|major]` | Automates SemVer release, dry-run changelog, and pushes with tags. |
 | `git-pr-msg` | `/git-pr-msg [base-branch]` | Generates a structured Pull Request title and description based on branch diff. |
+| `frontend-design` | `/frontend-design` | Guidance for distinctive, intentional visual design when building or reshaping UI. |
 
 ### Application User Workflow
 1. **Startup**: If no active session exists, displays the welcome screen with the official **`"Sign in with Google"`** button.
@@ -253,9 +254,9 @@ The project operates with two clearly defined memory layers:
 ## 9. Verification and Testing
 
 - **Connection Verification Command**:
-  - `npm run verify:auth`: Auxiliary CLI script that checks stored refresh token validity, refreshes token against Google API, and prints authenticated identity and available quota.
+  - `pnpm run verify:auth`: Auxiliary CLI script that checks stored refresh token validity, refreshes token against Google API, and prints authenticated identity and available quota.
 - **Automated Tests**:
-  - `npm test`: Runs unit tests (size formatting, MIME type mappings, file utilities).
+  - `pnpm test`: Runs unit tests (size formatting, MIME type mappings, file utilities).
   - Integration tests for IPC handlers using Google Drive API mocks.
 - **Dry-Run Mode**:
   - Environment flag to simulate file transfers and deletions without modifying real data in Google Drive.
@@ -269,18 +270,18 @@ The project operates with two clearly defined memory layers:
 
 | Command | Description |
 | :--- | :--- |
-| `npm install` | Installs project dependencies. |
-| `npm run dev` | Starts Electron and Vite with Hot Reload for both Main and Renderer. |
-| `npm run build` | Compiles TypeScript and bundles the frontend with Vite. |
-| `npm run build:win` | Generates Windows executable installer (`.exe`) via electron-builder. |
-| `npm run verify:auth` | Validates stored token and tests Google Drive API connection without launching GUI. |
-| `npm run typecheck` | Runs the TypeScript compiler without emitting files (`tsc --noEmit`). |
-| `npm run lint` | Runs ESLint to verify code quality across Main and Renderer. |
-| `npm run release` | Bumps version, generates `CHANGELOG.md`, and creates git tag based on Conventional Commits. |
-| `npm run release:first` | Initializes baseline release (`v0.1.0`), creates `CHANGELOG.md`, and tags without incrementing version. |
-| `npm run release:patch` | Forces a patch version bump (`0.1.x`), updates changelog, and tags release. |
-| `npm run release:minor` | Forces a minor version bump (`0.x.0`), updates changelog, and tags release. |
-| `npm run release:major` | Forces a major version bump (`x.0.0`), updates changelog, and tags release. |
+| `pnpm install` | Installs project dependencies. |
+| `pnpm run dev` | Starts Electron and Vite with Hot Reload for both Main and Renderer. |
+| `pnpm run build` | Compiles TypeScript and bundles the frontend with Vite. |
+| `pnpm run build:win` | Generates Windows executable installer (`.exe`) via electron-builder. |
+| `pnpm run verify:auth` | Validates stored token and tests Google Drive API connection without launching GUI. |
+| `pnpm run typecheck` | Runs the TypeScript compiler without emitting files (`tsc --noEmit`). |
+| `pnpm run lint` | Runs ESLint to verify code quality across Main and Renderer. |
+| `pnpm run release` | Bumps version, generates `CHANGELOG.md`, and creates git tag based on Conventional Commits. |
+| `pnpm run release:first` | Initializes baseline release (`v0.1.0`), creates `CHANGELOG.md`, and tags without incrementing version. |
+| `pnpm run release:patch` | Forces a patch version bump (`0.1.x`), updates changelog, and tags release. |
+| `pnpm run release:minor` | Forces a minor version bump (`0.x.0`), updates changelog, and tags release. |
+| `pnpm run release:major` | Forces a major version bump (`x.0.0`), updates changelog, and tags release. |
 
 ---
 
