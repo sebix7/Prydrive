@@ -11,7 +11,8 @@ Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete i
 - Baseline release `v0.1.0` published to remote with automated changelog (`CHANGELOG.md`).
 - `specs/002-app-shell/` completed and validated (T1-T5: US-1 through US-5).
 - Minor release `v0.2.0` published to remote with automated changelog (`CHANGELOG.md`).
-- Ready for next spec (e.g. `specs/003-drive-explorer`).
+- `specs/003-about-links/` active: T1 completed (US-1: Trello board link).
+- Next step: Implement `/sdd-implement 003-about-links T2` (Contact email & copy action).
 
 ## Decisions (and why)
 - **Tailwind content scan of shared code**: `tailwind.config.js` includes `./src/shared/**` so utility classes in shared state reducers (e.g. `.w-0`, `.min-w-0`) are compiled into CSS.

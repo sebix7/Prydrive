@@ -75,7 +75,8 @@ export const AboutModal: React.FC<AboutModalProps> = ({
         </p>
 
         {/* Metadata Details */}
-        <div className="w-full bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 text-xs text-slate-400 text-left mb-4 font-mono text-[11px]">
+        <div className="w-full bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 text-xs text-slate-400 text-left mb-4 font-mono text-[11px] flex flex-col gap-2">
+          {/* Row 1: Repository */}
           <div className="flex justify-between items-center">
             <span className="text-slate-500">{getTranslation(language, 'about_repository')}</span>
             <a
@@ -85,6 +86,23 @@ export const AboutModal: React.FC<AboutModalProps> = ({
               className="text-blue-400 hover:text-blue-300 flex items-center gap-1 hover:underline"
             >
               <span>GitHub</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+
+          {/* Row 2: Board (Trello) */}
+          <div className="flex justify-between items-center">
+            <span className="text-slate-500">
+              {language === 'es' ? 'Tablero:' : 'Board:'}
+            </span>
+            <a
+              href={ABOUT_METADATA.trelloUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-blue-400 hover:text-blue-300 flex items-center gap-1 hover:underline"
+              data-testid="about-trello-link"
+            >
+              <span>Trello</span>
               <ExternalLink className="w-3 h-3" />
             </a>
           </div>

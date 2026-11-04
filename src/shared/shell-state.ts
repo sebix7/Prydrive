@@ -149,6 +149,7 @@ export interface AboutMetadata {
   description: string;
   license: string;
   website: string;
+  trelloUrl: string;
 }
 
 export const ABOUT_METADATA: AboutMetadata = {
@@ -156,7 +157,8 @@ export const ABOUT_METADATA: AboutMetadata = {
   version: APP_VERSION,
   description: 'Fast, visual, and modern desktop client for Google Drive.',
   license: 'MIT',
-  website: 'https://github.com/sebix7/Prydrive'
+  website: 'https://github.com/sebix7/Prydrive',
+  trelloUrl: 'https://trello.com/b/aPzGPiHF/prydrive'
 };
 
 /**
