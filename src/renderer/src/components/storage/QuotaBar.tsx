@@ -9,6 +9,7 @@ export interface QuotaBarProps {
   error: string | null;
   language?: LanguageCode;
   onRetry?: () => void;
+  variant?: 'light' | 'dark';
 }
 
 export const QuotaBar: React.FC<QuotaBarProps> = ({
@@ -16,8 +17,11 @@ export const QuotaBar: React.FC<QuotaBarProps> = ({
   isLoading,
   error,
   language = 'en',
-  onRetry
+  onRetry,
+  variant = 'dark'
 }) => {
+  const isDark = variant === 'dark';
+
   // Skeleton State (FR-9)
   if (isLoading) {
     return (
@@ -25,10 +29,16 @@ export const QuotaBar: React.FC<QuotaBarProps> = ({
         data-testid="quota-skeleton"
         className="flex items-center gap-2.5 min-w-[210px] animate-pulse"
       >
-        <div className="w-4 h-4 bg-slate-200 rounded-md shrink-0" />
+        <div
+          className={`w-4 h-4 rounded-md shrink-0 ${isDark ? 'bg-slate-800' : 'bg-slate-200'}`}
+        />
         <div className="flex-1 flex flex-col gap-1.5">
-          <div className="h-2.5 bg-slate-200 rounded-full w-24" />
-          <div className="h-1.5 bg-slate-200 rounded-full w-full" />
+          <div
+            className={`h-2.5 rounded-full w-24 ${isDark ? 'bg-slate-800' : 'bg-slate-200'}`}
+          />
+          <div
+            className={`h-1.5 rounded-full w-full ${isDark ? 'bg-slate-800' : 'bg-slate-200'}`}
+          />
         </div>
       </div>
     );
@@ -39,10 +49,16 @@ export const QuotaBar: React.FC<QuotaBarProps> = ({
     return (
       <div
         data-testid="quota-error"
-        className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50/90 border border-amber-200/60 px-2.5 py-1 rounded-lg"
+        className={`flex items-center gap-2 text-xs px-2.5 py-1.5 rounded-lg border ${
+          isDark
+            ? 'text-amber-300 bg-amber-950/30 border-amber-800/50'
+            : 'text-amber-700 bg-amber-50/90 border-amber-200/60'
+        }`}
       >
-        <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-600" />
-        <span className="truncate font-medium">
+        <AlertCircle
+          className={`w-3.5 h-3.5 shrink-0 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}
+        />
+        <span className="truncate font-medium flex-1">
           {getTranslation(language, 'quota_unavailable')}
         </span>
         {onRetry && (
@@ -50,7 +66,11 @@ export const QuotaBar: React.FC<QuotaBarProps> = ({
             type="button"
             onClick={onRetry}
             title={getTranslation(language, 'quota_retry_tooltip')}
-            className="p-1 hover:bg-amber-200/50 rounded transition-colors text-amber-800"
+            className={`p-1 rounded transition-colors ${
+              isDark
+                ? 'hover:bg-amber-900/40 text-amber-300 hover:text-amber-200'
+                : 'hover:bg-amber-200/50 text-amber-800'
+            }`}
           >
             <RefreshCw className="w-3 h-3" />
           </button>
@@ -69,28 +89,38 @@ export const QuotaBar: React.FC<QuotaBarProps> = ({
   return (
     <div
       data-testid="quota-bar"
-      className="flex items-center gap-2.5 min-w-[220px]"
+      className="flex items-center gap-2.5 min-w-[200px] w-full"
     >
-      <HardDrive className="w-4 h-4 text-slate-400 shrink-0" />
-      <div className="flex-1 flex flex-col gap-1">
-        <div className="flex items-center justify-between text-[11px] font-medium text-slate-600">
+      <HardDrive className={`w-4 h-4 shrink-0 ${isDark ? 'text-slate-400' : 'text-slate-400'}`} />
+      <div className="flex-1 flex flex-col gap-1.5 min-w-0">
+        <div
+          className={`flex items-center justify-between text-[11px] font-medium ${
+            isDark ? 'text-slate-300' : 'text-slate-600'
+          }`}
+        >
           {quota.isUnmetered ? (
-            <span>
+            <span className="truncate">
               {getTranslation(language, 'quota_unmetered', { used: quota.formattedUsed })}
             </span>
           ) : (
             <>
-              <span>
+              <span className="truncate">
                 {getTranslation(language, 'quota_usage_format', {
                   used: quota.formattedUsed,
                   total: quota.formattedTotal
                 })}
               </span>
-              <span className="text-slate-400 font-normal">{quota.percentage}%</span>
+              <span className={`font-mono text-[10px] ml-1 shrink-0 ${isDark ? 'text-slate-400' : 'text-slate-400'}`}>
+                {quota.percentage}%
+              </span>
             </>
           )}
         </div>
-        <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/60">
+        <div
+          className={`w-full h-1.5 rounded-full overflow-hidden ${
+            isDark ? 'bg-slate-800 border border-slate-700/60' : 'bg-slate-100 border border-slate-200/60'
+          }`}
+        >
           <div
             className={`h-full rounded-full transition-all duration-500 ${
               quota.isUnmetered ? 'bg-blue-300 w-full opacity-60' : getProgressColor(quota.percentage)

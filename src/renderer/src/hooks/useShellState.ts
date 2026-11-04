@@ -13,6 +13,7 @@ import {
   NAV_ITEMS,
   resolveWorkspaceView,
   getNavButtonStyles,
+  getSidebarClasses,
   ABOUT_METADATA,
   toggleMenuHeader,
   APP_VERSION,
@@ -28,6 +29,7 @@ export {
   NAV_ITEMS,
   resolveWorkspaceView,
   getNavButtonStyles,
+  getSidebarClasses,
   ABOUT_METADATA,
   toggleMenuHeader,
   APP_VERSION,
@@ -76,6 +78,7 @@ export function useShellState() {
         }
       }
     }
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [state.isSidebarExpanded]);

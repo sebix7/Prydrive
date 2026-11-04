@@ -32,7 +32,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   const isButtonDisabled = disabled || isClicking;
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-slate-50 p-6 select-none">
+    <div className="relative flex-1 flex flex-col items-center justify-center w-full h-full bg-slate-50 p-6 select-none overflow-hidden">
       {/* Top right language switch */}
       {onLanguageChange && (
         <div className="absolute top-6 right-6">

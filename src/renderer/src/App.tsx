@@ -198,7 +198,7 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="w-full h-full flex flex-col relative">
+    <div className="w-full h-full flex flex-col relative overflow-hidden">
       {/* Offline Alert Banner (FR-8, EC-5) */}
       {isOffline && (
         <div className="bg-amber-50 text-amber-900 px-4 py-2 text-xs border-b border-amber-200 flex items-center justify-between font-medium shadow-sm">
@@ -266,6 +266,8 @@ export const App: React.FC = () => {
         <AppShell
           userProfile={userProfile}
           storageQuota={quota}
+          isLoadingQuota={isLoadingQuota}
+          quotaError={quotaError}
           language={language}
           onDisconnect={() => setIsDisconnectModalOpen(true)}
           onSetLanguage={handleLanguageChange}

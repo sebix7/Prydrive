@@ -87,6 +87,23 @@ export function truncateEmail(email: string, maxChars: number = 24): string {
   return `${email.slice(0, maxChars - 3)}...`;
 }
 
+/**
+ * Resolves sidebar CSS width, border, and transition classes (NFR-3).
+ */
+export function getSidebarClasses(isExpanded: boolean): {
+  container: string;
+  inner: string;
+} {
+  return {
+    container: isExpanded
+      ? 'w-[260px] border-l border-slate-800 transition-all duration-200 ease-in-out'
+      : 'w-0 border-l-0 overflow-visible transition-all duration-200 ease-in-out',
+    inner: isExpanded
+      ? 'opacity-100 transition-opacity duration-150 delay-75'
+      : 'opacity-0 pointer-events-none'
+  };
+}
+
 export interface NavItem {
   id: ActiveNavTab;
   label: string;

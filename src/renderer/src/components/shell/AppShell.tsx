@@ -5,10 +5,13 @@ import { NavigationRail } from './NavigationRail';
 import { WorkspaceCanvas } from './WorkspaceCanvas';
 import { MenuBar } from './MenuBar';
 import { AboutModal } from './AboutModal';
+import { TelemetrySidebar } from './TelemetrySidebar';
 
 interface AppShellProps {
   userProfile: UserProfile | null;
   storageQuota: StorageQuota | null;
+  isLoadingQuota?: boolean;
+  quotaError?: string | null;
   language: 'en' | 'es';
   onDisconnect: () => void;
   onSetLanguage: (lang: 'en' | 'es') => void;
@@ -31,6 +34,8 @@ interface AppShellProps {
   renderTelemetrySidebar?: (props: {
     userEmail: string;
     storageQuota: StorageQuota | null;
+    isLoadingQuota?: boolean;
+    quotaError?: string | null;
     isExpanded: boolean;
     onToggle: () => void;
     onRefreshQuota: () => void;
@@ -41,6 +46,8 @@ interface AppShellProps {
 export const AppShell: React.FC<AppShellProps> = ({
   userProfile,
   storageQuota,
+  isLoadingQuota = false,
+  quotaError = null,
   language,
   onDisconnect,
   onSetLanguage,
@@ -55,7 +62,7 @@ export const AppShell: React.FC<AppShellProps> = ({
   return (
     <div
       data-testid="app-shell-container"
-      className="flex flex-col h-screen w-screen bg-[#0D1117] text-slate-100 overflow-hidden font-sans select-none min-w-[960px] min-h-[600px]"
+      className="flex flex-col w-full h-full bg-[#0D1117] text-slate-100 overflow-hidden font-sans select-none"
     >
       {/* Zone 1: Top Menu Bar */}
       <header
@@ -119,27 +126,24 @@ export const AppShell: React.FC<AppShellProps> = ({
           renderTelemetrySidebar({
             userEmail,
             storageQuota,
+            isLoadingQuota,
+            quotaError,
             isExpanded: state.isSidebarExpanded,
             onToggle: () => dispatch({ type: 'TOGGLE_SIDEBAR' }),
             onRefreshQuota,
             language
           })
         ) : (
-          <aside
-            data-testid="shell-sidebar-zone"
-            className={`border-l border-slate-800 bg-[#161B22] transition-all duration-200 ease-in-out relative shrink-0 ${
-              state.isSidebarExpanded ? 'w-[260px]' : 'w-0 border-l-0 overflow-hidden'
-            }`}
-          >
-            {state.isSidebarExpanded && (
-              <div className="p-4 w-[260px] text-xs text-slate-400 space-y-3">
-                <div className="font-semibold text-slate-200">Google Drive</div>
-                <div className="truncate text-slate-400" title={userEmail}>
-                  {userEmail}
-                </div>
-              </div>
-            )}
-          </aside>
+          <TelemetrySidebar
+            userEmail={userEmail}
+            storageQuota={storageQuota}
+            isLoadingQuota={isLoadingQuota}
+            quotaError={quotaError}
+            isExpanded={state.isSidebarExpanded}
+            onToggle={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
+            onRefreshQuota={onRefreshQuota}
+            language={language}
+          />
         )}
       </div>
 

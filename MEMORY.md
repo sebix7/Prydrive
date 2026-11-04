@@ -9,10 +9,12 @@ Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete i
 - `specs/001-auth-google/` fully implemented (T1-T6 completed: US-1 through US-6).
 - GitHub Actions CI (`ci.yml`) and automated SemVer release pipeline (`commit-and-tag-version`, `release.yml`) implemented.
 - Baseline release `v0.1.0` published to remote with automated changelog (`CHANGELOG.md`).
-- `specs/002-app-shell/` active: T1, T2 & T3 implemented (US-1: shell, US-2: left rail, US-3: top menu bar & about modal).
-- Next step: Implement `/sdd-implement 002-app-shell T4` (Collapsible telemetry sidebar).
+- `specs/002-app-shell/` active: T1, T2, T3 & T4 implemented (US-1: shell, US-2: left rail, US-3: top menu, US-4: telemetry sidebar with collapse & fluid responsiveness).
+- Next step: Implement `/sdd-implement 002-app-shell T5` (Bilingual localization parity).
 
 ## Decisions (and why)
+- **Tailwind content scan of shared code**: `tailwind.config.js` includes `./src/shared/**` so utility classes in shared state reducers (e.g. `.w-0`, `.min-w-0`) are compiled into CSS.
+- **Desktop root overflow & fluid canvas**: `html, body, #root` enforce `overflow: hidden` with `min-w-0 flex-1` on canvas to eliminate scrollbars and clipping on window resize.
 - **Multi-provider decoupled architecture (`StorageProvider`)**: Unified adapter pattern allowing future cloud hosting providers beyond Google Drive without refactoring UI or core controllers.
 - **Electron + React + Tailwind + Vite**: Native performance, stream handling, and visual UI with Drag & Drop.
 - **Exclusive Google Sign-In (OAuth 2.0 Desktop / RFC 8252 Loopback)**: Replaces Service Accounts with a single "Sign in with Google" button. Opens OS default browser, receives token via local loopback, and refreshes silently.

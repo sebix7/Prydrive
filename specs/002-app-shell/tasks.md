@@ -12,7 +12,7 @@
   - Depends on: T1
   - Done when: The horizontal menu bar renders File, Account, View, and Help drop-down menus; clicking menu headers opens the menu while clicking outside or pressing Escape closes it; selecting "Disconnect account..." in the Account menu closes open menus and opens the sign-out confirmation modal; and selecting "About Prydrive" in the Help menu displays the About modal with version `v0.1.0`. Verified via automated unit tests.
 
-- [ ] **T4. Implement the collapsible right telemetry sidebar with Google Drive branding, truncated user email with tooltip, storage quota progress bar, and circular divider toggle button.** US-4 (FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, NFR-3, EC-1, EC-2)
+- [x] **T4. Implement the collapsible right telemetry sidebar with Google Drive branding, truncated user email with tooltip, storage quota progress bar, and circular divider toggle button.** US-4 (FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, NFR-3, EC-1, EC-2)
   - Depends on: T1
   - Done when: The right sidebar initializes in an expanded state by default upon login and restart; displays the Google Drive logo, the connected user's email address truncated with tooltip, and the storage quota bar with skeleton/error fallback states; clicking the circular divider button (`<` / `>`) or the View menu action animates between expanded (260px) and collapsed (0px) states within 200ms while retaining the circular toggle trigger. Verified via automated unit tests.
 

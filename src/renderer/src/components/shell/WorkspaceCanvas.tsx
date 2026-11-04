@@ -14,7 +14,7 @@ export const WorkspaceCanvas: React.FC<WorkspaceCanvasProps> = ({ activeNav, lan
   return (
     <main
       data-testid="workspace-canvas"
-      className="flex-1 flex flex-col items-center justify-center p-8 bg-[#0D1117] text-slate-100 select-none min-w-[480px] overflow-hidden"
+      className="flex-1 flex flex-col items-center justify-center p-6 md:p-8 bg-[#0D1117] text-slate-100 select-none min-w-0 overflow-hidden"
     >
       <div className="max-w-md w-full text-center space-y-4 p-8 rounded-xl border border-slate-800 bg-[#161B22]/70 shadow-2xl backdrop-blur-sm">
         <div className="inline-flex p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 mb-2">
