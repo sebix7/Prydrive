@@ -12,7 +12,8 @@ Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete i
 - `specs/002-app-shell/` completed and validated (T1-T5: US-1 through US-5).
 - Minor release `v0.2.0` published to remote with automated changelog (`CHANGELOG.md`).
 - `specs/003-about-links/` completed and validated (T1-T3: US-1 through US-3, FULFILLED).
-- Next step: Run `/git-release patch` or prepare next feature specification.
+- Patch release `v0.2.1` published to remote with automated changelog (`CHANGELOG.md`).
+- Next step: Plan and draft next feature specification (e.g. Spec 004).
 
 ## Decisions (and why)
 - **Tailwind content scan of shared code**: `tailwind.config.js` includes `./src/shared/**` so utility classes in shared state reducers (e.g. `.w-0`, `.min-w-0`) are compiled into CSS.
