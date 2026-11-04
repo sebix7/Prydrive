@@ -19,7 +19,7 @@ describe('Shell State & Utilities (US-1 / T1)', () => {
   it('should handle SET_ACTIVE_NAV and close any open menu', () => {
     const state: ShellState = {
       ...initialShellState,
-      openMenu: 'file'
+      openMenu: 'options'
     };
     const nextState = shellReducer(state, { type: 'SET_ACTIVE_NAV', payload: 'prydrive' });
     expect(nextState.activeNav).toBe('prydrive');
@@ -38,8 +38,8 @@ describe('Shell State & Utilities (US-1 / T1)', () => {
   });
 
   it('should handle OPEN_MENU and CLOSE_MENUS', () => {
-    const state1 = shellReducer(initialShellState, { type: 'OPEN_MENU', payload: 'account' });
-    expect(state1.openMenu).toBe('account');
+    const state1 = shellReducer(initialShellState, { type: 'OPEN_MENU', payload: 'options' });
+    expect(state1.openMenu).toBe('options');
 
     const state2 = shellReducer(state1, { type: 'CLOSE_MENUS' });
     expect(state2.openMenu).toBeNull();

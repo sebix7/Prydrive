@@ -33,7 +33,7 @@ describe('Navigation Rail & View Activation (US-2 / T2)', () => {
   });
 
   it('should handle navigation selection idempotently without state corruption (EC-5)', () => {
-    let state: ShellState = { ...initialShellState, activeNav: 'google-drive', openMenu: 'file' };
+    let state: ShellState = { ...initialShellState, activeNav: 'google-drive', openMenu: 'options' };
 
     // Selecting 'prydrive' updates activeNav and closes menus
     state = shellReducer(state, { type: 'SET_ACTIVE_NAV', payload: 'prydrive' });

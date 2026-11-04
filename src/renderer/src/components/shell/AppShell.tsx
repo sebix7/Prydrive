@@ -3,6 +3,8 @@ import type { UserProfile, StorageQuota } from '../../../../shared/types';
 import { useShellState } from '../../hooks/useShellState';
 import { NavigationRail } from './NavigationRail';
 import { WorkspaceCanvas } from './WorkspaceCanvas';
+import { MenuBar } from './MenuBar';
+import { AboutModal } from './AboutModal';
 
 interface AppShellProps {
   userProfile: UserProfile | null;
@@ -19,7 +21,7 @@ interface AppShellProps {
     onOpenAbout: () => void;
     onSetLanguage: (lang: 'en' | 'es') => void;
     openMenu: string | null;
-    menuBarRef: React.RefObject<HTMLDivElement | null>;
+    menuBarRef: React.RefObject<HTMLDivElement>;
     dispatch: any;
   }) => React.ReactNode;
   renderNavigationRail?: (props: {
@@ -76,11 +78,21 @@ export const AppShell: React.FC<AppShellProps> = ({
             dispatch
           })
         ) : (
-          <div className="flex items-center gap-4 text-xs font-medium text-slate-300">
-            <span className="font-semibold text-slate-100">Prydrive</span>
-            <span className="text-slate-500">|</span>
-            <span className="text-slate-400">{userEmail}</span>
-          </div>
+          <MenuBar
+            language={language}
+            userEmail={userEmail}
+            openMenu={state.openMenu}
+            menuBarRef={menuBarRef}
+            onToggleMenu={(menu) => dispatch({ type: 'OPEN_MENU', payload: menu })}
+            onCloseMenus={() => dispatch({ type: 'CLOSE_MENUS' })}
+            onDisconnectClick={() => {
+              dispatch({ type: 'CLOSE_MENUS' });
+              onDisconnect();
+            }}
+            onToggleSidebar={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
+            onOpenAbout={() => dispatch({ type: 'OPEN_ABOUT_MODAL' })}
+            onSetLanguage={onSetLanguage}
+          />
         )}
       </header>
 
@@ -130,6 +142,13 @@ export const AppShell: React.FC<AppShellProps> = ({
           </aside>
         )}
       </div>
+
+      {/* About Modal (FR-6 / Help) */}
+      <AboutModal
+        isOpen={state.isAboutModalOpen}
+        onClose={() => dispatch({ type: 'CLOSE_ABOUT_MODAL' })}
+        language={language}
+      />
     </div>
   );
 };

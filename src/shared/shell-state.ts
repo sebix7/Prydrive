@@ -1,5 +1,9 @@
+import { APP_VERSION, APP_NAME, RAW_VERSION } from './version';
+
+export { APP_VERSION, APP_NAME, RAW_VERSION };
+
 export type ActiveNavTab = 'prydrive' | 'google-drive';
-export type ActiveMenu = 'file' | 'account' | 'view' | 'help' | null;
+export type ActiveMenu = 'options' | 'help' | null;
 
 export interface ShellState {
   activeNav: ActiveNavTab;
@@ -120,4 +124,28 @@ export function getNavButtonStyles(isActive: boolean): {
       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80',
     indicator: isActive ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-50'
   };
+}
+
+export interface AboutMetadata {
+  appName: string;
+  version: string;
+  description: string;
+  license: string;
+  website: string;
+}
+
+export const ABOUT_METADATA: AboutMetadata = {
+  appName: APP_NAME,
+  version: APP_VERSION,
+  description: 'Fast, visual, and modern desktop client for Google Drive.',
+  license: 'MIT',
+  website: 'https://github.com/sebix7/Prydrive'
+};
+
+/**
+ * Pure helper to toggle open menu state header (FR-6 / US-3).
+ * Clicking the active open menu closes it; clicking another opens that menu.
+ */
+export function toggleMenuHeader(currentOpen: ActiveMenu, target: ActiveMenu): ActiveMenu {
+  return currentOpen === target ? null : target;
 }

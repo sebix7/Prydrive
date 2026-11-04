@@ -5,16 +5,21 @@ import {
   type ShellState,
   type ShellAction,
   type NavItem,
+  type AboutMetadata,
   initialShellState,
   shellReducer,
   shouldAutoCollapseSidebar,
   truncateEmail,
   NAV_ITEMS,
   resolveWorkspaceView,
-  getNavButtonStyles
+  getNavButtonStyles,
+  ABOUT_METADATA,
+  toggleMenuHeader,
+  APP_VERSION,
+  RAW_VERSION
 } from '../../../shared/shell-state';
 
-export type { ActiveNavTab, ActiveMenu, ShellState, ShellAction, NavItem };
+export type { ActiveNavTab, ActiveMenu, ShellState, ShellAction, NavItem, AboutMetadata };
 export {
   initialShellState,
   shellReducer,
@@ -22,7 +27,11 @@ export {
   truncateEmail,
   NAV_ITEMS,
   resolveWorkspaceView,
-  getNavButtonStyles
+  getNavButtonStyles,
+  ABOUT_METADATA,
+  toggleMenuHeader,
+  APP_VERSION,
+  RAW_VERSION
 };
 
 /**
@@ -30,7 +39,7 @@ export {
  */
 export function useShellState() {
   const [state, dispatch] = useReducer(shellReducer, initialShellState);
-  const menuBarRef = useRef<HTMLDivElement | null>(null);
+  const menuBarRef = useRef<HTMLDivElement>(null);
 
   // Global escape key listener to dismiss open menus
   useEffect(() => {

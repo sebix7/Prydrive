@@ -8,7 +8,7 @@
   - Depends on: T1
   - Done when: The left navigation rail (64px width) renders the interactive Prydrive brand button and the Google Drive provider button; clicking either button updates the active navigation state idempotently without flickering, highlights the selected button with a distinctive background fill, and renders the Google Drive workspace view in the central canvas. Verified via automated unit tests.
 
-- [ ] **T3. Implement classic desktop horizontal menu bar with accessible drop-downs, outside-click/Escape dismissal, Account disconnection trigger, and About modal.** US-3 (FR-6, FR-7, EC-3, EC-4)
+- [x] **T3. Implement classic desktop horizontal menu bar with accessible drop-downs, outside-click/Escape dismissal, Account disconnection trigger, and About modal.** US-3 (FR-6, FR-7, EC-3, EC-4)
   - Depends on: T1
   - Done when: The horizontal menu bar renders File, Account, View, and Help drop-down menus; clicking menu headers opens the menu while clicking outside or pressing Escape closes it; selecting "Disconnect account..." in the Account menu closes open menus and opens the sign-out confirmation modal; and selecting "About Prydrive" in the Help menu displays the About modal with version `v0.1.0`. Verified via automated unit tests.
 
