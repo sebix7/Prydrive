@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.2.1](https://github.com/sebix7/Prydrive/compare/v0.2.0...v0.2.1) (2026-11-04)
+
+
+### Features
+
+* **about:** add contact email with mailto and copy-to-clipboard action ([19cdacb](https://github.com/sebix7/Prydrive/commit/19cdacb5da114268984f84ebc7c1bc43ff75f87d))
+* **about:** llo management board link to about modal ([45dc8f8](https://github.com/sebix7/Prydrive/commit/45dc8f86557e26ff1632bd7d6c0efa3739ede819))
+* **about:** localize metadata links and copy action tooltips ([5379f66](https://github.com/sebix7/Prydrive/commit/5379f662e1dad2c3b144ff893065d858279b167d))
+
+
+### Documentation
+
+* **memory:** log v0.2.0 release completion in current status ([5e9a118](https://github.com/sebix7/Prydrive/commit/5e9a118d3981f2f5fd4e859168abc853b4478c26))
+* **memory:** update memory status after completing spec 003 ([d6d0b53](https://github.com/sebix7/Prydrive/commit/d6d0b531f74b500793af93e42a791ef95ea0e6e1))
+
 ## [0.2.0](https://github.com/sebix7/Prydrive/compare/v0.1.0...v0.2.0) (2026-11-04)
 
 
