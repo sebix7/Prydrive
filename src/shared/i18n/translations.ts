@@ -82,6 +82,10 @@ export const translations = {
     about_title: 'About Prydrive',
     about_description: 'Fast, visual native desktop client for Google Drive.',
     about_repository: 'Repository:',
+    about_board: 'Board:',
+    about_contact: 'Contact:',
+    about_copy_email: 'Copy email',
+    about_copied: 'Copied!',
     about_close: 'Close',
     about_got_it: 'Got it'
   },
@@ -166,6 +170,10 @@ export const translations = {
     about_title: 'Acerca de Prydrive',
     about_description: 'Gestor de escritorio visual, rápido y nativo para tus archivos de Google Drive.',
     about_repository: 'Repositorio:',
+    about_board: 'Tablero:',
+    about_contact: 'Contacto:',
+    about_copy_email: 'Copiar correo',
+    about_copied: '¡Copiado!',
     about_close: 'Cerrar',
     about_got_it: 'Entendido'
   }

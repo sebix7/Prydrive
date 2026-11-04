@@ -123,9 +123,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({
 
           {/* Row 2: Board (Trello) */}
           <div className="flex justify-between items-center">
-            <span className="text-slate-500">
-              {language === 'es' ? 'Tablero:' : 'Board:'}
-            </span>
+            <span className="text-slate-500">{getTranslation(language, 'about_board')}</span>
             <a
               href={ABOUT_METADATA.trelloUrl}
               target="_blank"
@@ -141,7 +139,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({
           {/* Row 3: Contact Email */}
           <div className="flex justify-between items-center gap-2">
             <span className="text-slate-500 shrink-0">
-              {language === 'es' ? 'Contacto:' : 'Contact:'}
+              {getTranslation(language, 'about_contact')}
             </span>
             <div className="flex items-center gap-1.5 min-w-0">
               <a
@@ -158,21 +156,13 @@ export const AboutModal: React.FC<AboutModalProps> = ({
                 data-testid="about-copy-email-btn"
                 title={
                   isCopied
-                    ? language === 'es'
-                      ? '¡Copiado!'
-                      : 'Copied!'
-                    : language === 'es'
-                      ? 'Copiar correo'
-                      : 'Copy email'
+                    ? getTranslation(language, 'about_copied')
+                    : getTranslation(language, 'about_copy_email')
                 }
                 aria-label={
                   isCopied
-                    ? language === 'es'
-                      ? '¡Copiado!'
-                      : 'Copied!'
-                    : language === 'es'
-                      ? 'Copiar correo'
-                      : 'Copy email'
+                    ? getTranslation(language, 'about_copied')
+                    : getTranslation(language, 'about_copy_email')
                 }
                 className={`p-1 rounded transition-colors shrink-0 ${
                   isCopied

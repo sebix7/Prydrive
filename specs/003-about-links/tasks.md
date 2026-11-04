@@ -8,6 +8,6 @@
   - Depends on: T1
   - Done when: The developer contact email (`sebiplay@hotmail.com`) is rendered in the About modal metadata card with a functional `mailto:` link; clicking the adjacent quick-action copy button copies the address to the system clipboard with event propagation isolated (`stopPropagation`), displays instantaneous visual confirmation (icon switches to checkmark, color shifts to emerald, tooltip switches to confirmation text), reverts after 2 seconds, and cancels active timeouts upon dialog unmount. Verified via automated unit tests in `tests/unit/about-metadata.test.ts`.
 
-- [ ] **T3. Implement bilingual localization parity for all new metadata labels, action tooltips, and copy confirmation states.** US-3 (FR-7)
+- [x] **T3. Implement bilingual localization parity for all new metadata labels, action tooltips, and copy confirmation states.** US-3 (FR-7)
   - Depends on: T1, T2
   - Done when: All new About modal keys (`about_board`, `about_contact`, `about_copy_email`, `about_copied`) are defined in both English and Spanish with 100% dictionary key parity; toggling language between English and Spanish immediately updates all visible labels, action tooltips, and confirmation messages in the About modal dialog without application reload. Verified via automated dictionary symmetry and parity unit tests in `tests/unit/translations.test.ts`.

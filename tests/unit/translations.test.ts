@@ -116,4 +116,36 @@ describe('Bilingual Localization Dictionary (US-6 / T6 / FR-15)', () => {
       expect(getTranslation('es', 'about_got_it')).toBe('Entendido');
     });
   });
+
+  describe('About Modal Project Metadata & Contact Parity (US-3 / T3 / FR-7)', () => {
+    const requiredAboutKeys: TranslationKey[] = [
+      'about_board',
+      'about_contact',
+      'about_copy_email',
+      'about_copied'
+    ];
+
+    it('should have all About modal link and contact keys defined in both English and Spanish', () => {
+      requiredAboutKeys.forEach((key) => {
+        expect(translations.en[key]).toBeDefined();
+        expect(translations.es[key]).toBeDefined();
+        expect(translations.en[key].length).toBeGreaterThan(0);
+        expect(translations.es[key].length).toBeGreaterThan(0);
+      });
+    });
+
+    it('should accurately translate About modal link and contact keys', () => {
+      expect(getTranslation('en', 'about_board')).toBe('Board:');
+      expect(getTranslation('es', 'about_board')).toBe('Tablero:');
+
+      expect(getTranslation('en', 'about_contact')).toBe('Contact:');
+      expect(getTranslation('es', 'about_contact')).toBe('Contacto:');
+
+      expect(getTranslation('en', 'about_copy_email')).toBe('Copy email');
+      expect(getTranslation('es', 'about_copy_email')).toBe('Copiar correo');
+
+      expect(getTranslation('en', 'about_copied')).toBe('Copied!');
+      expect(getTranslation('es', 'about_copied')).toBe('¡Copiado!');
+    });
+  });
 });
