@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { WifiOff, RefreshCw, Loader2, Cloud } from 'lucide-react';
+import { WifiOff, RefreshCw, Loader2 } from 'lucide-react';
 import type { AuthState, UserProfile, StorageQuota, LanguageCode } from '../../shared/types';
 import { getTranslation } from '../../shared/i18n/translations';
 import type { TranslationKey } from '../../shared/i18n/translations';
 import { WelcomeScreen } from './components/auth/WelcomeScreen';
 import { AwaitingAuthModal } from './components/auth/AwaitingAuthModal';
 import { DisconnectModal } from './components/auth/DisconnectModal';
-import { Header } from './components/layout/Header';
+import { AppShell } from './components/shell/AppShell';
 import { LanguageToggle } from './components/ui/LanguageToggle';
 
 export const App: React.FC = () => {
@@ -263,32 +263,14 @@ export const App: React.FC = () => {
           </div>
         </div>
       ) : authState === 'authenticated' && userProfile ? (
-        <div className="flex-1 flex flex-col w-full h-full bg-slate-50 overflow-hidden">
-          <Header
-            userProfile={userProfile}
-            quota={quota}
-            isLoadingQuota={isLoadingQuota}
-            quotaError={quotaError}
-            language={language}
-            onLanguageChange={handleLanguageChange}
-            onRetryQuota={loadQuota}
-            onDisconnect={() => setIsDisconnectModalOpen(true)}
-          />
-          <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-8 shadow-sm max-w-sm w-full flex flex-col items-center">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 bg-blue-50 text-blue-600">
-                <Cloud className="w-7 h-7" />
-              </div>
-              <h2 className="text-xl font-bold text-slate-800 mb-1">
-                {getTranslation(language, 'connected_title')}
-              </h2>
-              <p className="text-sm font-medium text-slate-600 mb-2">{userProfile.email}</p>
-              <p className="text-xs text-slate-400">
-                {getTranslation(language, 'connected_ready')}
-              </p>
-            </div>
-          </main>
-        </div>
+        <AppShell
+          userProfile={userProfile}
+          storageQuota={quota}
+          language={language}
+          onDisconnect={() => setIsDisconnectModalOpen(true)}
+          onSetLanguage={handleLanguageChange}
+          onRefreshQuota={loadQuota}
+        />
       ) : (
         <WelcomeScreen
           onSignIn={handleSignIn}
