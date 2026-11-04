@@ -82,3 +82,42 @@ export function truncateEmail(email: string, maxChars: number = 24): string {
   }
   return `${email.slice(0, maxChars - 3)}...`;
 }
+
+export interface NavItem {
+  id: ActiveNavTab;
+  label: string;
+  tooltip: string;
+}
+
+export const NAV_ITEMS: readonly NavItem[] = [
+  { id: 'prydrive', label: 'Prydrive', tooltip: 'Prydrive Workspace' },
+  { id: 'google-drive', label: 'Google Drive', tooltip: 'Google Drive' }
+];
+
+/**
+ * Resolves the active central workspace view for a given navigation tab (FR-5).
+ * Both 'prydrive' and 'google-drive' currently activate the Google Drive view.
+ */
+export function resolveWorkspaceView(nav: ActiveNavTab): 'google-drive' {
+  // In this iteration, both tabs activate the Google Drive explorer view
+  if (nav === 'prydrive' || nav === 'google-drive') {
+    return 'google-drive';
+  }
+  return 'google-drive';
+}
+
+/**
+ * Resolves active navigation button visual styling classes (FR-4).
+ * Returns distinctive active fill vs subtle inactive hover.
+ */
+export function getNavButtonStyles(isActive: boolean): {
+  container: string;
+  indicator: string;
+} {
+  return {
+    container: isActive
+      ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25 ring-1 ring-blue-400/40'
+      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80',
+    indicator: isActive ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-50'
+  };
+}

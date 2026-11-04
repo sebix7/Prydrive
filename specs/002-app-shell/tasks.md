@@ -4,7 +4,7 @@
   - Depends on: None
   - Done when: The application shell container coordinates the 4-zone layout (top menu bar, left navigation rail, central canvas, right sidebar); when unauthenticated, the full-window welcome screen replaces the shell completely; when authenticated, the 4-zone shell mounts with clean 1px structural dividers adhering to `frontend-design` craftsmanship and enforcing a minimum window size constraint of 960x600 pixels. Verified via automated unit tests in `tests/unit/shell-state.test.ts`.
 
-- [ ] **T2. Implement the left navigation rail with interactive brand and provider buttons, active surface styling, and Drive workspace view activation.** US-2 (FR-3, FR-4, FR-5, EC-5)
+- [x] **T2. Implement the left navigation rail with interactive brand and provider buttons, active surface styling, and Drive workspace view activation.** US-2 (FR-3, FR-4, FR-5, EC-5)
   - Depends on: T1
   - Done when: The left navigation rail (64px width) renders the interactive Prydrive brand button and the Google Drive provider button; clicking either button updates the active navigation state idempotently without flickering, highlights the selected button with a distinctive background fill, and renders the Google Drive workspace view in the central canvas. Verified via automated unit tests.
 

@@ -4,14 +4,26 @@ import {
   type ActiveMenu,
   type ShellState,
   type ShellAction,
+  type NavItem,
   initialShellState,
   shellReducer,
   shouldAutoCollapseSidebar,
-  truncateEmail
+  truncateEmail,
+  NAV_ITEMS,
+  resolveWorkspaceView,
+  getNavButtonStyles
 } from '../../../shared/shell-state';
 
-export type { ActiveNavTab, ActiveMenu, ShellState, ShellAction };
-export { initialShellState, shellReducer, shouldAutoCollapseSidebar, truncateEmail };
+export type { ActiveNavTab, ActiveMenu, ShellState, ShellAction, NavItem };
+export {
+  initialShellState,
+  shellReducer,
+  shouldAutoCollapseSidebar,
+  truncateEmail,
+  NAV_ITEMS,
+  resolveWorkspaceView,
+  getNavButtonStyles
+};
 
 /**
  * Hook providing shell state, handlers, and click-outside/escape listeners.

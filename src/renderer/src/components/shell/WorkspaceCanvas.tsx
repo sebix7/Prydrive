@@ -1,6 +1,7 @@
 import React from 'react';
-import { Cloud, FolderGit2 } from 'lucide-react';
+import { FolderGit2 } from 'lucide-react';
 import type { ActiveNavTab } from '../../hooks/useShellState';
+import { GoogleDriveLogo } from '../ui/GoogleDriveLogo';
 
 interface WorkspaceCanvasProps {
   activeNav: ActiveNavTab;
@@ -20,7 +21,7 @@ export const WorkspaceCanvas: React.FC<WorkspaceCanvasProps> = ({ activeNav, lan
           {activeNav === 'prydrive' ? (
             <FolderGit2 className="w-10 h-10" />
           ) : (
-            <Cloud className="w-10 h-10 animate-pulse" />
+            <GoogleDriveLogo className="w-11 h-11" />
           )}
         </div>
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import type { UserProfile, StorageQuota } from '../../../../shared/types';
 import { useShellState } from '../../hooks/useShellState';
+import { NavigationRail } from './NavigationRail';
 import { WorkspaceCanvas } from './WorkspaceCanvas';
 
 interface AppShellProps {
@@ -86,44 +87,17 @@ export const AppShell: React.FC<AppShellProps> = ({
       {/* Main Workspace Body: Left Rail + Center Canvas + Right Sidebar */}
       <div className="flex flex-1 overflow-hidden relative">
         {/* Zone 2: Left Navigation Rail */}
-        <aside
-          data-testid="shell-nav-rail-zone"
-          className="w-16 border-r border-slate-800 bg-[#161B22] flex flex-col items-center py-4 gap-4 z-20 shrink-0"
-        >
-          {renderNavigationRail ? (
-            renderNavigationRail({
-              activeNav: state.activeNav,
-              onSelectNav: (nav) => dispatch({ type: 'SET_ACTIVE_NAV', payload: nav })
-            })
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              <button
-                type="button"
-                onClick={() => dispatch({ type: 'SET_ACTIVE_NAV', payload: 'prydrive' })}
-                className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-all duration-150 ${
-                  state.activeNav === 'prydrive'
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                }`}
-                title="Prydrive"
-              >
-                P
-              </button>
-              <button
-                type="button"
-                onClick={() => dispatch({ type: 'SET_ACTIVE_NAV', payload: 'google-drive' })}
-                className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-all duration-150 ${
-                  state.activeNav === 'google-drive'
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                }`}
-                title="Google Drive"
-              >
-                G
-              </button>
-            </div>
-          )}
-        </aside>
+        {renderNavigationRail ? (
+          renderNavigationRail({
+            activeNav: state.activeNav,
+            onSelectNav: (nav) => dispatch({ type: 'SET_ACTIVE_NAV', payload: nav })
+          })
+        ) : (
+          <NavigationRail
+            activeNav={state.activeNav}
+            onSelectNav={(nav) => dispatch({ type: 'SET_ACTIVE_NAV', payload: nav })}
+          />
+        )}
 
         {/* Zone 3: Central Workspace Canvas */}
         <WorkspaceCanvas activeNav={state.activeNav} language={language} />

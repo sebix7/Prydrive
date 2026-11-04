@@ -9,8 +9,8 @@ Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete i
 - `specs/001-auth-google/` fully implemented (T1-T6 completed: US-1 through US-6).
 - GitHub Actions CI (`ci.yml`) and automated SemVer release pipeline (`commit-and-tag-version`, `release.yml`) implemented.
 - Baseline release `v0.1.0` published to remote with automated changelog (`CHANGELOG.md`).
-- `specs/002-app-shell/` active: T1 implemented (US-1: foundational 4-zone shell container & pure state machine).
-- Next step: Implement `/sdd-implement 002-app-shell T2` (Left navigation rail).
+- `specs/002-app-shell/` active: T1 & T2 implemented (US-1: shell container, US-2: left navigation rail & view activation).
+- Next step: Implement `/sdd-implement 002-app-shell T3` (Classic desktop menu bar).
 
 ## Decisions (and why)
 - **Multi-provider decoupled architecture (`StorageProvider`)**: Unified adapter pattern allowing future cloud hosting providers beyond Google Drive without refactoring UI or core controllers.
