@@ -7,8 +7,8 @@ The About dialog ([`AboutModal.tsx`](file:///C:/wamp64/www/prydrive/src/renderer
 1. **Repository Entry:** Existing GitHub repository link opening in the OS default browser.
 2. **Project Board Entry:** Public Trello management board link opening in the OS default browser.
 3. **Contact Entry:** Developer email address with dual interaction:
-   - Primary text link: Triggers the default system email client (`mailto:sebeatport@gmail.com`).
-   - Action button: Isolated clipboard copy button copying `sebeatport@gmail.com` with instantaneous visual confirmation (icon switches from `Copy` to `Check`, color shifts to `emerald-400`, and tooltip switches from *"Copy email"* / *"Copiar correo"* to *"Copied!"* / *"¡Copiado!"* for 2 seconds).
+   - Primary text link: Triggers the default system email client (`mailto:sebiplay@hotmail.com`).
+   - Action button: Isolated clipboard copy button copying `sebiplay@hotmail.com` with instantaneous visual confirmation (icon switches from `Copy` to `Check`, color shifts to `emerald-400`, and tooltip switches from *"Copy email"* / *"Copiar correo"* to *"Copied!"* / *"¡Copiado!"* for 2 seconds).
 
 ```mermaid
 flowchart TD
@@ -49,7 +49,7 @@ flowchart TD
 ### Shared State & Business Logic
 - **`src/shared/shell-state.ts`**:
   - Extend `AboutMetadata` interface with `trelloUrl: string` and `contactEmail: string`.
-  - Update `ABOUT_METADATA` constant with `trelloUrl: 'https://trello.com/b/aPzGPiHF/prydrive'` and `contactEmail: 'sebeatport@gmail.com'`.
+  - Update `ABOUT_METADATA` constant with `trelloUrl: 'https://trello.com/b/aPzGPiHF/prydrive'` and `contactEmail: 'sebiplay@hotmail.com'`.
   - Export pure helper `formatMailtoUrl(email: string): string` returning `mailto:${email}`.
 
 ### Internationalization & Dictionaries
@@ -98,7 +98,7 @@ export const ABOUT_METADATA: AboutMetadata = {
   description: 'Fast, visual native desktop client for Google Drive.',
   website: 'https://github.com/sebix7/Prydrive',
   trelloUrl: 'https://trello.com/b/aPzGPiHF/prydrive',
-  contactEmail: 'sebeatport@gmail.com'
+  contactEmail: 'sebiplay@hotmail.com'
 };
 
 /**
@@ -181,7 +181,7 @@ Following Constitution Principle 4 (Testing policy: Zero Red Tests):
 1. **Red Phase (Test First):**
    - Create `tests/unit/about-metadata.test.ts` testing:
      - `ABOUT_METADATA.trelloUrl` matches `https://trello.com/b/aPzGPiHF/prydrive`.
-     - `ABOUT_METADATA.contactEmail` matches `sebeatport@gmail.com`.
+     - `ABOUT_METADATA.contactEmail` matches `sebiplay@hotmail.com`.
      - `formatMailtoUrl` correctly prefixes email with `mailto:`.
    - Update `tests/unit/translations.test.ts` with assertions for `about_board`, `about_contact`, `about_copy_email`, and `about_copied`.
    - Run `pnpm test` $\rightarrow$ fails red.

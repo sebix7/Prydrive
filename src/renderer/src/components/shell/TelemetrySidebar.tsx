@@ -49,7 +49,7 @@ export const TelemetrySidebar: React.FC<TelemetrySidebarProps> = ({
         aria-label={toggleTooltip}
         aria-expanded={isExpanded}
         className={`absolute top-1/2 -translate-y-1/2 z-30 w-7 h-7 rounded-full bg-[#161B22] border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 shadow-xl flex items-center justify-center transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 active:scale-95 ${
-          isExpanded ? '-left-3.5' : '-left-7'
+          isExpanded ? '-left-3.5' : '-left-9'
         }`}
       >
         {isExpanded ? (

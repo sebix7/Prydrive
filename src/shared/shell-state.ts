@@ -150,6 +150,7 @@ export interface AboutMetadata {
   license: string;
   website: string;
   trelloUrl: string;
+  contactEmail: string;
 }
 
 export const ABOUT_METADATA: AboutMetadata = {
@@ -158,8 +159,16 @@ export const ABOUT_METADATA: AboutMetadata = {
   description: 'Fast, visual, and modern desktop client for Google Drive.',
   license: 'MIT',
   website: 'https://github.com/sebix7/Prydrive',
-  trelloUrl: 'https://trello.com/b/aPzGPiHF/prydrive'
+  trelloUrl: 'https://trello.com/b/aPzGPiHF/prydrive',
+  contactEmail: 'sebiplay@hotmail.com'
 };
+
+/**
+ * Formats a valid mailto: link for an email address (FR-4 / US-2).
+ */
+export function formatMailtoUrl(email: string): string {
+  return `mailto:${email.trim()}`;
+}
 
 /**
  * Pure helper to toggle open menu state header (FR-6 / US-3).

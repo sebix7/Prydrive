@@ -19,10 +19,10 @@ The About modal dialog in Prydrive currently provides baseline project informati
 ## Functional Requirements
 - **FR-1:** THE SYSTEM SHALL display a dedicated "Board" (Tablero) entry in the About dialog metadata card linking to `https://trello.com/b/aPzGPiHF/prydrive`.
 - **FR-2:** WHEN the user activates the Trello board link, THE SYSTEM SHALL launch the URL in the operating system's default web browser.
-- **FR-3:** THE SYSTEM SHALL display a dedicated "Contact" (Contacto) entry in the About dialog metadata card showing the email address `sebeatport@gmail.com`.
-- **FR-4:** WHEN the user clicks the contact email address link, THE SYSTEM SHALL trigger the operating system's default email client via a `mailto:sebeatport@gmail.com` protocol handler.
+- **FR-3:** THE SYSTEM SHALL display a dedicated "Contact" (Contacto) entry in the About dialog metadata card showing the email address `sebiplay@hotmail.com`.
+- **FR-4:** WHEN the user clicks the contact email address link, THE SYSTEM SHALL trigger the operating system's default email client via a `mailto:sebiplay@hotmail.com` protocol handler.
 - **FR-5:** THE SYSTEM SHALL provide a quick-action copy button adjacent to the contact email address.
-- **FR-6:** WHEN the user activates the copy button, THE SYSTEM SHALL copy `sebeatport@gmail.com` to the system clipboard without triggering the `mailto:` email client, and display a temporary confirmation feedback state (icon transitions to checkmark, color shifts to emerald, and tooltip displays "Copied!" / "¡Copiado!").
+- **FR-6:** WHEN the user activates the copy button, THE SYSTEM SHALL copy `sebiplay@hotmail.com` to the system clipboard without triggering the `mailto:` email client, and display a temporary confirmation feedback state (icon transitions to checkmark, color shifts to emerald, and tooltip displays "Copied!" / "¡Copiado!").
 - **FR-7:** THE SYSTEM SHALL localize all new labels ("Board", "Contact", "Copy email", "Copied!") symmetrically in English and Spanish according to the active language setting.
 
 ## Non-Functional Requirements
@@ -74,3 +74,6 @@ The About modal dialog in Prydrive currently provides baseline project informati
   - **Question 6 (Text Layout & Truncation):**
     - *Agreement:* Use `min-w-0 flex-1 truncate` on the email address container and `shrink-0` on labels and actions.
     - *Why:* Prevents layout blowout on high DPI scaling or small window bounds.
+- **2026-11-04 (Contact Email Update):**
+  - **Change:** Updated contact email address from `sebeatport@gmail.com` to `sebiplay@hotmail.com`.
+  - **Why:** Explicit user request for the official developer contact address.

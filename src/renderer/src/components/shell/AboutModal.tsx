@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { X, ExternalLink } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, ExternalLink, Copy, Check } from 'lucide-react';
 import type { LanguageCode } from '../../../../shared/types';
-import { ABOUT_METADATA } from '../../../../shared/shell-state';
+import { ABOUT_METADATA, formatMailtoUrl } from '../../../../shared/shell-state';
 import { GoogleDriveLogo } from '../ui/GoogleDriveLogo';
 import { getTranslation } from '../../../../shared/i18n/translations';
 
@@ -16,6 +16,37 @@ export const AboutModal: React.FC<AboutModalProps> = ({
   onClose,
   language = 'en'
 }) => {
+  const [isCopied, setIsCopied] = useState(false);
+  const copyTimeoutRef = useRef<NodeJS.Timeout | number | null>(null);
+
+  // Timer cleanup on unmount or dialog dismiss (EC-4)
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current as any);
+      }
+    };
+  }, []);
+
+  const handleCopyEmail = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (copyTimeoutRef.current) {
+      clearTimeout(copyTimeoutRef.current as any);
+    }
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(ABOUT_METADATA.contactEmail);
+      }
+      setIsCopied(true);
+      copyTimeoutRef.current = setTimeout(() => {
+        setIsCopied(false);
+        copyTimeoutRef.current = null;
+      }, 2000);
+    } catch {
+      setIsCopied(false);
+    }
+  };
 
   // Listen for Escape key to close the modal
   useEffect(() => {
@@ -105,6 +136,57 @@ export const AboutModal: React.FC<AboutModalProps> = ({
               <span>Trello</span>
               <ExternalLink className="w-3 h-3" />
             </a>
+          </div>
+
+          {/* Row 3: Contact Email */}
+          <div className="flex justify-between items-center gap-2">
+            <span className="text-slate-500 shrink-0">
+              {language === 'es' ? 'Contacto:' : 'Contact:'}
+            </span>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <a
+                href={formatMailtoUrl(ABOUT_METADATA.contactEmail)}
+                className="text-slate-300 hover:text-blue-300 truncate hover:underline"
+                title={ABOUT_METADATA.contactEmail}
+                data-testid="about-contact-email"
+              >
+                {ABOUT_METADATA.contactEmail}
+              </a>
+              <button
+                type="button"
+                onClick={handleCopyEmail}
+                data-testid="about-copy-email-btn"
+                title={
+                  isCopied
+                    ? language === 'es'
+                      ? '¡Copiado!'
+                      : 'Copied!'
+                    : language === 'es'
+                      ? 'Copiar correo'
+                      : 'Copy email'
+                }
+                aria-label={
+                  isCopied
+                    ? language === 'es'
+                      ? '¡Copiado!'
+                      : 'Copied!'
+                    : language === 'es'
+                      ? 'Copiar correo'
+                      : 'Copy email'
+                }
+                className={`p-1 rounded transition-colors shrink-0 ${
+                  isCopied
+                    ? 'text-emerald-400 bg-emerald-500/10'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                {isCopied ? (
+                  <Check className="w-3 h-3 text-emerald-400 transition-transform duration-150" />
+                ) : (
+                  <Copy className="w-3 h-3 transition-transform duration-150" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
 
