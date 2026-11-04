@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
-import { X, ExternalLink, Code2 } from 'lucide-react';
+import { X, ExternalLink } from 'lucide-react';
 import type { LanguageCode } from '../../../../shared/types';
 import { ABOUT_METADATA } from '../../../../shared/shell-state';
 import { GoogleDriveLogo } from '../ui/GoogleDriveLogo';
+import { getTranslation } from '../../../../shared/i18n/translations';
 
 export interface AboutModalProps {
   isOpen: boolean;
@@ -15,7 +16,6 @@ export const AboutModal: React.FC<AboutModalProps> = ({
   onClose,
   language = 'en'
 }) => {
-  const isSpanish = language === 'es';
 
   // Listen for Escape key to close the modal
   useEffect(() => {
@@ -50,8 +50,8 @@ export const AboutModal: React.FC<AboutModalProps> = ({
           type="button"
           onClick={onClose}
           className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-          title={isSpanish ? 'Cerrar' : 'Close'}
-          aria-label={isSpanish ? 'Cerrar' : 'Close'}
+          title={getTranslation(language, 'about_close')}
+          aria-label={getTranslation(language, 'about_close')}
         >
           <X className="w-4 h-4" />
         </button>
@@ -71,15 +71,13 @@ export const AboutModal: React.FC<AboutModalProps> = ({
 
         {/* Description */}
         <p className="text-xs text-slate-400 leading-relaxed mb-4 max-w-xs">
-          {isSpanish
-            ? 'Gestor de escritorio visual, rápido y nativo para tus archivos de Google Drive.'
-            : ABOUT_METADATA.description}
+          {getTranslation(language, 'about_description')}
         </p>
 
         {/* Metadata Details */}
         <div className="w-full bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 text-xs text-slate-400 text-left mb-4 font-mono text-[11px]">
           <div className="flex justify-between items-center">
-            <span className="text-slate-500">{isSpanish ? 'Repositorio:' : 'Repository:'}</span>
+            <span className="text-slate-500">{getTranslation(language, 'about_repository')}</span>
             <a
               href={ABOUT_METADATA.website}
               target="_blank"
@@ -98,7 +96,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({
           onClick={onClose}
           className="w-full py-2 px-4 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 active:bg-slate-850 text-white transition-colors border border-slate-700/60 shadow-sm"
         >
-          {isSpanish ? 'Entendido' : 'Got it'}
+          {getTranslation(language, 'about_got_it')}
         </button>
       </div>
     </div>

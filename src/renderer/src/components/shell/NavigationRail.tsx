@@ -1,11 +1,14 @@
 import React from 'react';
+import type { LanguageCode } from '../../../../shared/types';
 import type { ActiveNavTab } from '../../../../shared/shell-state';
 import { getNavButtonStyles } from '../../../../shared/shell-state';
+import { getTranslation } from '../../../../shared/i18n/translations';
 import { GoogleDriveLogo } from '../ui/GoogleDriveLogo';
 
 export interface NavigationRailProps {
   activeNav: ActiveNavTab;
   onSelectNav: (nav: ActiveNavTab) => void;
+  language?: LanguageCode;
 }
 
 /**
@@ -35,7 +38,8 @@ const PrydriveLogoIcon: React.FC<{ className?: string }> = ({ className = 'w-5 h
  */
 export const NavigationRail: React.FC<NavigationRailProps> = ({
   activeNav,
-  onSelectNav
+  onSelectNav,
+  language = 'en'
 }) => {
   const isPrydriveActive = activeNav === 'prydrive';
   const isGoogleDriveActive = activeNav === 'google-drive';
@@ -61,8 +65,8 @@ export const NavigationRail: React.FC<NavigationRailProps> = ({
           data-testid="nav-btn-prydrive"
           onClick={() => onSelectNav('prydrive')}
           className={`group relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${prydriveStyles.container}`}
-          title="Prydrive"
-          aria-label="Prydrive"
+          title={getTranslation(language, 'nav_prydrive_tooltip')}
+          aria-label={getTranslation(language, 'nav_prydrive_tooltip')}
           aria-pressed={isPrydriveActive}
         >
           <PrydriveLogoIcon className="w-5 h-5 transition-transform duration-150 group-active:scale-95" />
@@ -84,8 +88,8 @@ export const NavigationRail: React.FC<NavigationRailProps> = ({
           data-testid="nav-btn-google-drive"
           onClick={() => onSelectNav('google-drive')}
           className={`group relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${googleDriveStyles.container}`}
-          title="Google Drive"
-          aria-label="Google Drive"
+          title={getTranslation(language, 'nav_google_drive_tooltip')}
+          aria-label={getTranslation(language, 'nav_google_drive_tooltip')}
           aria-pressed={isGoogleDriveActive}
         >
           <div className="w-5 h-5 flex items-center justify-center transition-transform duration-150 group-active:scale-95">

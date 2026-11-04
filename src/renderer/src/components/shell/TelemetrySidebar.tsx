@@ -2,6 +2,7 @@ import React from 'react';
 import { ChevronLeft, ChevronRight, HardDrive } from 'lucide-react';
 import type { StorageQuota, LanguageCode } from '../../../../shared/types';
 import { truncateEmail, getSidebarClasses } from '../../../../shared/shell-state';
+import { getTranslation } from '../../../../shared/i18n/translations';
 import { GoogleDriveLogo } from '../ui/GoogleDriveLogo';
 import { QuotaBar } from '../storage/QuotaBar';
 
@@ -26,9 +27,12 @@ export const TelemetrySidebar: React.FC<TelemetrySidebarProps> = ({
   onRefreshQuota,
   language = 'en'
 }) => {
-  const isSpanish = language === 'es';
   const sidebarStyles = getSidebarClasses(isExpanded);
   const truncatedEmail = truncateEmail(userEmail, 24);
+  const toggleTooltip = getTranslation(
+    language,
+    isExpanded ? 'sidebar_collapse_tooltip' : 'sidebar_expand_tooltip'
+  );
 
   return (
     <aside
@@ -41,16 +45,8 @@ export const TelemetrySidebar: React.FC<TelemetrySidebarProps> = ({
         type="button"
         data-testid="sidebar-toggle-btn"
         onClick={onToggle}
-        title={
-          isExpanded
-            ? isSpanish
-              ? 'Ocultar panel'
-              : 'Collapse sidebar'
-            : isSpanish
-              ? 'Mostrar panel'
-              : 'Expand sidebar'
-        }
-        aria-label={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
+        title={toggleTooltip}
+        aria-label={toggleTooltip}
         aria-expanded={isExpanded}
         className={`absolute top-1/2 -translate-y-1/2 z-30 w-7 h-7 rounded-full bg-[#161B22] border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 shadow-xl flex items-center justify-center transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 active:scale-95 ${
           isExpanded ? '-left-3.5' : '-left-7'
@@ -78,7 +74,7 @@ export const TelemetrySidebar: React.FC<TelemetrySidebarProps> = ({
             </h3>
             <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
-              <span>{isSpanish ? 'Conectado' : 'Connected'}</span>
+              <span>{getTranslation(language, 'sidebar_connected')}</span>
             </div>
           </div>
         </div>
@@ -86,7 +82,7 @@ export const TelemetrySidebar: React.FC<TelemetrySidebarProps> = ({
         {/* 2. User Account Card */}
         <div className="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 flex flex-col gap-1">
           <span className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">
-            {isSpanish ? 'Cuenta' : 'Account'}
+            {getTranslation(language, 'sidebar_account')}
           </span>
           <div
             data-testid="sidebar-user-email"
@@ -102,7 +98,7 @@ export const TelemetrySidebar: React.FC<TelemetrySidebarProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider flex items-center gap-1.5">
               <HardDrive className="w-3 h-3 text-slate-400" />
-              <span>{isSpanish ? 'Almacenamiento' : 'Storage'}</span>
+              <span>{getTranslation(language, 'sidebar_storage')}</span>
             </span>
           </div>
           <QuotaBar

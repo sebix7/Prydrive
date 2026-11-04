@@ -30,6 +30,7 @@ interface AppShellProps {
   renderNavigationRail?: (props: {
     activeNav: 'prydrive' | 'google-drive';
     onSelectNav: (nav: 'prydrive' | 'google-drive') => void;
+    language: 'en' | 'es';
   }) => React.ReactNode;
   renderTelemetrySidebar?: (props: {
     userEmail: string;
@@ -109,12 +110,14 @@ export const AppShell: React.FC<AppShellProps> = ({
         {renderNavigationRail ? (
           renderNavigationRail({
             activeNav: state.activeNav,
-            onSelectNav: (nav) => dispatch({ type: 'SET_ACTIVE_NAV', payload: nav })
+            onSelectNav: (nav) => dispatch({ type: 'SET_ACTIVE_NAV', payload: nav }),
+            language
           })
         ) : (
           <NavigationRail
             activeNav={state.activeNav}
             onSelectNav={(nav) => dispatch({ type: 'SET_ACTIVE_NAV', payload: nav })}
+            language={language}
           />
         )}
 

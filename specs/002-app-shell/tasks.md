@@ -16,6 +16,6 @@
   - Depends on: T1
   - Done when: The right sidebar initializes in an expanded state by default upon login and restart; displays the Google Drive logo, the connected user's email address truncated with tooltip, and the storage quota bar with skeleton/error fallback states; clicking the circular divider button (`<` / `>`) or the View menu action animates between expanded (260px) and collapsed (0px) states within 200ms while retaining the circular toggle trigger. Verified via automated unit tests.
 
-- [ ] **T5. Implement bilingual localization (English / Spanish) across all shell menus, labels, tooltips, sidebar metrics, and modal dialogs with real-time switching.** US-5 (FR-8, FR-6)
+- [x] **T5. Implement bilingual localization (English / Spanish) across all shell menus, labels, tooltips, sidebar metrics, and modal dialogs with real-time switching.** US-5 (FR-8, FR-6)
   - Depends on: T1, T2, T3, T4
   - Done when: All shell text (File, Account, View, Help menus, sidebar headers, tooltips, canvas placeholders, About dialog) is defined in both English and Spanish with 100% dictionary key parity; selecting the language option in the Account menu immediately updates all visible shell text without page reload or state loss. Verified via automated dictionary symmetry and parity unit tests in `tests/unit/translations.test.ts`.

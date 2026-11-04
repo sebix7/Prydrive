@@ -2,6 +2,7 @@ import React from 'react';
 import { FolderGit2 } from 'lucide-react';
 import type { ActiveNavTab } from '../../hooks/useShellState';
 import { GoogleDriveLogo } from '../ui/GoogleDriveLogo';
+import { getTranslation } from '../../../../shared/i18n/translations';
 
 interface WorkspaceCanvasProps {
   activeNav: ActiveNavTab;
@@ -9,8 +10,6 @@ interface WorkspaceCanvasProps {
 }
 
 export const WorkspaceCanvas: React.FC<WorkspaceCanvasProps> = ({ activeNav, language = 'en' }) => {
-  const isSpanish = language === 'es';
-
   return (
     <main
       data-testid="workspace-canvas"
@@ -27,23 +26,17 @@ export const WorkspaceCanvas: React.FC<WorkspaceCanvasProps> = ({ activeNav, lan
 
         <h2 className="text-xl font-semibold tracking-tight text-slate-100">
           {activeNav === 'prydrive'
-            ? isSpanish
-              ? 'Espacio de Trabajo Prydrive'
-              : 'Prydrive Workspace'
-            : isSpanish
-              ? 'Google Drive Conectado'
-              : 'Google Drive Connected'}
+            ? getTranslation(language, 'canvas_prydrive_title')
+            : getTranslation(language, 'canvas_drive_title')}
         </h2>
 
         <p className="text-sm text-slate-400 leading-relaxed">
-          {isSpanish
-            ? 'El explorador de archivos y carpetas estará disponible en la próxima actualización. Tu conexión con la nube está activa y sincronizada.'
-            : 'File and folder explorer will be available in the next release. Your cloud connection is active and synchronized.'}
+          {getTranslation(language, 'canvas_placeholder_desc')}
         </p>
 
         <div className="pt-2 flex items-center justify-center gap-2 text-xs text-slate-500 font-mono">
           <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-ping" />
-          <span>{isSpanish ? 'Listo para explorar' : 'Ready to explore'}</span>
+          <span>{getTranslation(language, 'canvas_ready_status')}</span>
         </div>
       </div>
     </main>

@@ -9,6 +9,7 @@ import {
 import type { LanguageCode } from '../../../../shared/types';
 import type { ActiveMenu } from '../../../../shared/shell-state';
 import { toggleMenuHeader } from '../../../../shared/shell-state';
+import { getTranslation } from '../../../../shared/i18n/translations';
 
 export interface MenuBarProps {
   language: LanguageCode;
@@ -34,7 +35,6 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   onOpenAbout,
   onSetLanguage
 }) => {
-  const isSpanish = language === 'es';
   const [isLangSubmenuOpen, setIsLangSubmenuOpen] = useState(false);
 
   const handleHeaderClick = (menu: ActiveMenu) => {
@@ -69,7 +69,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
                 : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
             }`}
           >
-            {isSpanish ? 'Opciones' : 'Options'}
+            {getTranslation(language, 'menu_options')}
           </button>
 
           {openMenu === 'options' && (
@@ -94,7 +94,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
                 >
                   <div className="flex items-center gap-2">
                     <Languages className="w-3.5 h-3.5 text-slate-400 group-hover:text-white" />
-                    <span>{isSpanish ? 'Idioma' : 'Language'}</span>
+                    <span>{getTranslation(language, 'menu_language')}</span>
                   </div>
                   <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-white ml-2" />
                 </button>
@@ -141,7 +141,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
                 className="w-full px-3 py-1.5 flex items-center gap-2 text-left text-rose-400 hover:bg-rose-500/15 hover:text-rose-300 transition-colors"
               >
                 <LogOut className="w-3.5 h-3.5" />
-                <span>{isSpanish ? 'Desconectar' : 'Disconnect'}</span>
+                <span>{getTranslation(language, 'menu_disconnect')}</span>
               </button>
             </div>
           )}
@@ -161,7 +161,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
                 : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
             }`}
           >
-            {isSpanish ? 'Ayuda' : 'Help'}
+            {getTranslation(language, 'menu_help')}
           </button>
 
           {openMenu === 'help' && (
@@ -179,7 +179,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
                 className="w-full px-3 py-1.5 flex items-center gap-2 text-left hover:bg-blue-600 hover:text-white text-slate-200 transition-colors"
               >
                 <Info className="w-3.5 h-3.5 text-slate-400" />
-                <span>{isSpanish ? 'Acerca de Prydrive' : 'About Prydrive'}</span>
+                <span>{getTranslation(language, 'menu_about')}</span>
               </button>
             </div>
           )}

@@ -9,8 +9,8 @@ Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete i
 - `specs/001-auth-google/` fully implemented (T1-T6 completed: US-1 through US-6).
 - GitHub Actions CI (`ci.yml`) and automated SemVer release pipeline (`commit-and-tag-version`, `release.yml`) implemented.
 - Baseline release `v0.1.0` published to remote with automated changelog (`CHANGELOG.md`).
-- `specs/002-app-shell/` active: T1, T2, T3 & T4 implemented (US-1: shell, US-2: left rail, US-3: top menu, US-4: telemetry sidebar with collapse & fluid responsiveness).
-- Next step: Implement `/sdd-implement 002-app-shell T5` (Bilingual localization parity).
+- `specs/002-app-shell/` fully implemented (T1-T5 completed: US-1 through US-5).
+- Next step: Run `/sdd-validate 002-app-shell` to validate all functional requirements.
 
 ## Decisions (and why)
 - **Tailwind content scan of shared code**: `tailwind.config.js` includes `./src/shared/**` so utility classes in shared state reducers (e.g. `.w-0`, `.min-w-0`) are compiled into CSS.

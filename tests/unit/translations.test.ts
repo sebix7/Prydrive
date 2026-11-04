@@ -39,4 +39,81 @@ describe('Bilingual Localization Dictionary (US-6 / T6 / FR-15)', () => {
     // @ts-expect-error testing invalid language code fallback
     expect(getTranslation('fr', 'welcome_title')).toBe('Welcome to Prydrive');
   });
+
+  describe('Shell Localization Parity (US-5 / T5 / FR-6 / FR-8)', () => {
+    const requiredShellKeys: TranslationKey[] = [
+      // Menu bar
+      'menu_options',
+      'menu_language',
+      'menu_disconnect',
+      'menu_help',
+      'menu_about',
+      'menu_file',
+      'menu_close_window',
+      'menu_view',
+      'menu_toggle_sidebar',
+      // Navigation rail
+      'nav_prydrive_tooltip',
+      'nav_google_drive_tooltip',
+      // Central workspace canvas
+      'canvas_prydrive_title',
+      'canvas_drive_title',
+      'canvas_placeholder_desc',
+      'canvas_ready_status',
+      // Telemetry sidebar
+      'sidebar_connected',
+      'sidebar_account',
+      'sidebar_storage',
+      'sidebar_collapse_tooltip',
+      'sidebar_expand_tooltip',
+      // About modal
+      'about_title',
+      'about_description',
+      'about_repository',
+      'about_close',
+      'about_got_it'
+    ];
+
+    it('should have all shell translation keys defined in both English and Spanish', () => {
+      requiredShellKeys.forEach((key) => {
+        expect(translations.en[key]).toBeDefined();
+        expect(translations.es[key]).toBeDefined();
+        expect(translations.en[key].length).toBeGreaterThan(0);
+        expect(translations.es[key].length).toBeGreaterThan(0);
+      });
+    });
+
+    it('should translate menu bar items accurately in both languages', () => {
+      expect(getTranslation('en', 'menu_options')).toBe('Options');
+      expect(getTranslation('es', 'menu_options')).toBe('Opciones');
+      expect(getTranslation('en', 'menu_language')).toBe('Language');
+      expect(getTranslation('es', 'menu_language')).toBe('Idioma');
+      expect(getTranslation('en', 'menu_help')).toBe('Help');
+      expect(getTranslation('es', 'menu_help')).toBe('Ayuda');
+      expect(getTranslation('en', 'menu_about')).toBe('About Prydrive');
+      expect(getTranslation('es', 'menu_about')).toBe('Acerca de Prydrive');
+    });
+
+    it('should translate telemetry sidebar labels accurately in both languages', () => {
+      expect(getTranslation('en', 'sidebar_connected')).toBe('Connected');
+      expect(getTranslation('es', 'sidebar_connected')).toBe('Conectado');
+      expect(getTranslation('en', 'sidebar_account')).toBe('Account');
+      expect(getTranslation('es', 'sidebar_account')).toBe('Cuenta');
+      expect(getTranslation('en', 'sidebar_storage')).toBe('Storage');
+      expect(getTranslation('es', 'sidebar_storage')).toBe('Almacenamiento');
+      expect(getTranslation('en', 'sidebar_collapse_tooltip')).toBe('Collapse sidebar');
+      expect(getTranslation('es', 'sidebar_collapse_tooltip')).toBe('Ocultar panel');
+      expect(getTranslation('en', 'sidebar_expand_tooltip')).toBe('Expand sidebar');
+      expect(getTranslation('es', 'sidebar_expand_tooltip')).toBe('Mostrar panel');
+    });
+
+    it('should translate canvas placeholder and about dialog accurately in both languages', () => {
+      expect(getTranslation('en', 'canvas_drive_title')).toBe('Google Drive Connected');
+      expect(getTranslation('es', 'canvas_drive_title')).toBe('Google Drive Conectado');
+      expect(getTranslation('en', 'canvas_ready_status')).toBe('Ready to explore');
+      expect(getTranslation('es', 'canvas_ready_status')).toBe('Listo para explorar');
+      expect(getTranslation('en', 'about_got_it')).toBe('Got it');
+      expect(getTranslation('es', 'about_got_it')).toBe('Entendido');
+    });
+  });
 });

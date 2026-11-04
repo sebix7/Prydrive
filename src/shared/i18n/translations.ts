@@ -48,7 +48,42 @@ export const translations = {
     error_auth_timeout: 'Authorization timed out after 60 seconds. Please try again.',
     error_session_expired: 'Your session has expired or been revoked. Please sign in again.',
     error_login_failed: 'Login failed',
-    error_offline_general: 'You are offline. Google Drive features require an active internet connection.'
+    error_offline_general: 'You are offline. Google Drive features require an active internet connection.',
+
+    // Shell - Menu Bar
+    menu_options: 'Options',
+    menu_language: 'Language',
+    menu_disconnect: 'Disconnect',
+    menu_help: 'Help',
+    menu_about: 'About Prydrive',
+    menu_file: 'File',
+    menu_close_window: 'Close Window',
+    menu_view: 'View',
+    menu_toggle_sidebar: 'Toggle Storage Sidebar',
+
+    // Shell - Navigation Rail
+    nav_prydrive_tooltip: 'Prydrive Workspace',
+    nav_google_drive_tooltip: 'Google Drive',
+
+    // Shell - Central Workspace Canvas
+    canvas_prydrive_title: 'Prydrive Workspace',
+    canvas_drive_title: 'Google Drive Connected',
+    canvas_placeholder_desc: 'File and folder explorer will be available in the next release. Your cloud connection is active and synchronized.',
+    canvas_ready_status: 'Ready to explore',
+
+    // Shell - Telemetry Sidebar
+    sidebar_connected: 'Connected',
+    sidebar_account: 'Account',
+    sidebar_storage: 'Storage',
+    sidebar_collapse_tooltip: 'Collapse sidebar',
+    sidebar_expand_tooltip: 'Expand sidebar',
+
+    // Shell - About Modal
+    about_title: 'About Prydrive',
+    about_description: 'Fast, visual native desktop client for Google Drive.',
+    about_repository: 'Repository:',
+    about_close: 'Close',
+    about_got_it: 'Got it'
   },
   es: {
     // Welcome Screen
@@ -97,7 +132,42 @@ export const translations = {
     error_auth_timeout: 'La autorización expiró tras 60 segundos. Intenta nuevamente.',
     error_session_expired: 'Tu sesión ha expirado o fue revocada. Inicia sesión nuevamente.',
     error_login_failed: 'Fallo al iniciar sesión',
-    error_offline_general: 'Estás sin conexión. Las funciones de Google Drive requieren internet.'
+    error_offline_general: 'Estás sin conexión. Las funciones de Google Drive requieren internet.',
+
+    // Shell - Menu Bar
+    menu_options: 'Opciones',
+    menu_language: 'Idioma',
+    menu_disconnect: 'Desconectar',
+    menu_help: 'Ayuda',
+    menu_about: 'Acerca de Prydrive',
+    menu_file: 'Archivo',
+    menu_close_window: 'Cerrar ventana',
+    menu_view: 'Ver',
+    menu_toggle_sidebar: 'Alternar panel de almacenamiento',
+
+    // Shell - Navigation Rail
+    nav_prydrive_tooltip: 'Espacio de trabajo Prydrive',
+    nav_google_drive_tooltip: 'Google Drive',
+
+    // Shell - Central Workspace Canvas
+    canvas_prydrive_title: 'Espacio de Trabajo Prydrive',
+    canvas_drive_title: 'Google Drive Conectado',
+    canvas_placeholder_desc: 'El explorador de archivos y carpetas estará disponible en la próxima actualización. Tu conexión con la nube está activa y sincronizada.',
+    canvas_ready_status: 'Listo para explorar',
+
+    // Shell - Telemetry Sidebar
+    sidebar_connected: 'Conectado',
+    sidebar_account: 'Cuenta',
+    sidebar_storage: 'Almacenamiento',
+    sidebar_collapse_tooltip: 'Ocultar panel',
+    sidebar_expand_tooltip: 'Mostrar panel',
+
+    // Shell - About Modal
+    about_title: 'Acerca de Prydrive',
+    about_description: 'Gestor de escritorio visual, rápido y nativo para tus archivos de Google Drive.',
+    about_repository: 'Repositorio:',
+    about_close: 'Cerrar',
+    about_got_it: 'Entendido'
   }
 } as const;
 
