@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.2.0](https://github.com/sebix7/Prydrive/compare/v0.1.0...v0.2.0) (2026-11-04)
+
+
+### Features
+
+* **shell:** implement 4-zone desktop application shell container and state machine ([60d8f38](https://github.com/sebix7/Prydrive/commit/60d8f38bb22e91b823800b9cc4f442ad6d2145ae))
+* **shell:** implement bilingual localization parity across desktop shell ([65e5c9c](https://github.com/sebix7/Prydrive/commit/65e5c9c6cacd04b281fa48297e5925b9975304fe))
+* **shell:** implement collapsible telemetry sidebar and responsive layout ([a107e46](https://github.com/sebix7/Prydrive/commit/a107e46c950e854a976ee8feaab15e7c10777807))
+* **shell:** implement horizontal menu bar, about modal, and dynamic versioning ([ac79b96](https://github.com/sebix7/Prydrive/commit/ac79b96226073065c83ef1c647e38edfa5e31b4f))
+* **shell:** implement left navigation rail and update google drive branding ([1cf77dd](https://github.com/sebix7/Prydrive/commit/1cf77ddacca5a7b30526fddf23eccb1bc1b8aa92))
+
+
+### Documentation
+
+* **memory:** log v0.1.0 baseline release completion in current status ([160523b](https://github.com/sebix7/Prydrive/commit/160523ba1dd3dac559cb48a4bc7fc986e4e7ce0d))
+
 ## 0.1.0 (2026-11-01)
 
 
