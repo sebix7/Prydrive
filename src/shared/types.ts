@@ -37,3 +37,43 @@ export interface AuthSessionData {
   displayName?: string;
   savedAt: number;
 }
+
+export type StorageItemType =
+  | 'folder'
+  | 'document'
+  | 'spreadsheet'
+  | 'presentation'
+  | 'image'
+  | 'video'
+  | 'audio'
+  | 'pdf'
+  | 'archive'
+  | 'shortcut'
+  | 'file';
+
+export interface StorageItem {
+  id: string;
+  name: string;
+  mimeType: string;
+  isDirectory: boolean;
+  sizeBytes: number | null;
+  formattedSize: string;
+  createdAt: string;
+  formattedCreatedAt: string;
+  iconType: StorageItemType;
+  isShortcut: boolean;
+}
+
+export interface ListDirectoryParams {
+  folderId?: string;
+  pageToken?: string;
+  pageSize?: number;
+}
+
+export interface ListDirectoryResult {
+  items: StorageItem[];
+  nextPageToken: string | null;
+  currentFolderId: string;
+  parentFolderId?: string | null;
+}
+

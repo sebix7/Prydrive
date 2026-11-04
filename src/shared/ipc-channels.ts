@@ -4,6 +4,7 @@ export const IPC_CHANNELS = {
   AUTH_RESTORE_SESSION: 'auth:restore-session',
   AUTH_DISCONNECT: 'auth:disconnect',
   STORAGE_GET_QUOTA: 'storage:get-quota',
+  STORAGE_LIST_DIRECTORY: 'storage:list-directory',
   APP_SET_LANGUAGE: 'app:set-language'
 } as const;
 

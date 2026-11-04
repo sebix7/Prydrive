@@ -1,0 +1,92 @@
+import React from 'react';
+import {
+  Folder,
+  FileText,
+  FileSpreadsheet,
+  Presentation,
+  FileImage,
+  FileVideo,
+  FileAudio,
+  FileArchive,
+  ExternalLink,
+  File
+} from 'lucide-react';
+import type { StorageItem, StorageItemType } from '../../../../shared/types';
+
+export interface FileTableRowProps {
+  item: StorageItem;
+  isSelected?: boolean;
+  onSelect?: (id: string) => void;
+  onDoubleClick?: (item: StorageItem) => void;
+}
+
+function renderItemIcon(iconType: StorageItemType): React.ReactNode {
+  switch (iconType) {
+    case 'folder':
+      return <Folder className="w-4 h-4 text-blue-400 fill-blue-400/20" />;
+    case 'document':
+      return <FileText className="w-4 h-4 text-blue-400" />;
+    case 'spreadsheet':
+      return <FileSpreadsheet className="w-4 h-4 text-emerald-400" />;
+    case 'presentation':
+      return <Presentation className="w-4 h-4 text-amber-400" />;
+    case 'pdf':
+      return <FileText className="w-4 h-4 text-rose-400" />;
+    case 'image':
+      return <FileImage className="w-4 h-4 text-purple-400" />;
+    case 'video':
+      return <FileVideo className="w-4 h-4 text-pink-400" />;
+    case 'audio':
+      return <FileAudio className="w-4 h-4 text-cyan-400" />;
+    case 'archive':
+      return <FileArchive className="w-4 h-4 text-amber-300" />;
+    case 'shortcut':
+      return <ExternalLink className="w-4 h-4 text-slate-400" />;
+    default:
+      return <File className="w-4 h-4 text-slate-400" />;
+  }
+}
+
+export const FileTableRow: React.FC<FileTableRowProps> = ({
+  item,
+  isSelected = false,
+  onSelect,
+  onDoubleClick
+}) => {
+  return (
+    <div
+      role="row"
+      data-testid={`explorer-row-${item.id}`}
+      onClick={() => onSelect?.(item.id)}
+      onDoubleClick={() => onDoubleClick?.(item)}
+      className={`h-9 flex items-center px-3 border-b border-slate-800/50 text-xs transition-colors cursor-default select-none ${
+        isSelected
+          ? 'bg-blue-600/20 text-white border-blue-500/30'
+          : 'text-slate-200 hover:bg-slate-800/50'
+      }`}
+    >
+      {/* Column 1: Type Icon */}
+      <div className="w-10 flex items-center justify-center shrink-0">
+        {renderItemIcon(item.iconType)}
+      </div>
+
+      {/* Column 2: Name (Truncated with Tooltip for EC-3) */}
+      <div
+        className="flex-1 min-w-0 pr-4 truncate font-medium"
+        title={item.name}
+      >
+        {item.name}
+      </div>
+
+      {/* Column 3: Creation Date (DD/MM/YYYY HH:mm:ss local) */}
+      <div className="w-44 shrink-0 text-slate-400 font-mono text-[11px]">
+        {item.formattedCreatedAt}
+      </div>
+
+      {/* Column 4: File Size */}
+      <div className="w-24 shrink-0 text-right text-slate-400 font-mono text-[11px] pr-2">
+        {item.formattedSize}
+      </div>
+    </div>
+  );
+};

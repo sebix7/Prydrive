@@ -73,4 +73,30 @@ export class GoogleAuthClient {
       limit: quota?.limit ?? null
     };
   }
+
+  async listDirectory(
+    refreshToken: string,
+    folderId = 'root',
+    pageToken?: string,
+    pageSize = 50
+  ): Promise<{ files: Array<Record<string, unknown>>; nextPageToken: string | null }> {
+    const client = this.createOAuthClient('http://127.0.0.1');
+    client.setCredentials({ refresh_token: refreshToken });
+
+    const drive = google.drive({ version: 'v3', auth: client });
+    const response = await drive.files.list({
+      q: `'${folderId}' in parents and trashed = false`,
+      fields:
+        'nextPageToken, files(id, name, mimeType, size, quotaBytesUsed, createdTime, shortcutDetails, trashed)',
+      pageSize,
+      pageToken: pageToken || undefined,
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true
+    });
+
+    return {
+      files: (response.data.files as Array<Record<string, unknown>>) || [],
+      nextPageToken: response.data.nextPageToken || null
+    };
+  }
 }

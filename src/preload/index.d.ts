@@ -1,4 +1,11 @@
-import type { IpcResult, UserProfile, AuthState, StorageQuota } from '../shared/types';
+import type {
+  IpcResult,
+  UserProfile,
+  AuthState,
+  StorageQuota,
+  ListDirectoryParams,
+  ListDirectoryResult
+} from '../shared/types';
 
 export interface ElectronApi {
   auth: {
@@ -9,6 +16,7 @@ export interface ElectronApi {
   };
   storage: {
     getQuota: () => Promise<IpcResult<StorageQuota>>;
+    listDirectory: (params?: ListDirectoryParams) => Promise<IpcResult<ListDirectoryResult>>;
   };
 }
 
