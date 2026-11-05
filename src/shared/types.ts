@@ -77,3 +77,9 @@ export interface ListDirectoryResult {
   parentFolderId?: string | null;
 }
 
+export interface FolderCrumb {
+  id: string;
+  name: string;
+}
+
+

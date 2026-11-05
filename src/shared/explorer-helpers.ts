@@ -1,4 +1,51 @@
-import type { StorageItem, StorageItemType } from './types';
+import type { StorageItem, StorageItemType, FolderCrumb } from './types';
+
+export const INITIAL_FOLDER_HISTORY: FolderCrumb[] = [
+  { id: 'root', name: 'My Drive' }
+];
+
+/**
+ * Returns true if the navigation stack is currently at the root directory ("My Drive") (FR-10).
+ */
+export function isAtRootDirectory(stack: FolderCrumb[]): boolean {
+  if (!stack || stack.length <= 1) {
+    return true;
+  }
+  return stack[stack.length - 1].id === 'root';
+}
+
+/**
+ * Returns the active folder at the top of the navigation stack.
+ */
+export function getCurrentFolder(stack: FolderCrumb[]): FolderCrumb {
+  if (!stack || stack.length === 0) {
+    return { id: 'root', name: 'My Drive' };
+  }
+  return stack[stack.length - 1];
+}
+
+/**
+ * Pushes a subfolder onto the navigation history stack (FR-6, EC-4).
+ */
+export function pushFolderHistory(
+  stack: FolderCrumb[],
+  folder: FolderCrumb
+): FolderCrumb[] {
+  const baseStack = stack && stack.length > 0 ? stack : INITIAL_FOLDER_HISTORY;
+  return [...baseStack, { id: folder.id, name: folder.name }];
+}
+
+/**
+ * Pops the top folder off the navigation stack to ascend one level (FR-9, FR-10, EC-4).
+ * Never pops below the root directory.
+ */
+export function popFolderHistory(stack: FolderCrumb[]): FolderCrumb[] {
+  if (!stack || stack.length <= 1) {
+    return INITIAL_FOLDER_HISTORY;
+  }
+  return stack.slice(0, stack.length - 1);
+}
+
 
 /**
  * Formats an ISO 8601 date string into DD/MM/YYYY HH:mm:ss in the local timezone (FR-1).

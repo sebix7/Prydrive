@@ -1,27 +1,69 @@
-import React, { useState, useEffect } from 'react';
-import type { StorageItem, LanguageCode } from '../../../../shared/types';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Loader2 } from 'lucide-react';
+import type { StorageItem, LanguageCode, FolderCrumb } from '../../../../shared/types';
+import {
+  INITIAL_FOLDER_HISTORY,
+  isAtRootDirectory,
+  getCurrentFolder,
+  pushFolderHistory,
+  popFolderHistory
+} from '../../../../shared/explorer-helpers';
 import { FileTableRow } from './FileTableRow';
+import { ParentNavRow } from './ParentNavRow';
 
 export interface FileExplorerProps {
   language?: LanguageCode;
 }
 
 export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) => {
+  const [folderHistory, setFolderHistory] = useState<FolderCrumb[]>(INITIAL_FOLDER_HISTORY);
   const [items, setItems] = useState<StorageItem[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const currentFolder = getCurrentFolder(folderHistory);
+  const atRoot = isAtRootDirectory(folderHistory);
 
   useEffect(() => {
     let isMounted = true;
-    async function loadRootDirectory() {
-      if (!window.api?.storage?.listDirectory) return;
-      const result = await window.api.storage.listDirectory({ folderId: 'root' });
-      if (isMounted && result.success && result.data) {
-        setItems(result.data.items);
+    setIsLoading(true);
+    setItems([]);
+
+    async function loadDirectory() {
+      if (!window.api?.storage?.listDirectory) {
+        if (isMounted) setIsLoading(false);
+        return;
+      }
+      const result = await window.api.storage.listDirectory({
+        folderId: currentFolder.id
+      });
+      if (isMounted) {
+        if (result.success && result.data) {
+          setItems(result.data.items);
+        }
+        setIsLoading(false);
       }
     }
-    loadRootDirectory();
+    loadDirectory();
     return () => {
       isMounted = false;
     };
+  }, [currentFolder.id]);
+
+  const handleRowDoubleClick = useCallback((item: StorageItem) => {
+    if (!item.isDirectory) {
+      return;
+    }
+    setIsLoading(true);
+    setItems([]);
+    setFolderHistory((prev) =>
+      pushFolderHistory(prev, { id: item.id, name: item.name })
+    );
+  }, []);
+
+  const handleNavigateUp = useCallback(() => {
+    setIsLoading(true);
+    setItems([]);
+    setFolderHistory((prev) => popFolderHistory(prev));
   }, []);
 
   return (
@@ -33,13 +75,13 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
       <div
         role="table"
         data-testid="explorer-table-body"
-        className="flex-1 overflow-y-auto min-h-0"
+        className="flex-1 flex flex-col overflow-y-auto min-h-0"
       >
         {/* Compact Sticky Table Header */}
         <div
           role="row"
           data-testid="explorer-table-header"
-          className="sticky top-0 z-10 h-9 flex items-center px-3 bg-[#161B22] border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-400"
+          className="sticky top-0 z-10 h-9 flex items-center px-3 bg-[#161B22] border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-400 shrink-0"
         >
           <div className="w-10 text-center shrink-0">
             {language === 'es' ? 'Tipo' : 'Type'}
@@ -55,12 +97,33 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
           </div>
         </div>
 
-        {/* Rows */}
-        <div role="rowgroup">
-          {items.map((item) => (
-            <FileTableRow key={item.id} item={item} />
-          ))}
-        </div>
+        {/* Centered Loading Spinner or Rows */}
+        {isLoading ? (
+          <div
+            data-testid="explorer-loading-spinner"
+            className="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-slate-400"
+          >
+            <div className="p-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 shadow-inner">
+              <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
+            </div>
+            <span className="text-xs font-medium tracking-wide text-slate-400 animate-pulse">
+              {language === 'es' ? 'Cargando archivos...' : 'Loading files...'}
+            </span>
+          </div>
+        ) : (
+          <div role="rowgroup">
+            {!atRoot && (
+              <ParentNavRow onNavigateUp={handleNavigateUp} language={language} />
+            )}
+            {items.map((item) => (
+              <FileTableRow
+                key={item.id}
+                item={item}
+                onDoubleClick={handleRowDoubleClick}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

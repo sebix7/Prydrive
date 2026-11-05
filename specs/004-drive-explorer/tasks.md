@@ -4,7 +4,7 @@
   - Depends on: None
   - Done when: The system fetches active root directory items (`trashed = false`) via `storage:list-directory` IPC, maps them to provider-agnostic `StorageItem` models, sorts folders ahead of files alphabetically, formats creation dates in local time (`DD/MM/YYYY HH:mm:ss`) and sizes in human-readable units (including Workspace document quota sizes), and renders them in a compact table list with Type Icon, Name, Creation Date, and Size columns. Verified via unit tests in `tests/unit/explorer-helpers.test.ts` and IPC integration tests in `tests/integration/explorer-flow.test.ts`.
 
-- [ ] **T2. Implement interactive folder navigation on double-click and parent directory ascension via the top "..." entry.** US-2 (FR-6, FR-8, FR-9, FR-10, EC-4)
+- [x] **T2. Implement interactive folder navigation on double-click and parent directory ascension via the top "..." entry.** US-2 (FR-6, FR-8, FR-9, FR-10, EC-4)
   - Depends on: T1
   - Done when: Double-clicking a folder navigates inside it and pushes it onto the folder history stack; while inside any subfolder, a virtual `"..."` row with a folder icon is rendered at the very top of the table (hidden at root `"My Drive"`), and double-clicking `"..."` ascends one level to the immediate parent folder. Verified via unit tests in `tests/unit/explorer-helpers.test.ts` and integration tests in `tests/integration/explorer-flow.test.ts`.
 

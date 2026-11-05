@@ -4,7 +4,12 @@ import {
   formatItemSize,
   resolveItemIconType,
   sortStorageItems,
-  mapGoogleDriveFileToStorageItem
+  mapGoogleDriveFileToStorageItem,
+  INITIAL_FOLDER_HISTORY,
+  isAtRootDirectory,
+  pushFolderHistory,
+  popFolderHistory,
+  getCurrentFolder
 } from '../../src/shared/explorer-helpers';
 import type { StorageItem } from '../../src/shared/types';
 
@@ -159,6 +164,52 @@ describe('Explorer Pure Helpers — Compact List Presentation (US-1 / T1)', () =
       expect(item.sizeBytes).toBe(339 * 1024);
       expect(item.formattedSize).toBe('339 KB');
       expect(item.iconType).toBe('document');
+    });
+  });
+
+  describe('Folder Navigation & Parent Directory Stack (US-2 / T2)', () => {
+    it('should initialize at root directory ("My Drive") and hide "..." parent row (FR-3, FR-10)', () => {
+      expect(INITIAL_FOLDER_HISTORY).toEqual([{ id: 'root', name: 'My Drive' }]);
+      expect(isAtRootDirectory(INITIAL_FOLDER_HISTORY)).toBe(true);
+      expect(getCurrentFolder(INITIAL_FOLDER_HISTORY).id).toBe('root');
+    });
+
+    it('should push subfolder onto history stack on double-click and enable "..." parent row (FR-6, FR-8)', () => {
+      let stack = INITIAL_FOLDER_HISTORY;
+      stack = pushFolderHistory(stack, { id: 'folder-a', name: 'Proyectos' });
+
+      expect(isAtRootDirectory(stack)).toBe(false);
+      expect(getCurrentFolder(stack)).toEqual({ id: 'folder-a', name: 'Proyectos' });
+      expect(stack.length).toBe(2);
+    });
+
+    it('should navigate deeply into nested subfolders and ascend accurately via "..." (FR-9, EC-4)', () => {
+      let stack = INITIAL_FOLDER_HISTORY;
+      stack = pushFolderHistory(stack, { id: 'folder-1', name: '2026' });
+      stack = pushFolderHistory(stack, { id: 'folder-2', name: 'Q1' });
+      stack = pushFolderHistory(stack, { id: 'folder-3', name: 'Facturas' });
+
+      expect(getCurrentFolder(stack).id).toBe('folder-3');
+      expect(isAtRootDirectory(stack)).toBe(false);
+
+      // Ascend 1 level via "..."
+      stack = popFolderHistory(stack);
+      expect(getCurrentFolder(stack)).toEqual({ id: 'folder-2', name: 'Q1' });
+      expect(isAtRootDirectory(stack)).toBe(false);
+
+      // Ascend 2nd level via "..."
+      stack = popFolderHistory(stack);
+      expect(getCurrentFolder(stack)).toEqual({ id: 'folder-1', name: '2026' });
+
+      // Ascend back to root
+      stack = popFolderHistory(stack);
+      expect(getCurrentFolder(stack)).toEqual({ id: 'root', name: 'My Drive' });
+      expect(isAtRootDirectory(stack)).toBe(true);
+
+      // Attempting to pop at root remains safely at root (FR-10)
+      stack = popFolderHistory(stack);
+      expect(stack).toEqual([{ id: 'root', name: 'My Drive' }]);
+      expect(isAtRootDirectory(stack)).toBe(true);
     });
   });
 });

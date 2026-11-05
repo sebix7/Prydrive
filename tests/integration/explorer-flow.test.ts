@@ -122,4 +122,43 @@ describe('Explorer Directory Listing IPC Flow (US-1 / T1)', () => {
     expect(result.data?.items[2].formattedSize).toBe('85 KB');
     expect(result.data?.items[1].formattedCreatedAt).toBe('20/01/2026 12:00:00');
   });
+
+  it('should navigate into a target subfolder and return its immediate contents (US-2 / T2 / FR-6)', async () => {
+    await tokenStorage.saveSession({
+      refreshToken: 'mock_valid_refresh_token',
+      email: 'user@example.com',
+      savedAt: Date.now()
+    });
+
+    const localDate = new Date(2026, 1, 10, 8, 30, 0);
+    const listSpy = vi.spyOn(googleClient, 'listDirectory').mockResolvedValueOnce({
+      files: [
+        {
+          id: 'nested-file-1',
+          name: 'Contrato.pdf',
+          mimeType: 'application/pdf',
+          size: String(512 * 1024),
+          createdTime: localDate.toISOString()
+        }
+      ],
+      nextPageToken: null
+    });
+
+    const handler = registeredHandlers.get(IPC_CHANNELS.STORAGE_LIST_DIRECTORY);
+    const result = (await handler!(
+      {},
+      { folderId: 'subfolder-id-99' }
+    )) as IpcResult<ListDirectoryResult>;
+
+    expect(result.success).toBe(true);
+    expect(listSpy).toHaveBeenCalledWith(
+      'mock_valid_refresh_token',
+      'subfolder-id-99',
+      undefined,
+      50
+    );
+    expect(result.data?.currentFolderId).toBe('subfolder-id-99');
+    expect(result.data?.items).toHaveLength(1);
+    expect(result.data?.items[0].name).toBe('Contrato.pdf');
+  });
 });
