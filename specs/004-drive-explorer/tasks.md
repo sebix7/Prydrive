@@ -20,6 +20,6 @@
   - Depends on: T1, T2, T4
   - Done when: Empty directories render the centered "Carpeta vacía" / "Empty folder" state while preserving the top `"..."` row in subfolders; initial fetches render loading skeletons; scrolling toward the bottom automatically fetches and appends subsequent pages via `pageToken`; and network/API errors render a resilient error banner with a functional retry action without losing navigation history. Verified via integration tests in `tests/integration/explorer-flow.test.ts`.
 
-- [ ] **T6. Implement full bilingual localization parity (English and Spanish) for all explorer headers, status bar metrics, empty states, and tooltips.** US-6 (FR-18)
+- [x] **T6. Implement full bilingual localization parity (English and Spanish) for all explorer headers, status bar metrics, empty states, and tooltips.** US-6 (FR-18)
   - Depends on: T1, T2, T4, T5
   - Done when: All explorer translation keys (`explorer_col_type`, `explorer_col_name`, `explorer_col_created`, `explorer_col_size`, `explorer_parent_folder`, `explorer_empty_folder`, `explorer_refresh`, `explorer_status_counts`, `explorer_status_total_size`, `explorer_loading`, `explorer_error_title`, `explorer_retry`) are defined in both English and Spanish with 100% key parity and dynamically update all visible UI strings when toggling languages. Verified via unit tests in `tests/unit/translations.test.ts`.

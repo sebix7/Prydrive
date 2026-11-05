@@ -87,7 +87,22 @@ export const translations = {
     about_copy_email: 'Copy email',
     about_copied: 'Copied!',
     about_close: 'Close',
-    about_got_it: 'Got it'
+    about_got_it: 'Got it',
+
+    // Drive Explorer
+    explorer_col_type: 'Type',
+    explorer_col_name: 'Name',
+    explorer_col_created: 'Created',
+    explorer_col_size: 'Size',
+    explorer_parent_folder: 'Parent directory',
+    explorer_empty_folder: 'Empty folder',
+    explorer_refresh: 'Refresh',
+    explorer_status_counts: '{folders}, {files}',
+    explorer_status_total_size: 'Total: {size}',
+    explorer_loading: 'Loading files...',
+    explorer_loading_more: 'Loading more...',
+    explorer_error_title: 'Unable to load folder',
+    explorer_retry: 'Retry'
   },
   es: {
     // Welcome Screen
@@ -175,7 +190,22 @@ export const translations = {
     about_copy_email: 'Copiar correo',
     about_copied: '¡Copiado!',
     about_close: 'Cerrar',
-    about_got_it: 'Entendido'
+    about_got_it: 'Entendido',
+
+    // Drive Explorer
+    explorer_col_type: 'Tipo',
+    explorer_col_name: 'Nombre',
+    explorer_col_created: 'Fecha de creación',
+    explorer_col_size: 'Tamaño',
+    explorer_parent_folder: 'Subir nivel',
+    explorer_empty_folder: 'Carpeta vacía',
+    explorer_refresh: 'Actualizar',
+    explorer_status_counts: '{folders}, {files}',
+    explorer_status_total_size: 'Total: {size}',
+    explorer_loading: 'Cargando archivos...',
+    explorer_loading_more: 'Cargando más...',
+    explorer_error_title: 'No se pudo cargar la carpeta',
+    explorer_retry: 'Reintentar'
   }
 } as const;
 

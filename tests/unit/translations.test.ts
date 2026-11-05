@@ -148,4 +148,70 @@ describe('Bilingual Localization Dictionary (US-6 / T6 / FR-15)', () => {
       expect(getTranslation('es', 'about_copied')).toBe('¡Copiado!');
     });
   });
+
+  describe('Drive Explorer Localization Parity (US-6 / T6 / FR-18)', () => {
+    const requiredExplorerKeys: TranslationKey[] = [
+      'explorer_col_type',
+      'explorer_col_name',
+      'explorer_col_created',
+      'explorer_col_size',
+      'explorer_parent_folder',
+      'explorer_empty_folder',
+      'explorer_refresh',
+      'explorer_status_counts',
+      'explorer_status_total_size',
+      'explorer_loading',
+      'explorer_loading_more',
+      'explorer_error_title',
+      'explorer_retry'
+    ];
+
+    it('should have all explorer translation keys defined in both English and Spanish', () => {
+      requiredExplorerKeys.forEach((key) => {
+        expect(translations.en[key]).toBeDefined();
+        expect(translations.es[key]).toBeDefined();
+        expect(translations.en[key].length).toBeGreaterThan(0);
+        expect(translations.es[key].length).toBeGreaterThan(0);
+      });
+    });
+
+    it('should accurately translate explorer column headers, status bar, and empty/error states (FR-18)', () => {
+      expect(getTranslation('en', 'explorer_col_type')).toBe('Type');
+      expect(getTranslation('es', 'explorer_col_type')).toBe('Tipo');
+
+      expect(getTranslation('en', 'explorer_col_name')).toBe('Name');
+      expect(getTranslation('es', 'explorer_col_name')).toBe('Nombre');
+
+      expect(getTranslation('en', 'explorer_col_created')).toBe('Created');
+      expect(getTranslation('es', 'explorer_col_created')).toBe('Fecha de creación');
+
+      expect(getTranslation('en', 'explorer_col_size')).toBe('Size');
+      expect(getTranslation('es', 'explorer_col_size')).toBe('Tamaño');
+
+      expect(getTranslation('en', 'explorer_parent_folder')).toBe('Parent directory');
+      expect(getTranslation('es', 'explorer_parent_folder')).toBe('Subir nivel');
+
+      expect(getTranslation('en', 'explorer_empty_folder')).toBe('Empty folder');
+      expect(getTranslation('es', 'explorer_empty_folder')).toBe('Carpeta vacía');
+
+      expect(getTranslation('en', 'explorer_refresh')).toBe('Refresh');
+      expect(getTranslation('es', 'explorer_refresh')).toBe('Actualizar');
+
+      expect(
+        getTranslation('en', 'explorer_status_total_size', { size: '14.2 MB' })
+      ).toBe('Total: 14.2 MB');
+      expect(
+        getTranslation('es', 'explorer_status_total_size', { size: '14.2 MB' })
+      ).toBe('Total: 14.2 MB');
+
+      expect(getTranslation('en', 'explorer_loading')).toBe('Loading files...');
+      expect(getTranslation('es', 'explorer_loading')).toBe('Cargando archivos...');
+
+      expect(getTranslation('en', 'explorer_error_title')).toBe('Unable to load folder');
+      expect(getTranslation('es', 'explorer_error_title')).toBe('No se pudo cargar la carpeta');
+
+      expect(getTranslation('en', 'explorer_retry')).toBe('Retry');
+      expect(getTranslation('es', 'explorer_retry')).toBe('Reintentar');
+    });
+  });
 });

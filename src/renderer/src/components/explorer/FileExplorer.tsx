@@ -1,6 +1,7 @@
 import React from 'react';
 import { Loader2, FolderOpen, AlertCircle, RotateCw } from 'lucide-react';
 import type { LanguageCode } from '../../../../shared/types';
+import { getTranslation } from '../../../../shared/i18n/translations';
 import { useDriveExplorer } from '../../hooks/useDriveExplorer';
 import { FileTableRow } from './FileTableRow';
 import { ParentNavRow } from './ParentNavRow';
@@ -45,16 +46,16 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
           className="sticky top-0 z-10 h-9 flex items-center px-3 bg-[#161B22] border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-400 shrink-0"
         >
           <div className="w-10 text-center shrink-0">
-            {language === 'es' ? 'Tipo' : 'Type'}
+            {getTranslation(language, 'explorer_col_type')}
           </div>
           <div className="flex-1 min-w-0 pr-4">
-            {language === 'es' ? 'Nombre' : 'Name'}
+            {getTranslation(language, 'explorer_col_name')}
           </div>
           <div className="w-44 shrink-0">
-            {language === 'es' ? 'Fecha de creación' : 'Created'}
+            {getTranslation(language, 'explorer_col_created')}
           </div>
           <div className="w-24 shrink-0 text-right pr-2">
-            {language === 'es' ? 'Tamaño' : 'Size'}
+            {getTranslation(language, 'explorer_col_size')}
           </div>
         </div>
 
@@ -68,7 +69,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
               <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
             </div>
             <span className="text-xs font-medium tracking-wide text-slate-400 animate-pulse">
-              {language === 'es' ? 'Cargando archivos...' : 'Loading files...'}
+              {getTranslation(language, 'explorer_loading')}
             </span>
           </div>
         ) : errorMessage ? (
@@ -85,9 +86,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
               </div>
               <div className="max-w-md space-y-1">
                 <p className="text-sm font-semibold text-slate-200">
-                  {language === 'es'
-                    ? 'No se pudo cargar la carpeta'
-                    : 'Unable to load folder'}
+                  {getTranslation(language, 'explorer_error_title')}
                 </p>
                 <p className="text-xs text-slate-400">{errorMessage}</p>
               </div>
@@ -98,7 +97,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
                 className="mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-xs font-medium text-white transition-colors"
               >
                 <RotateCw className="w-3.5 h-3.5" />
-                <span>{language === 'es' ? 'Reintentar' : 'Retry'}</span>
+                <span>{getTranslation(language, 'explorer_retry')}</span>
               </button>
             </div>
           </div>
@@ -116,7 +115,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
                   <FolderOpen className="w-6 h-6 text-slate-500" />
                 </div>
                 <span className="text-xs font-medium text-slate-400">
-                  {language === 'es' ? 'Carpeta vacía' : 'Empty folder'}
+                  {getTranslation(language, 'explorer_empty_folder')}
                 </span>
               </div>
             ) : (
@@ -137,7 +136,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
                   >
                     <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin" />
                     <span>
-                      {language === 'es' ? 'Cargando más...' : 'Loading more...'}
+                      {getTranslation(language, 'explorer_loading_more')}
                     </span>
                   </div>
                 )}

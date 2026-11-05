@@ -1,6 +1,7 @@
 import React from 'react';
 import { Folder } from 'lucide-react';
 import type { LanguageCode } from '../../../../shared/types';
+import { getTranslation } from '../../../../shared/i18n/translations';
 
 export interface ParentNavRowProps {
   onNavigateUp: () => void;
@@ -11,7 +12,7 @@ export const ParentNavRow: React.FC<ParentNavRowProps> = ({
   onNavigateUp,
   language = 'en'
 }) => {
-  const tooltip = language === 'es' ? 'Subir nivel' : 'Parent directory';
+  const tooltip = getTranslation(language, 'explorer_parent_folder');
 
   return (
     <div

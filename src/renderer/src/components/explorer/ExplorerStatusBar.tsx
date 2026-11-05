@@ -2,6 +2,7 @@ import React from 'react';
 import { RotateCw } from 'lucide-react';
 import type { FolderMetrics, LanguageCode } from '../../../../shared/types';
 import { formatStatusCounts } from '../../../../shared/explorer-helpers';
+import { getTranslation } from '../../../../shared/i18n/translations';
 
 export interface ExplorerStatusBarProps {
   metrics: FolderMetrics;
@@ -20,8 +21,11 @@ export const ExplorerStatusBar: React.FC<ExplorerStatusBarProps> = ({
   onRefresh,
   language = 'en'
 }) => {
-  const refreshLabel = language === 'es' ? 'Actualizar' : 'Refresh';
+  const refreshLabel = getTranslation(language, 'explorer_refresh');
   const countsLabel = formatStatusCounts(metrics, language);
+  const totalSizeLabel = getTranslation(language, 'explorer_status_total_size', {
+    size: metrics.formattedTotalSize
+  });
 
   return (
     <footer
@@ -60,7 +64,7 @@ export const ExplorerStatusBar: React.FC<ExplorerStatusBarProps> = ({
         data-testid="explorer-status-total-size"
         className="text-[11px] font-mono text-slate-300 shrink-0"
       >
-        Total: <span className="font-semibold text-slate-200">{metrics.formattedTotalSize}</span>
+        {totalSizeLabel}
       </div>
     </footer>
   );
