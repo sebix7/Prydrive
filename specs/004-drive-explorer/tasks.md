@@ -16,7 +16,7 @@
   - Depends on: T1, T2
   - Done when: A persistent bottom status bar is rendered inside the central workspace displaying the exact count of real folders and files (strictly excluding the virtual `"..."` parent row), the formatted aggregate file size of all files in the current directory, and a functional refresh button that re-fetches and updates the current folder's contents on demand. Verified via unit tests in `tests/unit/explorer-helpers.test.ts` and integration tests in `tests/integration/explorer-flow.test.ts`.
 
-- [ ] **T5. Implement empty directory states ("Carpeta vacía"), loading skeletons, incremental scroll pagination, and error resilience with retry.** US-5 (FR-14, FR-15, FR-16, FR-17, EC-6)
+- [x] **T5. Implement empty directory states ("Carpeta vacía"), loading skeletons, incremental scroll pagination, and error resilience with retry.** US-5 (FR-14, FR-15, FR-16, FR-17, EC-6)
   - Depends on: T1, T2, T4
   - Done when: Empty directories render the centered "Carpeta vacía" / "Empty folder" state while preserving the top `"..."` row in subfolders; initial fetches render loading skeletons; scrolling toward the bottom automatically fetches and appends subsequent pages via `pageToken`; and network/API errors render a resilient error banner with a functional retry action without losing navigation history. Verified via integration tests in `tests/integration/explorer-flow.test.ts`.
 

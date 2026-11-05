@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useCallback, useMemo } from 'react';
+import React, { useReducer, useEffect, useCallback, useMemo } from 'react';
 import type { StorageItem, FolderCrumb, FolderMetrics } from '../../../shared/types';
 import {
   type ExplorerState,
@@ -9,7 +9,8 @@ import {
   getCurrentFolder,
   getRowSelectionClasses,
   calculateFolderMetrics,
-  formatStatusCounts
+  formatStatusCounts,
+  shouldTriggerScrollPagination
 } from '../../../shared/explorer-helpers';
 
 export type { ExplorerState, ExplorerAction, FolderCrumb, FolderMetrics };
@@ -20,7 +21,8 @@ export {
   getCurrentFolder,
   getRowSelectionClasses,
   calculateFolderMetrics,
-  formatStatusCounts
+  formatStatusCounts,
+  shouldTriggerScrollPagination
 };
 
 export function useDriveExplorer() {
@@ -46,17 +48,24 @@ export function useDriveExplorer() {
       }
 
       const result = await window.api.storage.listDirectory({
-        folderId: currentFolder.id
+        folderId: currentFolder.id,
+        pageSize: 50
       });
 
       if (isMounted) {
         if (result.success && result.data) {
           dispatch({
             type: 'SET_DIRECTORY_DATA',
-            payload: { items: result.data.items }
+            payload: {
+              items: result.data.items,
+              nextPageToken: result.data.nextPageToken
+            }
           });
         } else {
-          dispatch({ type: 'SET_LOADING', payload: false });
+          dispatch({
+            type: 'SET_DIRECTORY_ERROR',
+            payload: result.error?.message || 'Failed to load directory contents'
+          });
         }
       }
     }
@@ -66,6 +75,68 @@ export function useDriveExplorer() {
       isMounted = false;
     };
   }, [currentFolder.id, state.refreshCounter]);
+
+  const loadMoreItems = useCallback(async () => {
+    if (
+      !state.nextPageToken ||
+      state.isLoading ||
+      state.isLoadingMore ||
+      !window.api?.storage?.listDirectory
+    ) {
+      return;
+    }
+
+    dispatch({ type: 'SET_LOADING_MORE', payload: true });
+    const result = await window.api.storage.listDirectory({
+      folderId: currentFolder.id,
+      pageToken: state.nextPageToken,
+      pageSize: 50
+    });
+
+    if (result.success && result.data) {
+      dispatch({
+        type: 'APPEND_DIRECTORY_PAGE',
+        payload: {
+          items: result.data.items,
+          nextPageToken: result.data.nextPageToken
+        }
+      });
+    } else {
+      dispatch({
+        type: 'SET_DIRECTORY_ERROR',
+        payload: result.error?.message || 'Failed to load additional items'
+      });
+    }
+  }, [
+    currentFolder.id,
+    state.nextPageToken,
+    state.isLoading,
+    state.isLoadingMore
+  ]);
+
+  const handleScroll = useCallback(
+    (event: React.UIEvent<HTMLDivElement>) => {
+      const target = event.currentTarget;
+      if (
+        shouldTriggerScrollPagination(
+          target.scrollHeight,
+          target.scrollTop,
+          target.clientHeight,
+          state.nextPageToken,
+          state.isLoading,
+          state.isLoadingMore
+        )
+      ) {
+        loadMoreItems();
+      }
+    },
+    [
+      state.nextPageToken,
+      state.isLoading,
+      state.isLoadingMore,
+      loadMoreItems
+    ]
+  );
 
   const selectItem = useCallback((id: string) => {
     dispatch({ type: 'SELECT_ITEM', payload: id });
@@ -90,10 +161,15 @@ export function useDriveExplorer() {
     items: state.items,
     selectedItemId: state.selectedItemId,
     isLoading: state.isLoading,
+    isLoadingMore: state.isLoadingMore,
+    nextPageToken: state.nextPageToken,
+    errorMessage: state.errorMessage,
     metrics,
     selectItem,
     openItem,
     navigateUp,
-    refreshDirectory
+    refreshDirectory,
+    loadMoreItems,
+    handleScroll
   };
 }

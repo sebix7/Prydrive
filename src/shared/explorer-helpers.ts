@@ -15,6 +15,9 @@ export interface ExplorerState {
   items: StorageItem[];
   selectedItemId: string | null;
   isLoading: boolean;
+  isLoadingMore: boolean;
+  nextPageToken: string | null;
+  errorMessage: string | null;
   refreshCounter: number;
 }
 
@@ -24,18 +27,30 @@ export type ExplorerAction =
   | { type: 'NAVIGATE_UP' }
   | { type: 'REFRESH_DIRECTORY' }
   | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_DIRECTORY_DATA'; payload: { items: StorageItem[] } };
+  | { type: 'SET_LOADING_MORE'; payload: boolean }
+  | {
+      type: 'SET_DIRECTORY_DATA';
+      payload: { items: StorageItem[]; nextPageToken?: string | null };
+    }
+  | {
+      type: 'APPEND_DIRECTORY_PAGE';
+      payload: { items: StorageItem[]; nextPageToken?: string | null };
+    }
+  | { type: 'SET_DIRECTORY_ERROR'; payload: string };
 
 export const initialExplorerState: ExplorerState = {
   folderHistory: INITIAL_FOLDER_HISTORY,
   items: [],
   selectedItemId: null,
   isLoading: true,
+  isLoadingMore: false,
+  nextPageToken: null,
+  errorMessage: null,
   refreshCounter: 0
 };
 
 /**
- * Pure reducer governing explorer selection, folder navigation stack, manual refresh, and no-op file double-clicks (FR-6, FR-7, FR-9, FR-11, FR-13, EC-5).
+ * Pure reducer governing explorer selection, folder navigation stack, pagination, error handling, manual refresh, and no-op file double-clicks.
  */
 export function explorerReducer(
   state: ExplorerState,
@@ -56,6 +71,9 @@ export function explorerReducer(
         ...state,
         selectedItemId: null,
         isLoading: true,
+        isLoadingMore: false,
+        nextPageToken: null,
+        errorMessage: null,
         items: [],
         folderHistory: pushFolderHistory(state.folderHistory, {
           id: item.id,
@@ -71,6 +89,9 @@ export function explorerReducer(
         ...state,
         selectedItemId: null,
         isLoading: true,
+        isLoadingMore: false,
+        nextPageToken: null,
+        errorMessage: null,
         items: [],
         folderHistory: popFolderHistory(state.folderHistory)
       };
@@ -80,6 +101,9 @@ export function explorerReducer(
         ...state,
         selectedItemId: null,
         isLoading: true,
+        isLoadingMore: false,
+        nextPageToken: null,
+        errorMessage: null,
         items: [],
         refreshCounter: (state.refreshCounter ?? 0) + 1
       };
@@ -88,15 +112,61 @@ export function explorerReducer(
         ...state,
         isLoading: action.payload
       };
+    case 'SET_LOADING_MORE':
+      return {
+        ...state,
+        isLoadingMore: action.payload
+      };
     case 'SET_DIRECTORY_DATA':
       return {
         ...state,
         items: action.payload.items,
-        isLoading: false
+        nextPageToken: action.payload.nextPageToken ?? null,
+        isLoading: false,
+        isLoadingMore: false,
+        errorMessage: null
+      };
+    case 'APPEND_DIRECTORY_PAGE': {
+      const existingIds = new Set(state.items.map((item) => item.id));
+      const newUniqueItems = action.payload.items.filter(
+        (item) => !existingIds.has(item.id)
+      );
+      const mergedSorted = sortStorageItems([...state.items, ...newUniqueItems]);
+      return {
+        ...state,
+        items: mergedSorted,
+        nextPageToken: action.payload.nextPageToken ?? null,
+        isLoadingMore: false,
+        errorMessage: null
+      };
+    }
+    case 'SET_DIRECTORY_ERROR':
+      return {
+        ...state,
+        errorMessage: action.payload,
+        isLoading: false,
+        isLoadingMore: false
       };
     default:
       return state;
   }
+}
+
+/**
+ * Pure helper to determine whether scrolling near the bottom should trigger next page fetch (FR-16).
+ */
+export function shouldTriggerScrollPagination(
+  scrollHeight: number,
+  scrollTop: number,
+  clientHeight: number,
+  nextPageToken: string | null,
+  isLoading: boolean,
+  isLoadingMore: boolean
+): boolean {
+  if (!nextPageToken || isLoading || isLoadingMore) {
+    return false;
+  }
+  return scrollHeight - scrollTop <= clientHeight + 50;
 }
 
 /**

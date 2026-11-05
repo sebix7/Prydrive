@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, FolderOpen, AlertCircle, RotateCw } from 'lucide-react';
 import type { LanguageCode } from '../../../../shared/types';
 import { useDriveExplorer } from '../../hooks/useDriveExplorer';
 import { FileTableRow } from './FileTableRow';
@@ -16,11 +16,14 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
     items,
     selectedItemId,
     isLoading,
+    isLoadingMore,
+    errorMessage,
     metrics,
     selectItem,
     openItem,
     navigateUp,
-    refreshDirectory
+    refreshDirectory,
+    handleScroll
   } = useDriveExplorer();
 
   return (
@@ -32,6 +35,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
       <div
         role="table"
         data-testid="explorer-table-body"
+        onScroll={handleScroll}
         className="flex-1 flex flex-col overflow-y-auto min-h-0"
       >
         {/* Compact Sticky Table Header */}
@@ -54,7 +58,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
           </div>
         </div>
 
-        {/* Centered Loading Spinner or Rows */}
+        {/* Centered Loading Spinner, Error Banner, Empty Folder State, or Rows */}
         {isLoading ? (
           <div
             data-testid="explorer-loading-spinner"
@@ -67,20 +71,78 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
               {language === 'es' ? 'Cargando archivos...' : 'Loading files...'}
             </span>
           </div>
-        ) : (
-          <div role="rowgroup">
+        ) : errorMessage ? (
+          <div role="rowgroup" className="flex-1 flex flex-col">
             {!atRoot && (
               <ParentNavRow onNavigateUp={navigateUp} language={language} />
             )}
-            {items.map((item) => (
-              <FileTableRow
-                key={item.id}
-                item={item}
-                isSelected={selectedItemId === item.id}
-                onSelect={selectItem}
-                onDoubleClick={openItem}
-              />
-            ))}
+            <div
+              data-testid="explorer-error-banner"
+              className="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-center"
+            >
+              <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20">
+                <AlertCircle className="w-6 h-6 text-rose-400" />
+              </div>
+              <div className="max-w-md space-y-1">
+                <p className="text-sm font-semibold text-slate-200">
+                  {language === 'es'
+                    ? 'No se pudo cargar la carpeta'
+                    : 'Unable to load folder'}
+                </p>
+                <p className="text-xs text-slate-400">{errorMessage}</p>
+              </div>
+              <button
+                type="button"
+                data-testid="explorer-retry-button"
+                onClick={refreshDirectory}
+                className="mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-xs font-medium text-white transition-colors"
+              >
+                <RotateCw className="w-3.5 h-3.5" />
+                <span>{language === 'es' ? 'Reintentar' : 'Retry'}</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div role="rowgroup" className="flex-1 flex flex-col">
+            {!atRoot && (
+              <ParentNavRow onNavigateUp={navigateUp} language={language} />
+            )}
+            {items.length === 0 ? (
+              <div
+                data-testid="explorer-empty-state"
+                className="flex-1 flex flex-col items-center justify-center gap-2.5 p-8 text-slate-400"
+              >
+                <div className="p-3 rounded-2xl bg-slate-800/50 border border-slate-800">
+                  <FolderOpen className="w-6 h-6 text-slate-500" />
+                </div>
+                <span className="text-xs font-medium text-slate-400">
+                  {language === 'es' ? 'Carpeta vacía' : 'Empty folder'}
+                </span>
+              </div>
+            ) : (
+              <>
+                {items.map((item) => (
+                  <FileTableRow
+                    key={item.id}
+                    item={item}
+                    isSelected={selectedItemId === item.id}
+                    onSelect={selectItem}
+                    onDoubleClick={openItem}
+                  />
+                ))}
+                {isLoadingMore && (
+                  <div
+                    data-testid="explorer-pagination-spinner"
+                    className="h-9 flex items-center justify-center gap-2 text-xs text-slate-400 py-2"
+                  >
+                    <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin" />
+                    <span>
+                      {language === 'es' ? 'Cargando más...' : 'Loading more...'}
+                    </span>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
       </div>

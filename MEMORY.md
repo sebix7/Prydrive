@@ -12,8 +12,8 @@ Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete i
 - `specs/002-app-shell/` completed and validated (T1-T5: US-1 through US-5).
 - Minor release `v0.2.0` published to remote with automated changelog (`CHANGELOG.md`).
 - `specs/003-about-links/` released in `v0.2.1`.
-- `specs/004-drive-explorer/` active: T1–T4 completed (US-1: Compact list, US-2: Folder navigation & "...", US-3: Selection & rail sync, US-4: Status bar & manual refresh).
-- Next step: Run `/sdd-implement 004-drive-explorer T5` (Empty directory state, scroll pagination, and error resilience with retry).
+- `specs/004-drive-explorer/` active: T1–T5 completed (US-1: Compact list, US-2: Folder navigation & "...", US-3: Selection & rail sync, US-4: Status bar & manual refresh, US-5: Empty state, scroll pagination & error resilience).
+- Next step: Run `/sdd-implement 004-drive-explorer T6` (Bilingual localization parity EN/ES for all explorer strings).
 
 ## Decisions (and why)
 - **Tailwind content scan of shared code**: `tailwind.config.js` includes `./src/shared/**` so utility classes in shared state reducers (e.g. `.w-0`, `.min-w-0`) are compiled into CSS.

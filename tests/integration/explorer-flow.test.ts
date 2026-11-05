@@ -3,7 +3,13 @@ import { StorageIpcController } from '../../src/main/ipc/storage-ipc';
 import { TokenStorage } from '../../src/main/core/token-storage';
 import { GoogleAuthClient } from '../../src/main/core/google-client';
 import { IPC_CHANNELS } from '../../src/shared/ipc-channels';
-import { calculateFolderMetrics } from '../../src/shared/explorer-helpers';
+import {
+  calculateFolderMetrics,
+  initialExplorerState,
+  explorerReducer,
+  isAtRootDirectory,
+  shouldTriggerScrollPagination
+} from '../../src/shared/explorer-helpers';
 import type { IpcResult, ListDirectoryResult } from '../../src/shared/types';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -228,5 +234,227 @@ describe('Explorer Directory Listing IPC Flow (US-1 / T1)', () => {
     expect(refreshedMetrics.folderCount).toBe(1);
     expect(refreshedMetrics.fileCount).toBe(1);
     expect(refreshedMetrics.formattedTotalSize).toBe('2 MB');
+  });
+
+  it('should handle empty subfolder state while preserving parent navigation and zero folder count (US-5 / T5 / FR-14)', async () => {
+    await tokenStorage.saveSession({
+      refreshToken: 'mock_valid_refresh_token',
+      email: 'user@example.com',
+      savedAt: Date.now()
+    });
+
+    vi.spyOn(googleClient, 'listDirectory').mockResolvedValueOnce({
+      files: [],
+      nextPageToken: null
+    });
+
+    const handler = registeredHandlers.get(IPC_CHANNELS.STORAGE_LIST_DIRECTORY);
+    const result = (await handler!(
+      {},
+      { folderId: 'empty-subfolder-id' }
+    )) as IpcResult<ListDirectoryResult>;
+
+    expect(result.success).toBe(true);
+    expect(result.data?.items).toEqual([]);
+
+    let state = explorerReducer(initialExplorerState, {
+      type: 'DOUBLE_CLICK_ITEM',
+      payload: {
+        id: 'empty-subfolder-id',
+        name: 'Carpeta Vacía Test',
+        mimeType: 'application/vnd.google-apps.folder',
+        isDirectory: true,
+        sizeBytes: null,
+        formattedSize: '--',
+        createdAt: '',
+        formattedCreatedAt: '--',
+        iconType: 'folder',
+        isShortcut: false
+      }
+    });
+
+    state = explorerReducer(state, {
+      type: 'SET_DIRECTORY_DATA',
+      payload: {
+        items: result.data!.items,
+        nextPageToken: result.data!.nextPageToken
+      }
+    });
+
+    // In a subfolder: "..." parent row is enabled (!isAtRootDirectory), items is empty, and folder count is 0
+    expect(isAtRootDirectory(state.folderHistory)).toBe(false);
+    expect(state.items).toHaveLength(0);
+    expect(calculateFolderMetrics(state.items).folderCount).toBe(0);
+  });
+
+  it('should support incremental scroll pagination via pageToken and append batches seamlessly (US-5 / T5 / FR-16)', async () => {
+    await tokenStorage.saveSession({
+      refreshToken: 'mock_valid_refresh_token',
+      email: 'user@example.com',
+      savedAt: Date.now()
+    });
+
+    const localDate = new Date(2026, 3, 10, 9, 0, 0);
+    const listSpy = vi
+      .spyOn(googleClient, 'listDirectory')
+      .mockResolvedValueOnce({
+        files: [
+          {
+            id: 'page1-file',
+            name: 'Archivo_A.pdf',
+            mimeType: 'application/pdf',
+            size: '1024',
+            createdTime: localDate.toISOString()
+          }
+        ],
+        nextPageToken: 'next-page-token-2'
+      })
+      .mockResolvedValueOnce({
+        files: [
+          {
+            id: 'page2-folder',
+            name: 'Carpeta_B',
+            mimeType: 'application/vnd.google-apps.folder',
+            createdTime: localDate.toISOString()
+          }
+        ],
+        nextPageToken: null
+      });
+
+    const handler = registeredHandlers.get(IPC_CHANNELS.STORAGE_LIST_DIRECTORY);
+
+    // Fetch Page 1
+    const page1Result = (await handler!(
+      {},
+      { folderId: 'root', pageSize: 50 }
+    )) as IpcResult<ListDirectoryResult>;
+    expect(page1Result.success).toBe(true);
+    expect(page1Result.data?.nextPageToken).toBe('next-page-token-2');
+
+    let state = explorerReducer(initialExplorerState, {
+      type: 'SET_DIRECTORY_DATA',
+      payload: {
+        items: page1Result.data!.items,
+        nextPageToken: page1Result.data!.nextPageToken
+      }
+    });
+    expect(state.nextPageToken).toBe('next-page-token-2');
+
+    // Verify scroll threshold detection triggers pagination near bottom
+    expect(
+      shouldTriggerScrollPagination(1000, 560, 400, state.nextPageToken, state.isLoading, state.isLoadingMore)
+    ).toBe(true);
+
+    // Fetch Page 2 using nextPageToken
+    const page2Result = (await handler!(
+      {},
+      { folderId: 'root', pageToken: state.nextPageToken!, pageSize: 50 }
+    )) as IpcResult<ListDirectoryResult>;
+    expect(page2Result.success).toBe(true);
+    expect(listSpy).toHaveBeenLastCalledWith(
+      'mock_valid_refresh_token',
+      'root',
+      'next-page-token-2',
+      50
+    );
+
+    state = explorerReducer(state, {
+      type: 'APPEND_DIRECTORY_PAGE',
+      payload: {
+        items: page2Result.data!.items,
+        nextPageToken: page2Result.data!.nextPageToken
+      }
+    });
+
+    expect(state.items.map((i) => i.name)).toEqual(['Carpeta_B', 'Archivo_A.pdf']);
+    expect(state.nextPageToken).toBeNull();
+    expect(state.isLoadingMore).toBe(false);
+  });
+
+  it('should return structured error on network/API failure and preserve navigation history on retry (US-5 / T5 / FR-17, EC-6)', async () => {
+    await tokenStorage.saveSession({
+      refreshToken: 'mock_valid_refresh_token',
+      email: 'user@example.com',
+      savedAt: Date.now()
+    });
+
+    const localDate = new Date(2026, 3, 12, 15, 0, 0);
+    vi.spyOn(googleClient, 'listDirectory')
+      .mockRejectedValueOnce(new Error('Network timeout while contacting Google Drive'))
+      .mockResolvedValueOnce({
+        files: [
+          {
+            id: 'recovered-file',
+            name: 'Recuperado.docx',
+            mimeType: 'application/vnd.google-apps.document',
+            quotaBytesUsed: '2048',
+            createdTime: localDate.toISOString()
+          }
+        ],
+        nextPageToken: null
+      });
+
+    const handler = registeredHandlers.get(IPC_CHANNELS.STORAGE_LIST_DIRECTORY);
+
+    // User is inside a subfolder when network fails
+    let state = explorerReducer(initialExplorerState, {
+      type: 'DOUBLE_CLICK_ITEM',
+      payload: {
+        id: 'subfolder-network-test',
+        name: 'Subcarpeta Crítica',
+        mimeType: 'application/vnd.google-apps.folder',
+        isDirectory: true,
+        sizeBytes: null,
+        formattedSize: '--',
+        createdAt: '',
+        formattedCreatedAt: '--',
+        iconType: 'folder',
+        isShortcut: false
+      }
+    });
+
+    const failedResult = (await handler!(
+      {},
+      { folderId: 'subfolder-network-test' }
+    )) as IpcResult<ListDirectoryResult>;
+    expect(failedResult.success).toBe(false);
+    expect(failedResult.error?.code).toBe('DIRECTORY_FETCH_FAILED');
+    expect(failedResult.error?.message).toContain('Network timeout');
+
+    state = explorerReducer(state, {
+      type: 'SET_DIRECTORY_ERROR',
+      payload: failedResult.error!.message
+    });
+
+    // Error state is recorded while preserving subfolder navigation history (FR-17)
+    expect(state.errorMessage).toContain('Network timeout');
+    expect(state.isLoading).toBe(false);
+    expect(state.folderHistory).toEqual([
+      { id: 'root', name: 'My Drive' },
+      { id: 'subfolder-network-test', name: 'Subcarpeta Crítica' }
+    ]);
+
+    // Retry action clears error and re-fetches same subfolder
+    state = explorerReducer(state, { type: 'REFRESH_DIRECTORY' });
+    expect(state.errorMessage).toBeNull();
+    expect(state.isLoading).toBe(true);
+    expect(state.folderHistory).toHaveLength(2);
+
+    const retryResult = (await handler!(
+      {},
+      { folderId: 'subfolder-network-test' }
+    )) as IpcResult<ListDirectoryResult>;
+    expect(retryResult.success).toBe(true);
+
+    state = explorerReducer(state, {
+      type: 'SET_DIRECTORY_DATA',
+      payload: {
+        items: retryResult.data!.items,
+        nextPageToken: retryResult.data!.nextPageToken
+      }
+    });
+    expect(state.errorMessage).toBeNull();
+    expect(state.items).toHaveLength(1);
+    expect(state.items[0].name).toBe('Recuperado.docx');
   });
 });
