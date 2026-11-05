@@ -1,13 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import { Loader2 } from 'lucide-react';
-import type { StorageItem, LanguageCode, FolderCrumb } from '../../../../shared/types';
-import {
-  INITIAL_FOLDER_HISTORY,
-  isAtRootDirectory,
-  getCurrentFolder,
-  pushFolderHistory,
-  popFolderHistory
-} from '../../../../shared/explorer-helpers';
+import type { LanguageCode } from '../../../../shared/types';
+import { useDriveExplorer } from '../../hooks/useDriveExplorer';
 import { FileTableRow } from './FileTableRow';
 import { ParentNavRow } from './ParentNavRow';
 
@@ -16,55 +10,15 @@ export interface FileExplorerProps {
 }
 
 export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) => {
-  const [folderHistory, setFolderHistory] = useState<FolderCrumb[]>(INITIAL_FOLDER_HISTORY);
-  const [items, setItems] = useState<StorageItem[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  const currentFolder = getCurrentFolder(folderHistory);
-  const atRoot = isAtRootDirectory(folderHistory);
-
-  useEffect(() => {
-    let isMounted = true;
-    setIsLoading(true);
-    setItems([]);
-
-    async function loadDirectory() {
-      if (!window.api?.storage?.listDirectory) {
-        if (isMounted) setIsLoading(false);
-        return;
-      }
-      const result = await window.api.storage.listDirectory({
-        folderId: currentFolder.id
-      });
-      if (isMounted) {
-        if (result.success && result.data) {
-          setItems(result.data.items);
-        }
-        setIsLoading(false);
-      }
-    }
-    loadDirectory();
-    return () => {
-      isMounted = false;
-    };
-  }, [currentFolder.id]);
-
-  const handleRowDoubleClick = useCallback((item: StorageItem) => {
-    if (!item.isDirectory) {
-      return;
-    }
-    setIsLoading(true);
-    setItems([]);
-    setFolderHistory((prev) =>
-      pushFolderHistory(prev, { id: item.id, name: item.name })
-    );
-  }, []);
-
-  const handleNavigateUp = useCallback(() => {
-    setIsLoading(true);
-    setItems([]);
-    setFolderHistory((prev) => popFolderHistory(prev));
-  }, []);
+  const {
+    atRoot,
+    items,
+    selectedItemId,
+    isLoading,
+    selectItem,
+    openItem,
+    navigateUp
+  } = useDriveExplorer();
 
   return (
     <div
@@ -113,13 +67,15 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
         ) : (
           <div role="rowgroup">
             {!atRoot && (
-              <ParentNavRow onNavigateUp={handleNavigateUp} language={language} />
+              <ParentNavRow onNavigateUp={navigateUp} language={language} />
             )}
             {items.map((item) => (
               <FileTableRow
                 key={item.id}
                 item={item}
-                onDoubleClick={handleRowDoubleClick}
+                isSelected={selectedItemId === item.id}
+                onSelect={selectItem}
+                onDoubleClick={openItem}
               />
             ))}
           </div>

@@ -8,7 +8,7 @@
   - Depends on: T1
   - Done when: Double-clicking a folder navigates inside it and pushes it onto the folder history stack; while inside any subfolder, a virtual `"..."` row with a folder icon is rendered at the very top of the table (hidden at root `"My Drive"`), and double-clicking `"..."` ascends one level to the immediate parent folder. Verified via unit tests in `tests/unit/explorer-helpers.test.ts` and integration tests in `tests/integration/explorer-flow.test.ts`.
 
-- [ ] **T3. Implement single-click row selection highlighting, no-op file double-click safety, and unified navigation rail access across Prydrive and Google Drive buttons.** US-3 (FR-4, FR-7, FR-11, EC-5)
+- [x] **T3. Implement single-click row selection highlighting, no-op file double-click safety, and unified navigation rail access across Prydrive and Google Drive buttons.** US-3 (FR-4, FR-7, FR-11, EC-5)
   - Depends on: T1, T2
   - Done when: Single-clicking any file or folder row highlights it as the selected item; navigating into a folder or ascending via `"..."` clears the active selection; double-clicking regular files or shortcuts performs a safe no-op; and selecting either the "Prydrive" or "Google Drive" button in the left navigation rail displays the synchronized Google Drive file explorer in the central canvas. Verified via automated unit tests in `tests/unit/use-drive-explorer.test.ts`.
 

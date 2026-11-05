@@ -12,8 +12,8 @@ Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete i
 - `specs/002-app-shell/` completed and validated (T1-T5: US-1 through US-5).
 - Minor release `v0.2.0` published to remote with automated changelog (`CHANGELOG.md`).
 - `specs/003-about-links/` released in `v0.2.1`.
-- `specs/004-drive-explorer/` active: T1 & T2 completed (US-1: Compact list, US-2: Folder navigation & "..." parent row).
-- Next step: Run `/sdd-implement 004-drive-explorer T3` (Selection highlight, no-op file double-click, rail sync).
+- `specs/004-drive-explorer/` active: T1, T2 & T3 completed (US-1: Compact list, US-2: Folder navigation & "..." parent row, US-3: Selection, no-op file double-click & unified rail).
+- Next step: Run `/sdd-implement 004-drive-explorer T4` (Bottom status bar: folder/file counts, aggregate size, and manual refresh).
 
 ## Decisions (and why)
 - **Tailwind content scan of shared code**: `tailwind.config.js` includes `./src/shared/**` so utility classes in shared state reducers (e.g. `.w-0`, `.min-w-0`) are compiled into CSS.

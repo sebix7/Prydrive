@@ -12,6 +12,7 @@ import {
   File
 } from 'lucide-react';
 import type { StorageItem, StorageItemType } from '../../../../shared/types';
+import { getRowSelectionClasses } from '../../../../shared/explorer-helpers';
 
 export interface FileTableRowProps {
   item: StorageItem;
@@ -56,14 +57,11 @@ export const FileTableRow: React.FC<FileTableRowProps> = ({
   return (
     <div
       role="row"
+      aria-selected={isSelected}
       data-testid={`explorer-row-${item.id}`}
       onClick={() => onSelect?.(item.id)}
       onDoubleClick={() => onDoubleClick?.(item)}
-      className={`h-9 flex items-center px-3 border-b border-slate-800/50 text-xs transition-colors cursor-default select-none ${
-        isSelected
-          ? 'bg-blue-600/20 text-white border-blue-500/30'
-          : 'text-slate-200 hover:bg-slate-800/50'
-      }`}
+      className={`h-9 flex items-center px-3 border-b border-slate-800/50 text-xs transition-colors cursor-default select-none ${getRowSelectionClasses(isSelected)}`}
     >
       {/* Column 1: Type Icon */}
       <div className="w-10 flex items-center justify-center shrink-0">

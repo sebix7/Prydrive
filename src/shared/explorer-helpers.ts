@@ -4,6 +4,93 @@ export const INITIAL_FOLDER_HISTORY: FolderCrumb[] = [
   { id: 'root', name: 'My Drive' }
 ];
 
+export interface ExplorerState {
+  folderHistory: FolderCrumb[];
+  items: StorageItem[];
+  selectedItemId: string | null;
+  isLoading: boolean;
+}
+
+export type ExplorerAction =
+  | { type: 'SELECT_ITEM'; payload: string | null }
+  | { type: 'DOUBLE_CLICK_ITEM'; payload: StorageItem }
+  | { type: 'NAVIGATE_UP' }
+  | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'SET_DIRECTORY_DATA'; payload: { items: StorageItem[] } };
+
+export const initialExplorerState: ExplorerState = {
+  folderHistory: INITIAL_FOLDER_HISTORY,
+  items: [],
+  selectedItemId: null,
+  isLoading: true
+};
+
+/**
+ * Pure reducer governing explorer selection, folder navigation stack, and no-op file double-clicks (FR-6, FR-7, FR-9, FR-11, EC-5).
+ */
+export function explorerReducer(
+  state: ExplorerState,
+  action: ExplorerAction
+): ExplorerState {
+  switch (action.type) {
+    case 'SELECT_ITEM':
+      return {
+        ...state,
+        selectedItemId: action.payload
+      };
+    case 'DOUBLE_CLICK_ITEM': {
+      const item = action.payload;
+      if (!item.isDirectory || item.isShortcut) {
+        return state;
+      }
+      return {
+        ...state,
+        selectedItemId: null,
+        isLoading: true,
+        items: [],
+        folderHistory: pushFolderHistory(state.folderHistory, {
+          id: item.id,
+          name: item.name
+        })
+      };
+    }
+    case 'NAVIGATE_UP': {
+      if (isAtRootDirectory(state.folderHistory)) {
+        return state;
+      }
+      return {
+        ...state,
+        selectedItemId: null,
+        isLoading: true,
+        items: [],
+        folderHistory: popFolderHistory(state.folderHistory)
+      };
+    }
+    case 'SET_LOADING':
+      return {
+        ...state,
+        isLoading: action.payload
+      };
+    case 'SET_DIRECTORY_DATA':
+      return {
+        ...state,
+        items: action.payload.items,
+        isLoading: false
+      };
+    default:
+      return state;
+  }
+}
+
+/**
+ * Resolves row visual classes based on active selection state (FR-11, NFR-2).
+ */
+export function getRowSelectionClasses(isSelected: boolean): string {
+  return isSelected
+    ? 'bg-blue-600/20 text-white border-blue-500/30'
+    : 'text-slate-200 hover:bg-slate-800/50';
+}
+
 /**
  * Returns true if the navigation stack is currently at the root directory ("My Drive") (FR-10).
  */

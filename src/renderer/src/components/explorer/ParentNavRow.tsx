@@ -28,7 +28,7 @@ export const ParentNavRow: React.FC<ParentNavRowProps> = ({
       </div>
 
       {/* Column 2: "..." Parent Label */}
-      <div className="flex-1 min-w-0 pr-4 font-mono font-bold text-slate-300 tracking-wider">
+      <div className="flex-1 min-w-0 pr-4 font-mono font-bold text-slate-300">
         ...
       </div>
 
