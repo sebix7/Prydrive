@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.3.0](https://github.com/sebix7/Prydrive/compare/v0.2.1...v0.3.0) (2026-11-05)
+
+
+### Features
+
+* **explorer:** implement directory listing ipc and compact file table ([4398dff](https://github.com/sebix7/Prydrive/commit/4398dff3e9ca2ccde922478d4a23c93a6f52a84e))
+* **explorer:** implement empty folder state, scroll pagination, and error resilience ([ee4b547](https://github.com/sebix7/Prydrive/commit/ee4b5470e5cb91ae1d3757be56523542508ba1f9))
+* **explorer:** implement folder navigation, parent row, and spinner ([6873720](https://github.com/sebix7/Prydrive/commit/68737209b4d1056f36f7c6b53b8a33fada9d26ab))
+* **explorer:** implement persistent bottom status bar and manual refresh ([d28bc95](https://github.com/sebix7/Prydrive/commit/d28bc954018ce8ce72d6bea761e6dc24f41e5291))
+* **explorer:** implement row selection, no-op file double-click, and unified rail access ([76aae11](https://github.com/sebix7/Prydrive/commit/76aae117ce60111bdfcddc576ba8e7d26fe16c5a))
+* **i18n:** implement bilingual localization parity for drive explorer ([80f650e](https://github.com/sebix7/Prydrive/commit/80f650e4c7e75e62b933fa6025696b0ea9c55f5b))
+
+
+### Documentation
+
+* **memory:** log v0.2.1 release completion in current status ([d6412d5](https://github.com/sebix7/Prydrive/commit/d6412d52964141c83547fe85bba1501f2b1c2a8f))
+
 ## [0.2.1](https://github.com/sebix7/Prydrive/compare/v0.2.0...v0.2.1) (2026-11-04)
 
 
