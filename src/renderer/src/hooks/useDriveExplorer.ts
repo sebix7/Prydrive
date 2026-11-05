@@ -1,5 +1,5 @@
-import { useReducer, useEffect, useCallback } from 'react';
-import type { StorageItem, FolderCrumb } from '../../../shared/types';
+import { useReducer, useEffect, useCallback, useMemo } from 'react';
+import type { StorageItem, FolderCrumb, FolderMetrics } from '../../../shared/types';
 import {
   type ExplorerState,
   type ExplorerAction,
@@ -7,16 +7,20 @@ import {
   explorerReducer,
   isAtRootDirectory,
   getCurrentFolder,
-  getRowSelectionClasses
+  getRowSelectionClasses,
+  calculateFolderMetrics,
+  formatStatusCounts
 } from '../../../shared/explorer-helpers';
 
-export type { ExplorerState, ExplorerAction, FolderCrumb };
+export type { ExplorerState, ExplorerAction, FolderCrumb, FolderMetrics };
 export {
   initialExplorerState,
   explorerReducer,
   isAtRootDirectory,
   getCurrentFolder,
-  getRowSelectionClasses
+  getRowSelectionClasses,
+  calculateFolderMetrics,
+  formatStatusCounts
 };
 
 export function useDriveExplorer() {
@@ -24,6 +28,10 @@ export function useDriveExplorer() {
 
   const currentFolder = getCurrentFolder(state.folderHistory);
   const atRoot = isAtRootDirectory(state.folderHistory);
+  const metrics = useMemo(
+    () => calculateFolderMetrics(state.items),
+    [state.items]
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -57,7 +65,7 @@ export function useDriveExplorer() {
     return () => {
       isMounted = false;
     };
-  }, [currentFolder.id]);
+  }, [currentFolder.id, state.refreshCounter]);
 
   const selectItem = useCallback((id: string) => {
     dispatch({ type: 'SELECT_ITEM', payload: id });
@@ -71,6 +79,10 @@ export function useDriveExplorer() {
     dispatch({ type: 'NAVIGATE_UP' });
   }, []);
 
+  const refreshDirectory = useCallback(() => {
+    dispatch({ type: 'REFRESH_DIRECTORY' });
+  }, []);
+
   return {
     folderHistory: state.folderHistory,
     currentFolder,
@@ -78,8 +90,10 @@ export function useDriveExplorer() {
     items: state.items,
     selectedItemId: state.selectedItemId,
     isLoading: state.isLoading,
+    metrics,
     selectItem,
     openItem,
-    navigateUp
+    navigateUp,
+    refreshDirectory
   };
 }

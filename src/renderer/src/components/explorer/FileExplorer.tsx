@@ -4,6 +4,7 @@ import type { LanguageCode } from '../../../../shared/types';
 import { useDriveExplorer } from '../../hooks/useDriveExplorer';
 import { FileTableRow } from './FileTableRow';
 import { ParentNavRow } from './ParentNavRow';
+import { ExplorerStatusBar } from './ExplorerStatusBar';
 
 export interface FileExplorerProps {
   language?: LanguageCode;
@@ -15,9 +16,11 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
     items,
     selectedItemId,
     isLoading,
+    metrics,
     selectItem,
     openItem,
-    navigateUp
+    navigateUp,
+    refreshDirectory
   } = useDriveExplorer();
 
   return (
@@ -81,6 +84,14 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
           </div>
         )}
       </div>
+
+      {/* Persistent Bottom Status Bar (FR-12, FR-13) */}
+      <ExplorerStatusBar
+        metrics={metrics}
+        isLoading={isLoading}
+        onRefresh={refreshDirectory}
+        language={language}
+      />
     </div>
   );
 };

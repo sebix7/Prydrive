@@ -1,4 +1,10 @@
-import type { StorageItem, StorageItemType, FolderCrumb } from './types';
+import type {
+  StorageItem,
+  StorageItemType,
+  FolderCrumb,
+  FolderMetrics,
+  LanguageCode
+} from './types';
 
 export const INITIAL_FOLDER_HISTORY: FolderCrumb[] = [
   { id: 'root', name: 'My Drive' }
@@ -9,12 +15,14 @@ export interface ExplorerState {
   items: StorageItem[];
   selectedItemId: string | null;
   isLoading: boolean;
+  refreshCounter: number;
 }
 
 export type ExplorerAction =
   | { type: 'SELECT_ITEM'; payload: string | null }
   | { type: 'DOUBLE_CLICK_ITEM'; payload: StorageItem }
   | { type: 'NAVIGATE_UP' }
+  | { type: 'REFRESH_DIRECTORY' }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_DIRECTORY_DATA'; payload: { items: StorageItem[] } };
 
@@ -22,11 +30,12 @@ export const initialExplorerState: ExplorerState = {
   folderHistory: INITIAL_FOLDER_HISTORY,
   items: [],
   selectedItemId: null,
-  isLoading: true
+  isLoading: true,
+  refreshCounter: 0
 };
 
 /**
- * Pure reducer governing explorer selection, folder navigation stack, and no-op file double-clicks (FR-6, FR-7, FR-9, FR-11, EC-5).
+ * Pure reducer governing explorer selection, folder navigation stack, manual refresh, and no-op file double-clicks (FR-6, FR-7, FR-9, FR-11, FR-13, EC-5).
  */
 export function explorerReducer(
   state: ExplorerState,
@@ -66,6 +75,14 @@ export function explorerReducer(
         folderHistory: popFolderHistory(state.folderHistory)
       };
     }
+    case 'REFRESH_DIRECTORY':
+      return {
+        ...state,
+        selectedItemId: null,
+        isLoading: true,
+        items: [],
+        refreshCounter: (state.refreshCounter ?? 0) + 1
+      };
     case 'SET_LOADING':
       return {
         ...state,
@@ -241,6 +258,55 @@ export function sortStorageItems(items: StorageItem[]): StorageItem[] {
     }
     return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
   });
+}
+
+/**
+ * Calculates real folder count, file count, and aggregate file size for the bottom status bar.
+ * Strictly excludes any virtual parent navigation entry ('...') from counts (FR-12).
+ */
+export function calculateFolderMetrics(items: StorageItem[]): FolderMetrics {
+  let folderCount = 0;
+  let fileCount = 0;
+  let totalSizeBytes = 0;
+
+  for (const item of items) {
+    if (item.name === '...' || item.id === '__parent__') {
+      continue;
+    }
+    if (item.isDirectory) {
+      folderCount += 1;
+    } else {
+      fileCount += 1;
+      if (item.sizeBytes !== null && item.sizeBytes > 0) {
+        totalSizeBytes += item.sizeBytes;
+      }
+    }
+  }
+
+  return {
+    folderCount,
+    fileCount,
+    totalSizeBytes,
+    formattedTotalSize: formatItemSize(totalSizeBytes)
+  };
+}
+
+/**
+ * Formats folder and file breakdown counts for the status bar (FR-12).
+ */
+export function formatStatusCounts(
+  metrics: FolderMetrics,
+  language: LanguageCode = 'en'
+): string {
+  const { folderCount, fileCount } = metrics;
+  if (language === 'es') {
+    const folderLabel = folderCount === 1 ? '1 carpeta' : `${folderCount} carpetas`;
+    const fileLabel = fileCount === 1 ? '1 archivo' : `${fileCount} archivos`;
+    return `${folderLabel}, ${fileLabel}`;
+  }
+  const folderLabel = folderCount === 1 ? '1 folder' : `${folderCount} folders`;
+  const fileLabel = fileCount === 1 ? '1 file' : `${fileCount} files`;
+  return `${folderLabel}, ${fileLabel}`;
 }
 
 /**

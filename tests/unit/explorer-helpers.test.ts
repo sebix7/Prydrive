@@ -9,7 +9,11 @@ import {
   isAtRootDirectory,
   pushFolderHistory,
   popFolderHistory,
-  getCurrentFolder
+  getCurrentFolder,
+  calculateFolderMetrics,
+  formatStatusCounts,
+  initialExplorerState,
+  explorerReducer
 } from '../../src/shared/explorer-helpers';
 import type { StorageItem } from '../../src/shared/types';
 
@@ -210,6 +214,105 @@ describe('Explorer Pure Helpers — Compact List Presentation (US-1 / T1)', () =
       stack = popFolderHistory(stack);
       expect(stack).toEqual([{ id: 'root', name: 'My Drive' }]);
       expect(isAtRootDirectory(stack)).toBe(true);
+    });
+  });
+
+  describe('Status Bar Folder Metrics & Manual Refresh (US-4 / T4)', () => {
+    it('should calculate real folder count, file count, and aggregate file size while excluding "..." (FR-12)', () => {
+      const items: StorageItem[] = [
+        {
+          id: '__parent__',
+          name: '...',
+          mimeType: 'application/vnd.google-apps.folder',
+          isDirectory: true,
+          sizeBytes: null,
+          formattedSize: '--',
+          createdAt: '',
+          formattedCreatedAt: '--',
+          iconType: 'folder',
+          isShortcut: false
+        },
+        {
+          id: 'folder-1',
+          name: 'Finanzas',
+          mimeType: 'application/vnd.google-apps.folder',
+          isDirectory: true,
+          sizeBytes: null,
+          formattedSize: '--',
+          createdAt: '2026-01-01T00:00:00Z',
+          formattedCreatedAt: '01/01/2026 00:00:00',
+          iconType: 'folder',
+          isShortcut: false
+        },
+        {
+          id: 'file-1',
+          name: 'Reporte.pdf',
+          mimeType: 'application/pdf',
+          isDirectory: false,
+          sizeBytes: 1024 * 1024, // 1 MB
+          formattedSize: '1 MB',
+          createdAt: '2026-01-01T00:00:00Z',
+          formattedCreatedAt: '01/01/2026 00:00:00',
+          iconType: 'pdf',
+          isShortcut: false
+        },
+        {
+          id: 'file-2',
+          name: 'Hoja de cálculo',
+          mimeType: 'application/vnd.google-apps.spreadsheet',
+          isDirectory: false,
+          sizeBytes: 512 * 1024, // 0.5 MB
+          formattedSize: '512 KB',
+          createdAt: '2026-01-01T00:00:00Z',
+          formattedCreatedAt: '01/01/2026 00:00:00',
+          iconType: 'spreadsheet',
+          isShortcut: false
+        }
+      ];
+
+      const metrics = calculateFolderMetrics(items);
+      expect(metrics.folderCount).toBe(1);
+      expect(metrics.fileCount).toBe(2);
+      expect(metrics.totalSizeBytes).toBe(1572864); // 1.5 MB
+      expect(metrics.formattedTotalSize).toBe('1.5 MB');
+
+      expect(formatStatusCounts(metrics, 'es')).toBe('1 carpeta, 2 archivos');
+      expect(formatStatusCounts(metrics, 'en')).toBe('1 folder, 2 files');
+    });
+
+    it('should return 0 counts and "0 B" total size for an empty folder (FR-12)', () => {
+      const metrics = calculateFolderMetrics([]);
+      expect(metrics.folderCount).toBe(0);
+      expect(metrics.fileCount).toBe(0);
+      expect(metrics.totalSizeBytes).toBe(0);
+      expect(metrics.formattedTotalSize).toBe('0 B');
+
+      expect(formatStatusCounts(metrics, 'es')).toBe('0 carpetas, 0 archivos');
+      expect(formatStatusCounts(metrics, 'en')).toBe('0 folders, 0 files');
+    });
+
+    it('should trigger directory refresh in explorerReducer while preserving current folder history (FR-13)', () => {
+      const populatedSubfolderState = {
+        ...initialExplorerState,
+        folderHistory: [
+          { id: 'root', name: 'My Drive' },
+          { id: 'folder-99', name: 'Proyectos' }
+        ],
+        selectedItemId: 'file-1',
+        isLoading: false
+      };
+
+      const refreshedState = explorerReducer(populatedSubfolderState, {
+        type: 'REFRESH_DIRECTORY'
+      });
+
+      expect(refreshedState.isLoading).toBe(true);
+      expect(refreshedState.selectedItemId).toBeNull();
+      expect(refreshedState.items).toEqual([]);
+      expect(refreshedState.folderHistory).toEqual(populatedSubfolderState.folderHistory);
+      expect(refreshedState.refreshCounter).toBe(
+        (populatedSubfolderState.refreshCounter ?? 0) + 1
+      );
     });
   });
 });

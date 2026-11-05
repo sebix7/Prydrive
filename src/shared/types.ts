@@ -82,4 +82,11 @@ export interface FolderCrumb {
   name: string;
 }
 
+export interface FolderMetrics {
+  folderCount: number;
+  fileCount: number;
+  totalSizeBytes: number;
+  formattedTotalSize: string;
+}
+
 

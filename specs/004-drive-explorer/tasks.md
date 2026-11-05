@@ -12,7 +12,7 @@
   - Depends on: T1, T2
   - Done when: Single-clicking any file or folder row highlights it as the selected item; navigating into a folder or ascending via `"..."` clears the active selection; double-clicking regular files or shortcuts performs a safe no-op; and selecting either the "Prydrive" or "Google Drive" button in the left navigation rail displays the synchronized Google Drive file explorer in the central canvas. Verified via automated unit tests in `tests/unit/use-drive-explorer.test.ts`.
 
-- [ ] **T4. Implement the persistent bottom status bar displaying real folder/file counts, aggregate file size, and manual directory refresh.** US-4 (FR-12, FR-13, NFR-3)
+- [x] **T4. Implement the persistent bottom status bar displaying real folder/file counts, aggregate file size, and manual directory refresh.** US-4 (FR-12, FR-13, NFR-3)
   - Depends on: T1, T2
   - Done when: A persistent bottom status bar is rendered inside the central workspace displaying the exact count of real folders and files (strictly excluding the virtual `"..."` parent row), the formatted aggregate file size of all files in the current directory, and a functional refresh button that re-fetches and updates the current folder's contents on demand. Verified via unit tests in `tests/unit/explorer-helpers.test.ts` and integration tests in `tests/integration/explorer-flow.test.ts`.
 

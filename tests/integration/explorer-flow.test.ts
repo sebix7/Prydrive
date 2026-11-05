@@ -3,6 +3,7 @@ import { StorageIpcController } from '../../src/main/ipc/storage-ipc';
 import { TokenStorage } from '../../src/main/core/token-storage';
 import { GoogleAuthClient } from '../../src/main/core/google-client';
 import { IPC_CHANNELS } from '../../src/shared/ipc-channels';
+import { calculateFolderMetrics } from '../../src/shared/explorer-helpers';
 import type { IpcResult, ListDirectoryResult } from '../../src/shared/types';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -160,5 +161,72 @@ describe('Explorer Directory Listing IPC Flow (US-1 / T1)', () => {
     expect(result.data?.currentFolderId).toBe('subfolder-id-99');
     expect(result.data?.items).toHaveLength(1);
     expect(result.data?.items[0].name).toBe('Contrato.pdf');
+  });
+
+  it('should re-fetch updated directory contents on manual refresh and compute accurate status bar metrics (US-4 / T4 / FR-12, FR-13)', async () => {
+    await tokenStorage.saveSession({
+      refreshToken: 'mock_valid_refresh_token',
+      email: 'user@example.com',
+      savedAt: Date.now()
+    });
+
+    const localDate = new Date(2026, 2, 1, 10, 0, 0);
+    const listSpy = vi
+      .spyOn(googleClient, 'listDirectory')
+      .mockResolvedValueOnce({
+        files: [
+          {
+            id: 'folder-a',
+            name: 'Clientes',
+            mimeType: 'application/vnd.google-apps.folder',
+            createdTime: localDate.toISOString()
+          }
+        ],
+        nextPageToken: null
+      })
+      .mockResolvedValueOnce({
+        files: [
+          {
+            id: 'folder-a',
+            name: 'Clientes',
+            mimeType: 'application/vnd.google-apps.folder',
+            createdTime: localDate.toISOString()
+          },
+          {
+            id: 'file-new',
+            name: 'Propuesta.pdf',
+            mimeType: 'application/pdf',
+            size: String(2 * 1024 * 1024),
+            createdTime: localDate.toISOString()
+          }
+        ],
+        nextPageToken: null
+      });
+
+    const handler = registeredHandlers.get(IPC_CHANNELS.STORAGE_LIST_DIRECTORY);
+
+    // Initial fetch
+    const firstResult = (await handler!(
+      {},
+      { folderId: 'root' }
+    )) as IpcResult<ListDirectoryResult>;
+    expect(firstResult.success).toBe(true);
+    const firstMetrics = calculateFolderMetrics(firstResult.data!.items);
+    expect(firstMetrics.folderCount).toBe(1);
+    expect(firstMetrics.fileCount).toBe(0);
+    expect(firstMetrics.formattedTotalSize).toBe('0 B');
+
+    // Manual refresh re-fetch (FR-13)
+    const refreshResult = (await handler!(
+      {},
+      { folderId: 'root' }
+    )) as IpcResult<ListDirectoryResult>;
+    expect(refreshResult.success).toBe(true);
+    expect(listSpy).toHaveBeenCalledTimes(2);
+
+    const refreshedMetrics = calculateFolderMetrics(refreshResult.data!.items);
+    expect(refreshedMetrics.folderCount).toBe(1);
+    expect(refreshedMetrics.fileCount).toBe(1);
+    expect(refreshedMetrics.formattedTotalSize).toBe('2 MB');
   });
 });
