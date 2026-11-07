@@ -7,6 +7,8 @@ export type AuthState =
 
 export type LanguageCode = 'en' | 'es';
 
+export type ThemeMode = 'light' | 'dark';
+
 export interface UserProfile {
   email: string;
   displayName?: string;

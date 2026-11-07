@@ -1,5 +1,5 @@
 # Spec 004 — Google Drive File and Folder Explorer
-Status: implemented
+Status: approved
 
 ## Context and Goal
 The central workspace canvas in Prydrive currently displays static placeholder panels ("Prydrive Workspace" and "Google Drive Connected"). Now that authentication, desktop shell architecture, and project metadata are in place, the application needs its core file exploration capability. The central area must display the real-time contents of the user's Google Drive in a compact desktop list view, enabling navigation through folder hierarchies, incremental scroll pagination, status bar telemetry, and manual refresh without relying on an external web browser.

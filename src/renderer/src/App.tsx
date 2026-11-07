@@ -8,8 +8,10 @@ import { AwaitingAuthModal } from './components/auth/AwaitingAuthModal';
 import { DisconnectModal } from './components/auth/DisconnectModal';
 import { AppShell } from './components/shell/AppShell';
 import { LanguageToggle } from './components/ui/LanguageToggle';
+import { useTheme } from './hooks/useTheme';
 
 export const App: React.FC = () => {
+  const { theme } = useTheme();
   const [language, setLanguage] = useState<LanguageCode>(() => {
     try {
       const saved = localStorage.getItem('prydrive_lang');
@@ -198,7 +200,10 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="w-full h-full flex flex-col relative overflow-hidden">
+    <div
+      data-theme={theme}
+      className="w-full h-full flex flex-col relative overflow-hidden"
+    >
       {/* Offline Alert Banner (FR-8, EC-5) */}
       {isOffline && (
         <div className="bg-amber-50 text-amber-900 px-4 py-2 text-xs border-b border-amber-200 flex items-center justify-between font-medium shadow-sm">
