@@ -1,20 +1,23 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ThemeMode } from '../../../shared/types';
 import {
+  type ThemeToggleMetadata,
   THEME_STORAGE_KEY,
   isValidThemeMode,
   resolveInitialTheme,
   toggleThemeMode,
+  getThemeToggleMetadata,
   loadSavedTheme,
   saveThemePreference
 } from '../../../shared/theme';
 
-export type { ThemeMode };
+export type { ThemeMode, ThemeToggleMetadata };
 export {
   THEME_STORAGE_KEY,
   isValidThemeMode,
   resolveInitialTheme,
   toggleThemeMode,
+  getThemeToggleMetadata,
   loadSavedTheme,
   saveThemePreference
 };

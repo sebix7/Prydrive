@@ -1,21 +1,26 @@
 import React, { useState } from 'react';
 import { Cloud, ArrowRight } from 'lucide-react';
-import type { LanguageCode } from '../../../../shared/types';
+import type { LanguageCode, ThemeMode } from '../../../../shared/types';
 import { getTranslation } from '../../../../shared/i18n/translations';
 import { LanguageToggle } from '../ui/LanguageToggle';
+import { ThemeToggle } from '../ui/ThemeToggle';
 
 interface WelcomeScreenProps {
   onSignIn: () => Promise<void>;
   disabled?: boolean;
   language?: LanguageCode;
   onLanguageChange?: (lang: LanguageCode) => void;
+  theme?: ThemeMode;
+  onToggleTheme?: () => void;
 }
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   onSignIn,
   disabled = false,
   language = 'en',
-  onLanguageChange
+  onLanguageChange,
+  theme = 'light',
+  onToggleTheme
 }) => {
   const [isClicking, setIsClicking] = useState(false);
 
@@ -33,15 +38,22 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 
   return (
     <div className="relative flex-1 flex flex-col items-center justify-center w-full h-full bg-slate-50 p-6 select-none overflow-hidden">
-      {/* Top right language switch */}
-      {onLanguageChange && (
-        <div className="absolute top-6 right-6">
+      {/* Top right theme & language switches (FR-4, FR-5) */}
+      <div className="absolute top-6 right-6 flex items-center gap-2">
+        {onToggleTheme && (
+          <ThemeToggle
+            theme={theme}
+            onToggle={onToggleTheme}
+            language={language}
+          />
+        )}
+        {onLanguageChange && (
           <LanguageToggle
             currentLanguage={language}
             onLanguageChange={onLanguageChange}
           />
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8 text-center flex flex-col items-center">
         <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-blue-100/50">

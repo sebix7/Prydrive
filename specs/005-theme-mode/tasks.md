@@ -4,7 +4,7 @@
   - Depends on: None
   - Done when: The system detects the operating system's color scheme once at startup when no saved preference exists (`resolveInitialTheme`), validates and restores any persisted preference (`'light'` or `'dark'`) from local storage while safely falling back on corrupted or restricted storage, enables `darkMode: 'class'` in `tailwind.config.js`, and synchronizes the active theme class (`dark`) and `data-theme` attribute on the root document element via `useTheme.ts` and `App.tsx`. Verified via automated unit tests in `tests/unit/theme.test.ts`.
 
-- [ ] **T2. Implement the Moon/Sun theme toggle button on the sign-in and offline screens.** US-2 (FR-4, FR-5)
+- [x] **T2. Implement the Moon/Sun theme toggle button on the sign-in and offline screens.** US-2 (FR-4, FR-5)
   - Depends on: T1
   - Done when: A theme toggle button (`ThemeToggle.tsx`) is rendered adjacent to the language selector in the top-right corner of both the welcome/sign-in screen and the offline mode screen, displaying a Moon icon when the active theme is `light` and a Sun icon when the active theme is `dark` (`getThemeToggleMetadata`), and clicking the button immediately alternates and persists the active theme between `light` and `dark`. Verified via automated unit tests in `tests/unit/theme-toggle.test.ts`.
 

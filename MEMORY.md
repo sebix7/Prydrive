@@ -13,8 +13,8 @@ Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete i
 - Minor release `v0.2.0` published to remote with automated changelog (`CHANGELOG.md`).
 - `specs/003-about-links/` released in `v0.2.1`.
 - `specs/004-drive-explorer/` completed, validated (`FULFILLED`), and released in `v0.3.0`.
-- `specs/005-theme-mode/` active: `T1` completed (`US-1`: OS default theme detection, persistence, and `useTheme` hook).
-- Next step: Run `/sdd-implement 005-theme-mode T2` (Moon/Sun theme toggle button on sign-in and offline screens).
+- `specs/005-theme-mode/` active: `T1` and `T2` completed (`US-1`, `US-2`: OS default theme detection, persistence, `useTheme` hook, and Moon/Sun toggle button on sign-in/offline screens).
+- Next step: Run `/sdd-implement 005-theme-mode T3` ("Theme" -> "Light" / "Dark" flyout submenu in top "Options" menu bar).
 
 ## Decisions (and why)
 - **Tailwind content scan of shared code**: `tailwind.config.js` includes `./src/shared/**` so utility classes in shared state reducers (e.g. `.w-0`, `.min-w-0`) are compiled into CSS.

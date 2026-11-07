@@ -42,6 +42,32 @@ export function toggleThemeMode(current: ThemeMode): ThemeMode {
   return current === 'dark' ? 'light' : 'dark';
 }
 
+export interface ThemeToggleMetadata {
+  targetTheme: ThemeMode;
+  iconName: 'moon' | 'sun';
+  tooltipKey: 'theme_switch_to_dark' | 'theme_switch_to_light';
+}
+
+/**
+ * Resolves action-oriented toggle button metadata (FR-4, FR-13):
+ * - When activeTheme is 'light' -> Moon icon + 'theme_switch_to_dark'.
+ * - When activeTheme is 'dark'  -> Sun icon  + 'theme_switch_to_light'.
+ */
+export function getThemeToggleMetadata(activeTheme: ThemeMode): ThemeToggleMetadata {
+  if (activeTheme === 'light') {
+    return {
+      targetTheme: 'dark',
+      iconName: 'moon',
+      tooltipKey: 'theme_switch_to_dark'
+    };
+  }
+  return {
+    targetTheme: 'light',
+    iconName: 'sun',
+    tooltipKey: 'theme_switch_to_light'
+  };
+}
+
 /**
  * Safely reads the persisted theme preference from storage without throwing on restricted environments (FR-12).
  */

@@ -8,10 +8,11 @@ import { AwaitingAuthModal } from './components/auth/AwaitingAuthModal';
 import { DisconnectModal } from './components/auth/DisconnectModal';
 import { AppShell } from './components/shell/AppShell';
 import { LanguageToggle } from './components/ui/LanguageToggle';
+import { ThemeToggle } from './components/ui/ThemeToggle';
 import { useTheme } from './hooks/useTheme';
 
 export const App: React.FC = () => {
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const [language, setLanguage] = useState<LanguageCode>(() => {
     try {
       const saved = localStorage.getItem('prydrive_lang');
@@ -231,8 +232,13 @@ export const App: React.FC = () => {
 
       {authState === 'offline' ? (
         <div className="relative flex-1 flex flex-col items-center justify-center p-6 bg-slate-50">
-          {/* Top-right language switch when offline */}
-          <div className="absolute top-6 right-6">
+          {/* Top-right theme and language switches when offline (FR-4, FR-5) */}
+          <div className="absolute top-6 right-6 flex items-center gap-2">
+            <ThemeToggle
+              theme={theme}
+              onToggle={toggleTheme}
+              language={language}
+            />
             <LanguageToggle
               currentLanguage={language}
               onLanguageChange={handleLanguageChange}
@@ -284,6 +290,8 @@ export const App: React.FC = () => {
           disabled={authState === 'awaiting_authorization'}
           language={language}
           onLanguageChange={handleLanguageChange}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
       )}
 
