@@ -1,5 +1,5 @@
 import React from 'react';
-import type { UserProfile, StorageQuota } from '../../../../shared/types';
+import type { UserProfile, StorageQuota, ThemeMode } from '../../../../shared/types';
 import { useShellState } from '../../hooks/useShellState';
 import { NavigationRail } from './NavigationRail';
 import { WorkspaceCanvas } from './WorkspaceCanvas';
@@ -13,6 +13,8 @@ interface AppShellProps {
   isLoadingQuota?: boolean;
   quotaError?: string | null;
   language: 'en' | 'es';
+  theme?: ThemeMode;
+  onSetTheme?: (theme: ThemeMode) => void;
   onDisconnect: () => void;
   onSetLanguage: (lang: 'en' | 'es') => void;
   onRefreshQuota: () => void;
@@ -23,6 +25,8 @@ interface AppShellProps {
     onToggleSidebar: () => void;
     onOpenAbout: () => void;
     onSetLanguage: (lang: 'en' | 'es') => void;
+    theme?: ThemeMode;
+    onSetTheme?: (theme: ThemeMode) => void;
     openMenu: string | null;
     menuBarRef: React.RefObject<HTMLDivElement>;
     dispatch: any;
@@ -50,6 +54,8 @@ export const AppShell: React.FC<AppShellProps> = ({
   isLoadingQuota = false,
   quotaError = null,
   language,
+  theme = 'dark',
+  onSetTheme,
   onDisconnect,
   onSetLanguage,
   onRefreshQuota,
@@ -81,6 +87,8 @@ export const AppShell: React.FC<AppShellProps> = ({
             onToggleSidebar: () => dispatch({ type: 'TOGGLE_SIDEBAR' }),
             onOpenAbout: () => dispatch({ type: 'OPEN_ABOUT_MODAL' }),
             onSetLanguage,
+            theme,
+            onSetTheme,
             openMenu: state.openMenu,
             menuBarRef,
             dispatch
@@ -100,6 +108,8 @@ export const AppShell: React.FC<AppShellProps> = ({
             onToggleSidebar={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
             onOpenAbout={() => dispatch({ type: 'OPEN_ABOUT_MODAL' })}
             onSetLanguage={onSetLanguage}
+            theme={theme}
+            onSetTheme={onSetTheme}
           />
         )}
       </header>

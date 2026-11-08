@@ -7,6 +7,7 @@ import {
   ABOUT_METADATA,
   APP_VERSION,
   RAW_VERSION,
+  resolveOptionsSubmenu,
   type ShellState,
   type ActiveMenu
 } from '../../src/shared/shell-state';
@@ -63,5 +64,23 @@ describe('Menu Bar & Dialog Transitions (US-3 / T3)', () => {
 
     const closedState = shellReducer(nextState, { type: 'CLOSE_ABOUT_MODAL' });
     expect(closedState.isAboutModalOpen).toBe(false);
+  });
+
+  it('should enforce mutual exclusion between Language and Theme submenus in Options (Spec 005 US-3 / FR-6)', () => {
+    // Initially closed -> open 'language'
+    expect(resolveOptionsSubmenu(null, 'language')).toBe('language');
+
+    // Switching from 'language' to 'theme' automatically closes 'language' and opens 'theme'
+    expect(resolveOptionsSubmenu('language', 'theme')).toBe('theme');
+
+    // Switching from 'theme' to 'language' automatically closes 'theme' and opens 'language'
+    expect(resolveOptionsSubmenu('theme', 'language')).toBe('language');
+
+    // Clicking the already open submenu toggles it closed
+    expect(resolveOptionsSubmenu('theme', 'theme')).toBeNull();
+    expect(resolveOptionsSubmenu('language', 'language')).toBeNull();
+
+    // Explicitly passing null closes any open submenu
+    expect(resolveOptionsSubmenu('theme', null)).toBeNull();
   });
 });

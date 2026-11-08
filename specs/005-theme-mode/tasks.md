@@ -8,7 +8,7 @@
   - Depends on: T1
   - Done when: A theme toggle button (`ThemeToggle.tsx`) is rendered adjacent to the language selector in the top-right corner of both the welcome/sign-in screen and the offline mode screen, displaying a Moon icon when the active theme is `light` and a Sun icon when the active theme is `dark` (`getThemeToggleMetadata`), and clicking the button immediately alternates and persists the active theme between `light` and `dark`. Verified via automated unit tests in `tests/unit/theme-toggle.test.ts`.
 
-- [ ] **T3. Implement the "Theme" ("Light" / "Dark") flyout submenu inside the top "Options" menu bar.** US-3 (FR-6, FR-7, FR-8)
+- [x] **T3. Implement the "Theme" ("Light" / "Dark") flyout submenu inside the top "Options" menu bar.** US-3 (FR-6, FR-7, FR-8)
   - Depends on: T1
   - Done when: The top "Options" ("Opciones") menu bar dropdown includes a "Theme" ("Tema") item positioned immediately below "Language" ("Idioma") and above the "Disconnect" separator, opening a flyout submenu with "Light" ("Claro") and "Dark" ("Oscuro") options, enforcing mutual exclusion with the "Language" submenu (`resolveOptionsSubmenu`), displaying a checkmark next to the active theme, and persisting the chosen theme while closing the menu upon selection. Verified via automated unit tests in `tests/unit/menu-bar.test.ts`.
 

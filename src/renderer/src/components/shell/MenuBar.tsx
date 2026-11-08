@@ -3,12 +3,13 @@ import {
   LogOut,
   Info,
   Languages,
+  Palette,
   Check,
   ChevronRight
 } from 'lucide-react';
-import type { LanguageCode } from '../../../../shared/types';
-import type { ActiveMenu } from '../../../../shared/shell-state';
-import { toggleMenuHeader } from '../../../../shared/shell-state';
+import type { LanguageCode, ThemeMode } from '../../../../shared/types';
+import type { ActiveMenu, OptionsSubmenu } from '../../../../shared/shell-state';
+import { toggleMenuHeader, resolveOptionsSubmenu } from '../../../../shared/shell-state';
 import { getTranslation } from '../../../../shared/i18n/translations';
 
 export interface MenuBarProps {
@@ -22,6 +23,8 @@ export interface MenuBarProps {
   onToggleSidebar?: () => void;
   onOpenAbout: () => void;
   onSetLanguage: (lang: LanguageCode) => void;
+  theme?: ThemeMode;
+  onSetTheme?: (theme: ThemeMode) => void;
   onCloseWindow?: () => void;
 }
 
@@ -33,20 +36,32 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   onCloseMenus,
   onDisconnectClick,
   onOpenAbout,
-  onSetLanguage
+  onSetLanguage,
+  theme = 'dark',
+  onSetTheme
 }) => {
-  const [isLangSubmenuOpen, setIsLangSubmenuOpen] = useState(false);
+  const [activeSubmenu, setActiveSubmenu] = useState<OptionsSubmenu>(null);
 
   const handleHeaderClick = (menu: ActiveMenu) => {
-    setIsLangSubmenuOpen(false);
+    setActiveSubmenu(null);
     onToggleMenu(toggleMenuHeader(openMenu, menu));
   };
 
   const handleSelectLanguage = (lang: LanguageCode) => {
     onSetLanguage(lang);
-    setIsLangSubmenuOpen(false);
+    setActiveSubmenu(null);
     onCloseMenus();
   };
+
+  const handleSelectTheme = (selectedTheme: ThemeMode) => {
+    onSetTheme?.(selectedTheme);
+    setActiveSubmenu(null);
+    onCloseMenus();
+  };
+
+  const themeMenuLabel = language === 'es' ? 'Tema' : 'Theme';
+  const lightThemeLabel = language === 'es' ? 'Claro' : 'Light';
+  const darkThemeLabel = language === 'es' ? 'Oscuro' : 'Dark';
 
   return (
     <div
@@ -80,15 +95,17 @@ export const MenuBar: React.FC<MenuBarProps> = ({
               {/* Language Submenu Trigger */}
               <div
                 className="relative"
-                onMouseEnter={() => setIsLangSubmenuOpen(true)}
-                onMouseLeave={() => setIsLangSubmenuOpen(false)}
+                onMouseEnter={() => setActiveSubmenu('language')}
+                onMouseLeave={() =>
+                  setActiveSubmenu((prev) => (prev === 'language' ? null : prev))
+                }
               >
                 <button
                   type="button"
                   data-testid="menu-item-lang-parent"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setIsLangSubmenuOpen((prev) => !prev);
+                    setActiveSubmenu((prev) => resolveOptionsSubmenu(prev, 'language'));
                   }}
                   className="w-full px-3 py-1.5 flex items-center justify-between text-left hover:bg-blue-600 hover:text-white text-slate-200 transition-colors group"
                 >
@@ -100,7 +117,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
                 </button>
 
                 {/* Nested Flyout Language Submenu */}
-                {isLangSubmenuOpen && (
+                {activeSubmenu === 'language' && (
                   <div
                     data-testid="menu-submenu-lang"
                     className="absolute left-full -top-1 ml-1 min-w-[130px] bg-[#161B22] border border-slate-700/80 rounded-xl shadow-2xl py-1 z-50 text-xs backdrop-blur-md animate-in fade-in zoom-in-95 duration-100"
@@ -122,6 +139,68 @@ export const MenuBar: React.FC<MenuBarProps> = ({
                     >
                       <span>Español</span>
                       {language === 'es' && <Check className="w-3.5 h-3.5 text-blue-400" />}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Theme Submenu Trigger (FR-6, FR-7, FR-8) */}
+              <div
+                className="relative"
+                onMouseEnter={() => setActiveSubmenu('theme')}
+                onMouseLeave={() =>
+                  setActiveSubmenu((prev) => (prev === 'theme' ? null : prev))
+                }
+              >
+                <button
+                  type="button"
+                  data-testid="menu-item-theme-parent"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveSubmenu((prev) => resolveOptionsSubmenu(prev, 'theme'));
+                  }}
+                  className="w-full px-3 py-1.5 flex items-center justify-between text-left hover:bg-blue-600 hover:text-white text-slate-200 transition-colors group"
+                >
+                  <div className="flex items-center gap-2">
+                    <Palette className="w-3.5 h-3.5 text-slate-400 group-hover:text-white" />
+                    <span>{themeMenuLabel}</span>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-white ml-2" />
+                </button>
+
+                {/* Nested Flyout Theme Submenu */}
+                {activeSubmenu === 'theme' && (
+                  <div
+                    data-testid="menu-submenu-theme"
+                    className="absolute left-full -top-1 ml-1 min-w-[130px] bg-[#161B22] border border-slate-700/80 rounded-xl shadow-2xl py-1 z-50 text-xs backdrop-blur-md animate-in fade-in zoom-in-95 duration-100"
+                  >
+                    <button
+                      type="button"
+                      data-testid="menu-item-theme-light"
+                      onClick={() => handleSelectTheme('light')}
+                      className="w-full px-3 py-1.5 flex items-center justify-between text-left hover:bg-blue-600 hover:text-white text-slate-200 transition-colors"
+                    >
+                      <span>{lightThemeLabel}</span>
+                      {theme === 'light' && (
+                        <Check
+                          data-testid="theme-check-light"
+                          className="w-3.5 h-3.5 text-blue-400"
+                        />
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="menu-item-theme-dark"
+                      onClick={() => handleSelectTheme('dark')}
+                      className="w-full px-3 py-1.5 flex items-center justify-between text-left hover:bg-blue-600 hover:text-white text-slate-200 transition-colors"
+                    >
+                      <span>{darkThemeLabel}</span>
+                      {theme === 'dark' && (
+                        <Check
+                          data-testid="theme-check-dark"
+                          className="w-3.5 h-3.5 text-blue-400"
+                        />
+                      )}
                     </button>
                   </div>
                 )}

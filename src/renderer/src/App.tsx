@@ -12,7 +12,7 @@ import { ThemeToggle } from './components/ui/ThemeToggle';
 import { useTheme } from './hooks/useTheme';
 
 export const App: React.FC = () => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme, toggleTheme } = useTheme();
   const [language, setLanguage] = useState<LanguageCode>(() => {
     try {
       const saved = localStorage.getItem('prydrive_lang');
@@ -280,6 +280,8 @@ export const App: React.FC = () => {
           isLoadingQuota={isLoadingQuota}
           quotaError={quotaError}
           language={language}
+          theme={theme}
+          onSetTheme={setTheme}
           onDisconnect={() => setIsDisconnectModalOpen(true)}
           onSetLanguage={handleLanguageChange}
           onRefreshQuota={loadQuota}

@@ -4,6 +4,7 @@ export { APP_VERSION, APP_NAME, RAW_VERSION };
 
 export type ActiveNavTab = 'prydrive' | 'google-drive';
 export type ActiveMenu = 'options' | 'help' | null;
+export type OptionsSubmenu = 'language' | 'theme' | null;
 
 export interface ShellState {
   activeNav: ActiveNavTab;
@@ -176,4 +177,18 @@ export function formatMailtoUrl(email: string): string {
  */
 export function toggleMenuHeader(currentOpen: ActiveMenu, target: ActiveMenu): ActiveMenu {
   return currentOpen === target ? null : target;
+}
+
+/**
+ * Enforces mutual exclusion between 'language' and 'theme' submenus inside Options (Spec 005 FR-6).
+ * Clicking an inactive submenu opens it (closing any other open submenu); clicking the active submenu closes it.
+ */
+export function resolveOptionsSubmenu(
+  current: OptionsSubmenu,
+  target: OptionsSubmenu
+): OptionsSubmenu {
+  if (target === null) {
+    return null;
+  }
+  return current === target ? null : target;
 }
