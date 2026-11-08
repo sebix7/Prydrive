@@ -17,7 +17,7 @@ Constitution → Spec → Clarification → Plan → Tasks → Implementation �
 ## Spec Template (spec.md)
 ```markdown
 # Spec NNN — <Name>
-Status: draft | approved | implemented
+Status: draft | approved
 
 ## Context and Goal
 ## Users
