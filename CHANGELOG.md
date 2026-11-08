@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.4.0](https://github.com/sebix7/Prydrive/compare/v0.3.0...v0.4.0) (2026-11-08)
+
+
+### Features
+
+* **i18n:** add bilingual localization parity for theme controls ([fccc6a9](https://github.com/sebix7/Prydrive/commit/fccc6a9da18723fca20a0d5cb83f6adedb19bff3))
+* **menu:** add theme flyout submenu in top options menu bar ([a0b7e43](https://github.com/sebix7/Prydrive/commit/a0b7e43fcdc88575ad8270a25c4dc29b0aa17c38))
+* **theme:** add moon/sun theme toggle button on sign-in and offline screens ([0278a45](https://github.com/sebix7/Prydrive/commit/0278a4510ad81228742e63979e1d49d4f1480290))
+* **theme:** implement os default theme detection, persistence, and useTheme hook ([5275d0e](https://github.com/sebix7/Prydrive/commit/5275d0eec73d561618d664760a1d8a9638a558d6))
+* **theme:** implement uniform light and dark styling across all views and modals ([10d70ce](https://github.com/sebix7/Prydrive/commit/10d70ceb7c669448c0a5e4e6ddb27fbee128433b))
+
+
+### Documentation
+
+* **memory:** mark spec 004 as implemented and log v0.3.0 release ([26bcb42](https://github.com/sebix7/Prydrive/commit/26bcb42c2c4bc21669457df952760af8b72498df))
+
 ## [0.3.0](https://github.com/sebix7/Prydrive/compare/v0.2.1...v0.3.0) (2026-11-05)
 
 
