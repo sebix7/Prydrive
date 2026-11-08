@@ -1,18 +1,21 @@
 import React from 'react';
 import { Folder } from 'lucide-react';
-import type { LanguageCode } from '../../../../shared/types';
+import type { LanguageCode, ThemeMode } from '../../../../shared/types';
 import { getTranslation } from '../../../../shared/i18n/translations';
 
 export interface ParentNavRowProps {
   onNavigateUp: () => void;
   language?: LanguageCode;
+  theme?: ThemeMode;
 }
 
 export const ParentNavRow: React.FC<ParentNavRowProps> = ({
   onNavigateUp,
-  language = 'en'
+  language = 'en',
+  theme = 'dark'
 }) => {
   const tooltip = getTranslation(language, 'explorer_parent_folder');
+  const isDark = theme === 'dark';
 
   return (
     <div
@@ -21,7 +24,11 @@ export const ParentNavRow: React.FC<ParentNavRowProps> = ({
       title={tooltip}
       aria-label={tooltip}
       onDoubleClick={onNavigateUp}
-      className="h-9 flex items-center px-3 border-b border-slate-800/50 text-xs text-slate-200 hover:bg-slate-800/50 transition-colors cursor-default select-none"
+      className={`h-9 flex items-center px-3 border-b text-xs transition-colors cursor-default select-none ${
+        isDark
+          ? 'border-slate-800/50 text-slate-200 hover:bg-slate-800/50'
+          : 'border-slate-200/70 text-slate-800 hover:bg-slate-100'
+      }`}
     >
       {/* Column 1: Folder Icon */}
       <div className="w-10 flex items-center justify-center shrink-0">
@@ -29,7 +36,11 @@ export const ParentNavRow: React.FC<ParentNavRowProps> = ({
       </div>
 
       {/* Column 2: "..." Parent Label */}
-      <div className="flex-1 min-w-0 pr-4 font-mono font-bold text-slate-300">
+      <div
+        className={`flex-1 min-w-0 pr-4 font-mono font-bold ${
+          isDark ? 'text-slate-300' : 'text-slate-700'
+        }`}
+      >
         ...
       </div>
 

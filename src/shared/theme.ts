@@ -68,6 +68,45 @@ export function getThemeToggleMetadata(activeTheme: ThemeMode): ThemeToggleMetad
   };
 }
 
+export interface ThemeSurfacePalette {
+  canvasBg: string;
+  secondaryBg: string;
+  cardBg: string;
+  modalBg: string;
+  border: string;
+  textPrimary: string;
+  textSecondary: string;
+  textMuted: string;
+}
+
+/**
+ * Resolves standardized semantic surface and typography classes for Light and Dark modes (FR-9, FR-10, NFR-2).
+ */
+export function getThemeSurfaceClasses(theme: ThemeMode): ThemeSurfacePalette {
+  if (theme === 'light') {
+    return {
+      canvasBg: 'bg-white',
+      secondaryBg: 'bg-slate-100/90',
+      cardBg: 'bg-white',
+      modalBg: 'bg-white',
+      border: 'border-slate-200',
+      textPrimary: 'text-slate-900',
+      textSecondary: 'text-slate-700',
+      textMuted: 'text-slate-500'
+    };
+  }
+  return {
+    canvasBg: 'bg-[#0D1117]',
+    secondaryBg: 'bg-[#161B22]',
+    cardBg: 'bg-[#161B22]',
+    modalBg: 'bg-[#161B22]',
+    border: 'border-slate-800',
+    textPrimary: 'text-slate-100',
+    textSecondary: 'text-slate-300',
+    textMuted: 'text-slate-400'
+  };
+}
+
 /**
  * Safely reads the persisted theme preference from storage without throwing on restricted environments (FR-12).
  */

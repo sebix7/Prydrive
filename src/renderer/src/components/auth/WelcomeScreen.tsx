@@ -35,9 +35,15 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   };
 
   const isButtonDisabled = disabled || isClicking;
+  const isDark = theme === 'dark';
 
   return (
-    <div className="relative flex-1 flex flex-col items-center justify-center w-full h-full bg-slate-50 p-6 select-none overflow-hidden">
+    <div
+      data-testid="welcome-screen"
+      className={`relative flex-1 flex flex-col items-center justify-center w-full h-full p-6 select-none overflow-hidden transition-colors ${
+        isDark ? 'bg-[#0D1117] text-slate-100' : 'bg-slate-50 text-slate-900'
+      }`}
+    >
       {/* Top right theme & language switches (FR-4, FR-5) */}
       <div className="absolute top-6 right-6 flex items-center gap-2">
         {onToggleTheme && (
@@ -51,19 +57,40 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           <LanguageToggle
             currentLanguage={language}
             onLanguageChange={onLanguageChange}
+            theme={theme}
           />
         )}
       </div>
 
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8 text-center flex flex-col items-center">
-        <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-blue-100/50">
+      <div
+        className={`max-w-md w-full rounded-2xl p-8 text-center flex flex-col items-center border transition-colors ${
+          isDark
+            ? 'bg-[#161B22] border-slate-800 shadow-2xl shadow-black/50'
+            : 'bg-white border-slate-100 shadow-xl shadow-slate-200/50'
+        }`}
+      >
+        <div
+          className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm border ${
+            isDark
+              ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+              : 'bg-blue-50 text-blue-600 border-blue-100/50'
+          }`}
+        >
           <Cloud className="w-9 h-9" />
         </div>
 
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-2">
+        <h1
+          className={`text-2xl font-bold tracking-tight mb-2 ${
+            isDark ? 'text-slate-100' : 'text-slate-900'
+          }`}
+        >
           {getTranslation(language, 'welcome_title')}
         </h1>
-        <p className="text-sm text-slate-500 mb-8 leading-relaxed max-w-xs">
+        <p
+          className={`text-sm mb-8 leading-relaxed max-w-xs ${
+            isDark ? 'text-slate-400' : 'text-slate-500'
+          }`}
+        >
           {getTranslation(language, 'welcome_subtitle')}
         </p>
 
@@ -73,8 +100,12 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           onClick={handleClick}
           className={`w-full flex items-center justify-center gap-3 px-6 py-3.5 text-sm font-semibold rounded-xl border transition-all duration-200 shadow-sm ${
             isButtonDisabled
-              ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
-              : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-slate-400 active:scale-[0.98]'
+              ? isDark
+                ? 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed'
+                : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
+              : isDark
+                ? 'bg-slate-800/90 text-slate-100 border-slate-700 hover:bg-slate-800 hover:border-slate-600 active:scale-[0.98]'
+                : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-slate-400 active:scale-[0.98]'
           }`}
         >
           {/* Official Google 'G' Icon */}
@@ -100,7 +131,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           <ArrowRight className="w-4 h-4 ml-auto text-slate-400" />
         </button>
 
-        <p className="text-xs text-slate-400 mt-6">
+        <p className={`text-xs mt-6 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
           {getTranslation(language, 'browser_notice')}
         </p>
       </div>

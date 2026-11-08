@@ -11,7 +11,7 @@ import {
   ExternalLink,
   File
 } from 'lucide-react';
-import type { StorageItem, StorageItemType } from '../../../../shared/types';
+import type { StorageItem, StorageItemType, ThemeMode } from '../../../../shared/types';
 import { getRowSelectionClasses } from '../../../../shared/explorer-helpers';
 
 export interface FileTableRowProps {
@@ -19,6 +19,7 @@ export interface FileTableRowProps {
   isSelected?: boolean;
   onSelect?: (id: string) => void;
   onDoubleClick?: (item: StorageItem) => void;
+  theme?: ThemeMode;
 }
 
 function renderItemIcon(iconType: StorageItemType): React.ReactNode {
@@ -52,8 +53,13 @@ export const FileTableRow: React.FC<FileTableRowProps> = ({
   item,
   isSelected = false,
   onSelect,
-  onDoubleClick
+  onDoubleClick,
+  theme = 'dark'
 }) => {
+  const isDark = theme === 'dark';
+  const borderClass = isDark ? 'border-slate-800/50' : 'border-slate-200/70';
+  const metaTextClass = isDark ? 'text-slate-400' : 'text-slate-500';
+
   return (
     <div
       role="row"
@@ -61,7 +67,7 @@ export const FileTableRow: React.FC<FileTableRowProps> = ({
       data-testid={`explorer-row-${item.id}`}
       onClick={() => onSelect?.(item.id)}
       onDoubleClick={() => onDoubleClick?.(item)}
-      className={`h-9 flex items-center px-3 border-b border-slate-800/50 text-xs transition-colors cursor-default select-none ${getRowSelectionClasses(isSelected)}`}
+      className={`h-9 flex items-center px-3 border-b ${borderClass} text-xs transition-colors cursor-default select-none ${getRowSelectionClasses(isSelected, theme)}`}
     >
       {/* Column 1: Type Icon */}
       <div className="w-10 flex items-center justify-center shrink-0">
@@ -77,12 +83,12 @@ export const FileTableRow: React.FC<FileTableRowProps> = ({
       </div>
 
       {/* Column 3: Creation Date (DD/MM/YYYY HH:mm:ss local) */}
-      <div className="w-44 shrink-0 text-slate-400 font-mono text-[11px]">
+      <div className={`w-44 shrink-0 ${metaTextClass} font-mono text-[11px]`}>
         {item.formattedCreatedAt}
       </div>
 
       {/* Column 4: File Size */}
-      <div className="w-24 shrink-0 text-right text-slate-400 font-mono text-[11px] pr-2">
+      <div className={`w-24 shrink-0 text-right ${metaTextClass} font-mono text-[11px] pr-2`}>
         {item.formattedSize}
       </div>
     </div>

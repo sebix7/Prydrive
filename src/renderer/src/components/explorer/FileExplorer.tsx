@@ -1,6 +1,6 @@
 import React from 'react';
 import { Loader2, FolderOpen, AlertCircle, RotateCw } from 'lucide-react';
-import type { LanguageCode } from '../../../../shared/types';
+import type { LanguageCode, ThemeMode } from '../../../../shared/types';
 import { getTranslation } from '../../../../shared/i18n/translations';
 import { useDriveExplorer } from '../../hooks/useDriveExplorer';
 import { FileTableRow } from './FileTableRow';
@@ -9,9 +9,13 @@ import { ExplorerStatusBar } from './ExplorerStatusBar';
 
 export interface FileExplorerProps {
   language?: LanguageCode;
+  theme?: ThemeMode;
 }
 
-export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) => {
+export const FileExplorer: React.FC<FileExplorerProps> = ({
+  language = 'en',
+  theme = 'dark'
+}) => {
   const {
     atRoot,
     items,
@@ -27,10 +31,14 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
     handleScroll
   } = useDriveExplorer();
 
+  const isDark = theme === 'dark';
+
   return (
     <div
       data-testid="file-explorer"
-      className="flex-1 flex flex-col w-full h-full bg-[#0D1117] text-slate-100 select-none min-w-0 overflow-hidden"
+      className={`flex-1 flex flex-col w-full h-full select-none min-w-0 overflow-hidden transition-colors ${
+        isDark ? 'bg-[#0D1117] text-slate-100' : 'bg-white text-slate-900'
+      }`}
     >
       {/* Scrollable File and Folder List with Sticky Header for 100% Column Alignment */}
       <div
@@ -43,7 +51,11 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
         <div
           role="row"
           data-testid="explorer-table-header"
-          className="sticky top-0 z-10 h-9 flex items-center px-3 bg-[#161B22] border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-400 shrink-0"
+          className={`sticky top-0 z-10 h-9 flex items-center px-3 border-b text-[11px] font-semibold uppercase tracking-wider shrink-0 transition-colors ${
+            isDark
+              ? 'bg-[#161B22] border-slate-800 text-slate-400'
+              : 'bg-slate-100/95 border-slate-200 text-slate-600'
+          }`}
         >
           <div className="w-10 text-center shrink-0">
             {getTranslation(language, 'explorer_col_type')}
@@ -63,32 +75,62 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
         {isLoading ? (
           <div
             data-testid="explorer-loading-spinner"
-            className="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-slate-400"
+            className={`flex-1 flex flex-col items-center justify-center gap-3 p-8 ${
+              isDark ? 'text-slate-400' : 'text-slate-500'
+            }`}
           >
-            <div className="p-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 shadow-inner">
-              <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
+            <div
+              className={`p-3 rounded-2xl border shadow-inner ${
+                isDark
+                  ? 'bg-blue-500/10 border-blue-500/20'
+                  : 'bg-blue-50 border-blue-100'
+              }`}
+            >
+              <Loader2
+                className={`w-6 h-6 animate-spin ${
+                  isDark ? 'text-blue-400' : 'text-blue-600'
+                }`}
+              />
             </div>
-            <span className="text-xs font-medium tracking-wide text-slate-400 animate-pulse">
+            <span
+              className={`text-xs font-medium tracking-wide animate-pulse ${
+                isDark ? 'text-slate-400' : 'text-slate-600'
+              }`}
+            >
               {getTranslation(language, 'explorer_loading')}
             </span>
           </div>
         ) : errorMessage ? (
           <div role="rowgroup" className="flex-1 flex flex-col">
             {!atRoot && (
-              <ParentNavRow onNavigateUp={navigateUp} language={language} />
+              <ParentNavRow onNavigateUp={navigateUp} language={language} theme={theme} />
             )}
             <div
               data-testid="explorer-error-banner"
               className="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-center"
             >
-              <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20">
-                <AlertCircle className="w-6 h-6 text-rose-400" />
+              <div
+                className={`p-3 rounded-2xl border ${
+                  isDark
+                    ? 'bg-rose-500/10 border-rose-500/20'
+                    : 'bg-rose-50 border-rose-200'
+                }`}
+              >
+                <AlertCircle
+                  className={`w-6 h-6 ${isDark ? 'text-rose-400' : 'text-rose-600'}`}
+                />
               </div>
               <div className="max-w-md space-y-1">
-                <p className="text-sm font-semibold text-slate-200">
+                <p
+                  className={`text-sm font-semibold ${
+                    isDark ? 'text-slate-200' : 'text-slate-800'
+                  }`}
+                >
                   {getTranslation(language, 'explorer_error_title')}
                 </p>
-                <p className="text-xs text-slate-400">{errorMessage}</p>
+                <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                  {errorMessage}
+                </p>
               </div>
               <button
                 type="button"
@@ -104,17 +146,31 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
         ) : (
           <div role="rowgroup" className="flex-1 flex flex-col">
             {!atRoot && (
-              <ParentNavRow onNavigateUp={navigateUp} language={language} />
+              <ParentNavRow onNavigateUp={navigateUp} language={language} theme={theme} />
             )}
             {items.length === 0 ? (
               <div
                 data-testid="explorer-empty-state"
-                className="flex-1 flex flex-col items-center justify-center gap-2.5 p-8 text-slate-400"
+                className={`flex-1 flex flex-col items-center justify-center gap-2.5 p-8 ${
+                  isDark ? 'text-slate-400' : 'text-slate-500'
+                }`}
               >
-                <div className="p-3 rounded-2xl bg-slate-800/50 border border-slate-800">
-                  <FolderOpen className="w-6 h-6 text-slate-500" />
+                <div
+                  className={`p-3 rounded-2xl border ${
+                    isDark
+                      ? 'bg-slate-800/50 border-slate-800'
+                      : 'bg-slate-100 border-slate-200'
+                  }`}
+                >
+                  <FolderOpen
+                    className={`w-6 h-6 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}
+                  />
                 </div>
-                <span className="text-xs font-medium text-slate-400">
+                <span
+                  className={`text-xs font-medium ${
+                    isDark ? 'text-slate-400' : 'text-slate-500'
+                  }`}
+                >
                   {getTranslation(language, 'explorer_empty_folder')}
                 </span>
               </div>
@@ -127,14 +183,21 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
                     isSelected={selectedItemId === item.id}
                     onSelect={selectItem}
                     onDoubleClick={openItem}
+                    theme={theme}
                   />
                 ))}
                 {isLoadingMore && (
                   <div
                     data-testid="explorer-pagination-spinner"
-                    className="h-9 flex items-center justify-center gap-2 text-xs text-slate-400 py-2"
+                    className={`h-9 flex items-center justify-center gap-2 text-xs py-2 ${
+                      isDark ? 'text-slate-400' : 'text-slate-500'
+                    }`}
                   >
-                    <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin" />
+                    <Loader2
+                      className={`w-3.5 h-3.5 animate-spin ${
+                        isDark ? 'text-blue-400' : 'text-blue-600'
+                      }`}
+                    />
                     <span>
                       {getTranslation(language, 'explorer_loading_more')}
                     </span>
@@ -152,6 +215,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ language = 'en' }) =
         isLoading={isLoading}
         onRefresh={refreshDirectory}
         language={language}
+        theme={theme}
       />
     </div>
   );

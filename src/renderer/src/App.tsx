@@ -189,11 +189,18 @@ export const App: React.FC = () => {
     }
   };
 
+  const isDark = theme === 'dark';
+
   if (authState === 'restoring_session') {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50">
+      <div
+        data-theme={theme}
+        className={`w-full h-full flex flex-col items-center justify-center transition-colors ${
+          isDark ? 'bg-[#0D1117] text-slate-100' : 'bg-slate-50 text-slate-900'
+        }`}
+      >
         <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-3" />
-        <p className="text-xs text-slate-500 font-medium">
+        <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
           {getTranslation(language, 'validating_session')}
         </p>
       </div>
@@ -207,15 +214,25 @@ export const App: React.FC = () => {
     >
       {/* Offline Alert Banner (FR-8, EC-5) */}
       {isOffline && (
-        <div className="bg-amber-50 text-amber-900 px-4 py-2 text-xs border-b border-amber-200 flex items-center justify-between font-medium shadow-sm">
+        <div
+          className={`px-4 py-2 text-xs border-b flex items-center justify-between font-medium shadow-sm ${
+            isDark
+              ? 'bg-amber-950/60 text-amber-200 border-amber-800/60'
+              : 'bg-amber-50 text-amber-900 border-amber-200'
+          }`}
+        >
           <div className="flex items-center gap-2">
-            <WifiOff className="w-4 h-4 text-amber-700" />
+            <WifiOff className={`w-4 h-4 ${isDark ? 'text-amber-400' : 'text-amber-700'}`} />
             <span>{getTranslation(language, 'offline_banner')}</span>
           </div>
           <button
             type="button"
             onClick={checkSession}
-            className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold bg-amber-200/60 hover:bg-amber-200 text-amber-900 rounded-lg transition-colors"
+            className={`flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-colors ${
+              isDark
+                ? 'bg-amber-900/60 hover:bg-amber-800/80 text-amber-100'
+                : 'bg-amber-200/60 hover:bg-amber-200 text-amber-900'
+            }`}
           >
             <RefreshCw className="w-3 h-3" />
             <span>{getTranslation(language, 'retry_connection')}</span>
@@ -225,13 +242,23 @@ export const App: React.FC = () => {
 
       {/* General Notification Banner */}
       {!isOffline && (errorKey || customError) && (
-        <div className="bg-slate-100 text-slate-700 px-4 py-2.5 text-xs border-b border-slate-200 text-center font-medium shadow-sm">
+        <div
+          className={`px-4 py-2.5 text-xs border-b text-center font-medium shadow-sm ${
+            isDark
+              ? 'bg-slate-900 text-slate-300 border-slate-800'
+              : 'bg-slate-100 text-slate-700 border-slate-200'
+          }`}
+        >
           {errorKey ? getTranslation(language, errorKey) : customError}
         </div>
       )}
 
       {authState === 'offline' ? (
-        <div className="relative flex-1 flex flex-col items-center justify-center p-6 bg-slate-50">
+        <div
+          className={`relative flex-1 flex flex-col items-center justify-center p-6 transition-colors ${
+            isDark ? 'bg-[#0D1117] text-slate-100' : 'bg-slate-50 text-slate-900'
+          }`}
+        >
           {/* Top-right theme and language switches when offline (FR-4, FR-5) */}
           <div className="absolute top-6 right-6 flex items-center gap-2">
             <ThemeToggle
@@ -242,22 +269,51 @@ export const App: React.FC = () => {
             <LanguageToggle
               currentLanguage={language}
               onLanguageChange={handleLanguageChange}
+              theme={theme}
             />
           </div>
 
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-8 shadow-sm text-center max-w-sm w-full flex flex-col items-center">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 bg-amber-50 text-amber-600">
+          <div
+            className={`border rounded-2xl p-8 shadow-sm text-center max-w-sm w-full flex flex-col items-center transition-colors ${
+              isDark
+                ? 'bg-[#161B22] border-slate-800 shadow-2xl shadow-black/40'
+                : 'bg-white border-slate-200/90'
+            }`}
+          >
+            <div
+              className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${
+                isDark
+                  ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                  : 'bg-amber-50 text-amber-600'
+              }`}
+            >
               <WifiOff className="w-7 h-7" />
             </div>
 
-            <h2 className="text-xl font-bold text-slate-800 mb-1">
+            <h2
+              className={`text-xl font-bold mb-1 ${
+                isDark ? 'text-slate-100' : 'text-slate-800'
+              }`}
+            >
               {getTranslation(language, 'offline_mode_title')}
             </h2>
             {userProfile?.email && (
-              <p className="text-sm font-medium text-slate-600 mb-2">{userProfile.email}</p>
+              <p
+                className={`text-sm font-medium mb-2 ${
+                  isDark ? 'text-slate-400' : 'text-slate-600'
+                }`}
+              >
+                {userProfile.email}
+              </p>
             )}
 
-            <div className="w-full p-3.5 bg-amber-50/70 border border-amber-200/60 rounded-xl text-xs text-amber-800 leading-relaxed my-3 text-center">
+            <div
+              className={`w-full p-3.5 border rounded-xl text-xs leading-relaxed my-3 text-center ${
+                isDark
+                  ? 'bg-amber-950/30 border-amber-800/50 text-amber-300'
+                  : 'bg-amber-50/70 border-amber-200/60 text-amber-800'
+              }`}
+            >
               {userProfile?.email
                 ? getTranslation(language, 'offline_mode_desc_saved')
                 : getTranslation(language, 'offline_mode_desc_no_session')}
@@ -266,7 +322,11 @@ export const App: React.FC = () => {
             <button
               type="button"
               onClick={checkSession}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white rounded-xl transition-colors shadow-sm mt-1"
+              className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-xl transition-colors shadow-sm mt-1 ${
+                isDark
+                  ? 'bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white'
+                  : 'bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white'
+              }`}
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>{getTranslation(language, 'retry_connection')}</span>
@@ -301,12 +361,14 @@ export const App: React.FC = () => {
         isOpen={authState === 'awaiting_authorization'}
         onCancel={handleCancel}
         language={language}
+        theme={theme}
       />
 
       <DisconnectModal
         isOpen={isDisconnectModalOpen}
         isDisconnecting={isDisconnecting}
         language={language}
+        theme={theme}
         onConfirm={handleConfirmDisconnect}
         onCancel={() => setIsDisconnectModalOpen(false)}
       />

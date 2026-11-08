@@ -12,7 +12,7 @@
   - Depends on: T1
   - Done when: The top "Options" ("Opciones") menu bar dropdown includes a "Theme" ("Tema") item positioned immediately below "Language" ("Idioma") and above the "Disconnect" separator, opening a flyout submenu with "Light" ("Claro") and "Dark" ("Oscuro") options, enforcing mutual exclusion with the "Language" submenu (`resolveOptionsSubmenu`), displaying a checkmark next to the active theme, and persisting the chosen theme while closing the menu upon selection. Verified via automated unit tests in `tests/unit/menu-bar.test.ts`.
 
-- [ ] **T4. Implement uniform Light Mode and Dark Mode visual styling across all application views, file explorer table, scrollbars, and modal dialogs.** US-4 (FR-9, FR-10, FR-11, NFR-1, NFR-2, EC-3, EC-4, EC-6)
+- [x] **T4. Implement uniform Light Mode and Dark Mode visual styling across all application views, file explorer table, scrollbars, and modal dialogs.** US-4 (FR-9, FR-10, FR-11, NFR-1, NFR-2, EC-3, EC-4, EC-6)
   - Depends on: T1, T2, T3
   - Done when: Switching between `light` and `dark` themes instantaneously updates all Pre-Authentication Views (`WelcomeScreen`, session validation loader, offline view, `AwaitingAuthModal`) and Authenticated Workspace Views (`AppShell`, `MenuBar`, `NavigationRail` including Prydrive logo cutout contrast `getPrydriveLogoCutoutColor`, `WorkspaceCanvas`, `FileExplorer` sticky header/rows/`"..."` parent row/empty/error states, `ExplorerStatusBar`, `TelemetrySidebar`, `QuotaBar`, `AboutModal`, `DisconnectModal`, and CSS scrollbars in `main.css`) with WCAG AA compliant contrast while preserving folder navigation and row selection state. Verified via automated unit tests in `tests/unit/theme-surfaces.test.ts`.
 

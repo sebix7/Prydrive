@@ -35,6 +35,7 @@ interface AppShellProps {
     activeNav: 'prydrive' | 'google-drive';
     onSelectNav: (nav: 'prydrive' | 'google-drive') => void;
     language: 'en' | 'es';
+    theme?: ThemeMode;
   }) => React.ReactNode;
   renderTelemetrySidebar?: (props: {
     userEmail: string;
@@ -45,6 +46,7 @@ interface AppShellProps {
     onToggle: () => void;
     onRefreshQuota: () => void;
     language: 'en' | 'es';
+    theme?: ThemeMode;
   }) => React.ReactNode;
 }
 
@@ -65,16 +67,23 @@ export const AppShell: React.FC<AppShellProps> = ({
 }) => {
   const { state, dispatch, menuBarRef } = useShellState();
   const userEmail = userProfile?.email || 'user@example.com';
+  const isDark = theme === 'dark';
 
   return (
     <div
       data-testid="app-shell-container"
-      className="flex flex-col w-full h-full bg-[#0D1117] text-slate-100 overflow-hidden font-sans select-none"
+      className={`flex flex-col w-full h-full overflow-hidden font-sans select-none transition-colors ${
+        isDark ? 'bg-[#0D1117] text-slate-100' : 'bg-white text-slate-900'
+      }`}
     >
       {/* Zone 1: Top Menu Bar */}
       <header
         data-testid="shell-menu-bar-zone"
-        className="h-10 border-b border-slate-800 bg-[#161B22] flex items-center px-3 z-30 shrink-0"
+        className={`h-10 border-b flex items-center px-3 z-30 shrink-0 transition-colors ${
+          isDark
+            ? 'border-slate-800 bg-[#161B22]'
+            : 'border-slate-200 bg-slate-100/90'
+        }`}
       >
         {renderMenuBar ? (
           renderMenuBar({
@@ -121,18 +130,20 @@ export const AppShell: React.FC<AppShellProps> = ({
           renderNavigationRail({
             activeNav: state.activeNav,
             onSelectNav: (nav) => dispatch({ type: 'SET_ACTIVE_NAV', payload: nav }),
-            language
+            language,
+            theme
           })
         ) : (
           <NavigationRail
             activeNav={state.activeNav}
             onSelectNav={(nav) => dispatch({ type: 'SET_ACTIVE_NAV', payload: nav })}
             language={language}
+            theme={theme}
           />
         )}
 
         {/* Zone 3: Central Workspace Canvas */}
-        <WorkspaceCanvas activeNav={state.activeNav} language={language} />
+        <WorkspaceCanvas activeNav={state.activeNav} language={language} theme={theme} />
 
         {/* Zone 4: Right Telemetry Sidebar */}
         {renderTelemetrySidebar ? (
@@ -144,7 +155,8 @@ export const AppShell: React.FC<AppShellProps> = ({
             isExpanded: state.isSidebarExpanded,
             onToggle: () => dispatch({ type: 'TOGGLE_SIDEBAR' }),
             onRefreshQuota,
-            language
+            language,
+            theme
           })
         ) : (
           <TelemetrySidebar
@@ -156,6 +168,7 @@ export const AppShell: React.FC<AppShellProps> = ({
             onToggle={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
             onRefreshQuota={onRefreshQuota}
             language={language}
+            theme={theme}
           />
         )}
       </div>
@@ -165,6 +178,7 @@ export const AppShell: React.FC<AppShellProps> = ({
         isOpen={state.isAboutModalOpen}
         onClose={() => dispatch({ type: 'CLOSE_ABOUT_MODAL' })}
         language={language}
+        theme={theme}
       />
     </div>
   );

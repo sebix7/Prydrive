@@ -3,7 +3,8 @@ import type {
   StorageItemType,
   FolderCrumb,
   FolderMetrics,
-  LanguageCode
+  LanguageCode,
+  ThemeMode
 } from './types';
 
 export const INITIAL_FOLDER_HISTORY: FolderCrumb[] = [
@@ -170,9 +171,17 @@ export function shouldTriggerScrollPagination(
 }
 
 /**
- * Resolves row visual classes based on active selection state (FR-11, NFR-2).
+ * Resolves row visual classes based on active selection state and theme (FR-11, NFR-2, Spec 005 FR-11, EC-3).
  */
-export function getRowSelectionClasses(isSelected: boolean): string {
+export function getRowSelectionClasses(
+  isSelected: boolean,
+  theme: ThemeMode = 'dark'
+): string {
+  if (theme === 'light') {
+    return isSelected
+      ? 'bg-blue-50 text-blue-950 border-blue-200'
+      : 'text-slate-800 hover:bg-slate-100';
+  }
   return isSelected
     ? 'bg-blue-600/20 text-white border-blue-500/30'
     : 'text-slate-200 hover:bg-slate-800/50';

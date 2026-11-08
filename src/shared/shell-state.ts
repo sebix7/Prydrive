@@ -1,4 +1,5 @@
 import { APP_VERSION, APP_NAME, RAW_VERSION } from './version';
+import type { ThemeMode } from './types';
 
 export { APP_VERSION, APP_NAME, RAW_VERSION };
 
@@ -89,15 +90,19 @@ export function truncateEmail(email: string, maxChars: number = 24): string {
 }
 
 /**
- * Resolves sidebar CSS width, border, and transition classes (NFR-3).
+ * Resolves sidebar CSS width, border, and transition classes across themes (NFR-3, Spec 005 FR-9, FR-10).
  */
-export function getSidebarClasses(isExpanded: boolean): {
+export function getSidebarClasses(
+  isExpanded: boolean,
+  theme: ThemeMode = 'dark'
+): {
   container: string;
   inner: string;
 } {
+  const borderClass = theme === 'light' ? 'border-slate-200' : 'border-slate-800';
   return {
     container: isExpanded
-      ? 'w-[260px] border-l border-slate-800 transition-all duration-200 ease-in-out'
+      ? `w-[260px] border-l ${borderClass} transition-all duration-200 ease-in-out`
       : 'w-0 border-l-0 overflow-visible transition-all duration-200 ease-in-out',
     inner: isExpanded
       ? 'opacity-100 transition-opacity duration-150 delay-75'
@@ -129,19 +134,40 @@ export function resolveWorkspaceView(nav: ActiveNavTab): 'google-drive' {
 }
 
 /**
- * Resolves active navigation button visual styling classes (FR-4).
+ * Resolves active navigation button visual styling classes across themes (FR-4, Spec 005 FR-11).
  * Returns distinctive active fill vs subtle inactive hover.
  */
-export function getNavButtonStyles(isActive: boolean): {
+export function getNavButtonStyles(
+  isActive: boolean,
+  theme: ThemeMode = 'dark'
+): {
   container: string;
   indicator: string;
 } {
+  const inactiveContainer =
+    theme === 'light'
+      ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/80'
+      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80';
   return {
     container: isActive
       ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25 ring-1 ring-blue-400/40'
-      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80',
+      : inactiveContainer,
     indicator: isActive ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-50'
   };
+}
+
+/**
+ * Resolves the inner cutout circle color for the Prydrive brand icon so it remains crisp
+ * against both active blue and inactive light/dark button backgrounds (Spec 005 FR-11, EC-6).
+ */
+export function getPrydriveLogoCutoutColor(
+  isActive: boolean,
+  theme: ThemeMode = 'dark'
+): string {
+  if (isActive) {
+    return '#2563EB';
+  }
+  return theme === 'light' ? '#F1F5F9' : '#161B22';
 }
 
 export interface AboutMetadata {
