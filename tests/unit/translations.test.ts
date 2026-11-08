@@ -214,4 +214,40 @@ describe('Bilingual Localization Dictionary (US-6 / T6 / FR-15)', () => {
       expect(getTranslation('es', 'explorer_retry')).toBe('Reintentar');
     });
   });
+
+  describe('Theme Mode Localization Parity (Spec 005 US-5 / T5 / FR-13)', () => {
+    const requiredThemeKeys: TranslationKey[] = [
+      'menu_theme',
+      'theme_light',
+      'theme_dark',
+      'theme_switch_to_dark',
+      'theme_switch_to_light'
+    ];
+
+    it('should have all theme translation keys defined in both English and Spanish', () => {
+      requiredThemeKeys.forEach((key) => {
+        expect(translations.en[key]).toBeDefined();
+        expect(translations.es[key]).toBeDefined();
+        expect(translations.en[key].length).toBeGreaterThan(0);
+        expect(translations.es[key].length).toBeGreaterThan(0);
+      });
+    });
+
+    it('should accurately translate theme menu items, options, and action tooltips in English and Spanish (FR-13)', () => {
+      expect(getTranslation('en', 'menu_theme')).toBe('Theme');
+      expect(getTranslation('es', 'menu_theme')).toBe('Tema');
+
+      expect(getTranslation('en', 'theme_light')).toBe('Light');
+      expect(getTranslation('es', 'theme_light')).toBe('Claro');
+
+      expect(getTranslation('en', 'theme_dark')).toBe('Dark');
+      expect(getTranslation('es', 'theme_dark')).toBe('Oscuro');
+
+      expect(getTranslation('en', 'theme_switch_to_dark')).toBe('Switch to dark mode');
+      expect(getTranslation('es', 'theme_switch_to_dark')).toBe('Cambiar a modo oscuro');
+
+      expect(getTranslation('en', 'theme_switch_to_light')).toBe('Switch to light mode');
+      expect(getTranslation('es', 'theme_switch_to_light')).toBe('Cambiar a modo claro');
+    });
+  });
 });

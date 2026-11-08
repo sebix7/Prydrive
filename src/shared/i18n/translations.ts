@@ -102,7 +102,14 @@ export const translations = {
     explorer_loading: 'Loading files...',
     explorer_loading_more: 'Loading more...',
     explorer_error_title: 'Unable to load folder',
-    explorer_retry: 'Retry'
+    explorer_retry: 'Retry',
+
+    // Theme Mode (Spec 005)
+    menu_theme: 'Theme',
+    theme_light: 'Light',
+    theme_dark: 'Dark',
+    theme_switch_to_dark: 'Switch to dark mode',
+    theme_switch_to_light: 'Switch to light mode'
   },
   es: {
     // Welcome Screen
@@ -205,7 +212,14 @@ export const translations = {
     explorer_loading: 'Cargando archivos...',
     explorer_loading_more: 'Cargando más...',
     explorer_error_title: 'No se pudo cargar la carpeta',
-    explorer_retry: 'Reintentar'
+    explorer_retry: 'Reintentar',
+
+    // Theme Mode (Spec 005)
+    menu_theme: 'Tema',
+    theme_light: 'Claro',
+    theme_dark: 'Oscuro',
+    theme_switch_to_dark: 'Cambiar a modo oscuro',
+    theme_switch_to_light: 'Cambiar a modo claro'
   }
 } as const;
 

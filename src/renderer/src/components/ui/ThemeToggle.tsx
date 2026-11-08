@@ -2,6 +2,7 @@ import React from 'react';
 import { Moon, Sun } from 'lucide-react';
 import type { ThemeMode, LanguageCode } from '../../../../shared/types';
 import { getThemeToggleMetadata } from '../../../../shared/theme';
+import { getTranslation } from '../../../../shared/i18n/translations';
 
 export interface ThemeToggleProps {
   theme: ThemeMode;
@@ -11,7 +12,7 @@ export interface ThemeToggleProps {
 }
 
 /**
- * Action-oriented Moon/Sun theme toggle button for pre-authentication views (FR-4, FR-5).
+ * Action-oriented Moon/Sun theme toggle button for pre-authentication views (FR-4, FR-5, FR-13).
  * Displays a Moon icon when in Light Mode (to switch to Dark Mode) and a Sun icon when in Dark Mode (to switch to Light Mode).
  */
 export const ThemeToggle: React.FC<ThemeToggleProps> = ({
@@ -20,15 +21,8 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   language = 'en',
   className = ''
 }) => {
-  const { iconName } = getThemeToggleMetadata(theme);
-  const tooltip =
-    iconName === 'moon'
-      ? language === 'es'
-        ? 'Cambiar a modo oscuro'
-        : 'Switch to dark mode'
-      : language === 'es'
-        ? 'Cambiar a modo claro'
-        : 'Switch to light mode';
+  const { iconName, tooltipKey } = getThemeToggleMetadata(theme);
+  const tooltip = getTranslation(language, tooltipKey);
 
   return (
     <button

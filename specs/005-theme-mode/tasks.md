@@ -16,6 +16,6 @@
   - Depends on: T1, T2, T3
   - Done when: Switching between `light` and `dark` themes instantaneously updates all Pre-Authentication Views (`WelcomeScreen`, session validation loader, offline view, `AwaitingAuthModal`) and Authenticated Workspace Views (`AppShell`, `MenuBar`, `NavigationRail` including Prydrive logo cutout contrast `getPrydriveLogoCutoutColor`, `WorkspaceCanvas`, `FileExplorer` sticky header/rows/`"..."` parent row/empty/error states, `ExplorerStatusBar`, `TelemetrySidebar`, `QuotaBar`, `AboutModal`, `DisconnectModal`, and CSS scrollbars in `main.css`) with WCAG AA compliant contrast while preserving folder navigation and row selection state. Verified via automated unit tests in `tests/unit/theme-surfaces.test.ts`.
 
-- [ ] **T5. Implement full bilingual localization parity (English and Spanish) for all theme menu items, option labels, and action tooltips.** US-5 (FR-13)
+- [x] **T5. Implement full bilingual localization parity (English and Spanish) for all theme menu items, option labels, and action tooltips.** US-5 (FR-13)
   - Depends on: T1, T2, T3
   - Done when: All theme translation keys (`menu_theme`, `theme_light`, `theme_dark`, `theme_switch_to_dark`, `theme_switch_to_light`) are defined in both English and Spanish in `src/shared/i18n/translations.ts` with 100% key parity and dynamically update the sign-in/offline toggle tooltip and the `Options -> Theme` submenu labels when switching languages. Verified via automated unit tests in `tests/unit/translations.test.ts`.

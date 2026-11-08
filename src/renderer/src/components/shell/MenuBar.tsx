@@ -59,9 +59,9 @@ export const MenuBar: React.FC<MenuBarProps> = ({
     onCloseMenus();
   };
 
-  const themeMenuLabel = language === 'es' ? 'Tema' : 'Theme';
-  const lightThemeLabel = language === 'es' ? 'Claro' : 'Light';
-  const darkThemeLabel = language === 'es' ? 'Oscuro' : 'Dark';
+  const themeMenuLabel = getTranslation(language, 'menu_theme');
+  const lightThemeLabel = getTranslation(language, 'theme_light');
+  const darkThemeLabel = getTranslation(language, 'theme_dark');
   const isDark = theme === 'dark';
   const dropdownPanelClasses = isDark
     ? 'bg-[#161B22] border-slate-700/80 text-slate-200'
