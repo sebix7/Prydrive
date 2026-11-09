@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { WifiOff, RefreshCw, Loader2 } from 'lucide-react';
+import { WifiOff, RefreshCw, Loader2, Info } from 'lucide-react';
 import type { AuthState, UserProfile, StorageQuota, LanguageCode } from '../../shared/types';
 import { getTranslation } from '../../shared/i18n/translations';
 import type { TranslationKey } from '../../shared/i18n/translations';
+import { getTechnicalIndexStrip, SWISS_CONTROL_LAYOUT } from '../../shared/theme';
 import { WelcomeScreen } from './components/auth/WelcomeScreen';
 import { AwaitingAuthModal } from './components/auth/AwaitingAuthModal';
 import { DisconnectModal } from './components/auth/DisconnectModal';
+import { AboutModal } from './components/shell/AboutModal';
 import { AppShell } from './components/shell/AppShell';
 import { LanguageToggle } from './components/ui/LanguageToggle';
 import { ThemeToggle } from './components/ui/ThemeToggle';
@@ -41,6 +43,7 @@ export const App: React.FC = () => {
   const [quotaError, setQuotaError] = useState<string | null>(null);
   const [isDisconnectModalOpen, setIsDisconnectModalOpen] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
   const clearError = () => {
     setErrorKey(null);
@@ -195,44 +198,36 @@ export const App: React.FC = () => {
     return (
       <div
         data-theme={theme}
-        className={`w-full h-full flex flex-col items-center justify-center transition-colors ${
-          isDark ? 'bg-[#0D1117] text-slate-100' : 'bg-slate-50 text-slate-900'
-        }`}
+        className="w-full h-full flex flex-col items-center justify-center transition-colors swiss-dot-matrix bg-[#FAF9F6] dark:bg-[#101216] text-[#111315] dark:text-[#F3F4F6]"
       >
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-3" />
-        <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+        <Loader2 className="w-8 h-8 text-[#1B44E8] dark:text-[#3B66FF] animate-spin mb-3" />
+        <p className="font-mono text-xs text-[#7C8087] dark:text-[#6B7280]">
           {getTranslation(language, 'validating_session')}
         </p>
       </div>
     );
   }
 
+  const offlineStrip = getTechnicalIndexStrip('offline');
+
   return (
     <div
       data-theme={theme}
-      className="w-full h-full flex flex-col relative overflow-hidden"
+      className="w-full h-full flex flex-col relative overflow-hidden bg-[#FAF9F6] dark:bg-[#101216] text-[#111315] dark:text-[#F3F4F6]"
     >
-      {/* Offline Alert Banner (FR-8, EC-5) */}
+      {/* Offline Alert Banner (FR-8, EC-1) */}
       {isOffline && (
         <div
-          className={`px-4 py-2 text-xs border-b flex items-center justify-between font-medium shadow-sm ${
-            isDark
-              ? 'bg-amber-950/60 text-amber-200 border-amber-800/60'
-              : 'bg-amber-50 text-amber-900 border-amber-200'
-          }`}
+          className="px-4 py-2 text-xs border-b border-[#C9C6BD] dark:border-[#2C323D] bg-[#F2F0EA] dark:bg-[#15181E] text-[#D95D1E] dark:text-[#F97316] flex items-center justify-between font-mono select-none"
         >
           <div className="flex items-center gap-2">
-            <WifiOff className={`w-4 h-4 ${isDark ? 'text-amber-400' : 'text-amber-700'}`} />
+            <WifiOff className="w-4 h-4 text-[#D95D1E] dark:text-[#F97316]" />
             <span>{getTranslation(language, 'offline_banner')}</span>
           </div>
           <button
             type="button"
             onClick={checkSession}
-            className={`flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-colors ${
-              isDark
-                ? 'bg-amber-900/60 hover:bg-amber-800/80 text-amber-100'
-                : 'bg-amber-200/60 hover:bg-amber-200 text-amber-900'
-            }`}
+            className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold rounded-[4px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#FFFFFF] dark:bg-[#181C23] hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] text-[#111315] dark:text-[#F3F4F6] transition-colors"
           >
             <RefreshCw className="w-3 h-3" />
             <span>{getTranslation(language, 'retry_connection')}</span>
@@ -243,11 +238,7 @@ export const App: React.FC = () => {
       {/* General Notification Banner */}
       {!isOffline && (errorKey || customError) && (
         <div
-          className={`px-4 py-2.5 text-xs border-b text-center font-medium shadow-sm ${
-            isDark
-              ? 'bg-slate-900 text-slate-300 border-slate-800'
-              : 'bg-slate-100 text-slate-700 border-slate-200'
-          }`}
+          className="px-4 py-2 text-xs border-b border-[#C9C6BD] dark:border-[#2C323D] bg-[#F2F0EA] dark:bg-[#15181E] text-[#4A4E54] dark:text-[#9CA3AF] text-center font-mono select-none"
         >
           {errorKey ? getTranslation(language, errorKey) : customError}
         </div>
@@ -255,12 +246,20 @@ export const App: React.FC = () => {
 
       {authState === 'offline' ? (
         <div
-          className={`relative flex-1 flex flex-col items-center justify-center p-6 transition-colors ${
-            isDark ? 'bg-[#0D1117] text-slate-100' : 'bg-slate-50 text-slate-900'
-          }`}
+          className="relative flex-1 flex flex-col items-center justify-center p-6 transition-colors swiss-dot-matrix bg-[#FAF9F6] dark:bg-[#101216] text-[#111315] dark:text-[#F3F4F6] select-none overflow-hidden"
         >
-          {/* Top-right theme and language switches when offline (FR-4, FR-5) */}
-          <div className="absolute top-6 right-6 flex items-center gap-2">
+          {/* Top-right theme, language, and about switches (FR-4, FR-5, FR-7) */}
+          <div className={SWISS_CONTROL_LAYOUT.topRightClusterClass}>
+            <button
+              type="button"
+              data-testid="about-btn"
+              onClick={() => setIsAboutModalOpen(true)}
+              title={getTranslation(language, 'about_title')}
+              aria-label={getTranslation(language, 'about_title')}
+              className="inline-flex items-center justify-center w-[30px] h-[30px] rounded-[4px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#FFFFFF] dark:bg-[#181C23] text-[#111315] dark:text-[#F3F4F6] hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] hover:border-[#1B44E8] dark:hover:border-[#3B66FF] hover:text-[#1B44E8] dark:hover:text-[#3B66FF] transition-all duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#1B44E8] dark:focus-visible:ring-[#3B66FF] active:scale-95"
+            >
+              <Info className="w-3.5 h-3.5" />
+            </button>
             <ThemeToggle
               theme={theme}
               onToggle={toggleTheme}
@@ -274,63 +273,47 @@ export const App: React.FC = () => {
           </div>
 
           <div
-            className={`border rounded-2xl p-8 shadow-sm text-center max-w-sm w-full flex flex-col items-center transition-colors ${
-              isDark
-                ? 'bg-[#161B22] border-slate-800 shadow-2xl shadow-black/40'
-                : 'bg-white border-slate-200/90'
-            }`}
+            className="max-w-[420px] w-full rounded-[6px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#FFFFFF] dark:bg-[#181C23] overflow-hidden shadow-sm flex flex-col text-center transition-colors"
           >
-            <div
-              className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${
-                isDark
-                  ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                  : 'bg-amber-50 text-amber-600'
-              }`}
-            >
-              <WifiOff className="w-7 h-7" />
+            {/* Technical Index Strip for Offline (FR-6, EC-1) */}
+            <div className="h-8 px-4 bg-[#F2F0EA] dark:bg-[#15181E] border-b border-[#C9C6BD] dark:border-[#2C323D] flex items-center justify-between font-mono text-[10.5px] text-[#7C8087] dark:text-[#6B7280] tracking-wider select-none">
+              <span>{offlineStrip.leftLabel}</span>
+              <span>{offlineStrip.rightLabel}</span>
             </div>
 
-            <h2
-              className={`text-xl font-bold mb-1 ${
-                isDark ? 'text-slate-100' : 'text-slate-800'
-              }`}
-            >
-              {getTranslation(language, 'offline_mode_title')}
-            </h2>
-            {userProfile?.email && (
-              <p
-                className={`text-sm font-medium mb-2 ${
-                  isDark ? 'text-slate-400' : 'text-slate-600'
-                }`}
+            <div className="p-8 flex flex-col items-center text-center">
+              <div
+                className="w-14 h-14 rounded-[6px] border border-[rgba(217,93,30,0.25)] dark:border-[rgba(249,115,22,0.32)] bg-[rgba(217,93,30,0.08)] dark:bg-[rgba(249,115,22,0.14)] text-[#D95D1E] dark:text-[#F97316] flex items-center justify-center mb-5"
               >
-                {userProfile.email}
-              </p>
-            )}
+                <WifiOff className="w-8 h-8" />
+              </div>
 
-            <div
-              className={`w-full p-3.5 border rounded-xl text-xs leading-relaxed my-3 text-center ${
-                isDark
-                  ? 'bg-amber-950/30 border-amber-800/50 text-amber-300'
-                  : 'bg-amber-50/70 border-amber-200/60 text-amber-800'
-              }`}
-            >
-              {userProfile?.email
-                ? getTranslation(language, 'offline_mode_desc_saved')
-                : getTranslation(language, 'offline_mode_desc_no_session')}
+              <h2 className="font-display text-xl font-bold mb-1 text-[#111315] dark:text-[#F3F4F6]">
+                {getTranslation(language, 'offline_mode_title')}
+              </h2>
+              {userProfile?.email && (
+                <p className="font-mono text-xs text-[#7C8087] dark:text-[#6B7280] mb-2">
+                  {userProfile.email}
+                </p>
+              )}
+
+              <div
+                className="w-full p-3.5 border border-[#C9C6BD] dark:border-[#2C323D] bg-[#F2F0EA] dark:bg-[#15181E] rounded-[4px] font-sans text-xs text-[#4A4E54] dark:text-[#9CA3AF] leading-relaxed my-3 text-center"
+              >
+                {userProfile?.email
+                  ? getTranslation(language, 'offline_mode_desc_saved')
+                  : getTranslation(language, 'offline_mode_desc_no_session')}
+              </div>
+
+              <button
+                type="button"
+                onClick={checkSession}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-[4px] font-display transition-colors border border-[#1B44E8] dark:border-[#3B66FF] bg-[#1B44E8] dark:bg-[#3B66FF] hover:bg-[#1435B8] dark:hover:bg-[#5278FF] text-white mt-1 shadow-xs active:scale-[0.99]"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>{getTranslation(language, 'retry_connection')}</span>
+              </button>
             </div>
-
-            <button
-              type="button"
-              onClick={checkSession}
-              className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-xl transition-colors shadow-sm mt-1 ${
-                isDark
-                  ? 'bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white'
-                  : 'bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white'
-              }`}
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>{getTranslation(language, 'retry_connection')}</span>
-            </button>
           </div>
         </div>
       ) : authState === 'authenticated' && userProfile ? (
@@ -354,6 +337,7 @@ export const App: React.FC = () => {
           onLanguageChange={handleLanguageChange}
           theme={theme}
           onToggleTheme={toggleTheme}
+          onOpenAbout={() => setIsAboutModalOpen(true)}
         />
       )}
 
@@ -371,6 +355,13 @@ export const App: React.FC = () => {
         theme={theme}
         onConfirm={handleConfirmDisconnect}
         onCancel={() => setIsDisconnectModalOpen(false)}
+      />
+
+      <AboutModal
+        isOpen={isAboutModalOpen}
+        onClose={() => setIsAboutModalOpen(false)}
+        language={language}
+        theme={theme}
       />
     </div>
   );

@@ -54,7 +54,7 @@ describe('Theme Surfaces, Interactive Contrast & Brand Iconography (Spec 005 US-
     it('should return deterministic uppercase labels for welcome, offline, workspace, and modals', () => {
       expect(getTechnicalIndexStrip('welcome', 'v0.4.0')).toEqual({
         leftLabel: 'PRYDRIVE // AUTHENTICATION',
-        rightLabel: 'OAUTH 2.0 · v0.4.0'
+        rightLabel: 'v0.4.0'
       });
       expect(getTechnicalIndexStrip('offline')).toEqual({
         leftLabel: 'PRYDRIVE // OFFLINE',

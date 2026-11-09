@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
-import { Cloud, ArrowRight } from 'lucide-react';
+import { Cloud, ArrowRight, Info } from 'lucide-react';
 import type { LanguageCode, ThemeMode } from '../../../../shared/types';
 import { getTranslation } from '../../../../shared/i18n/translations';
+import {
+  getTechnicalIndexStrip,
+  getGoogleSignInButtonClasses,
+  SWISS_CONTROL_LAYOUT
+} from '../../../../shared/theme';
+import { APP_VERSION } from '../../../../shared/shell-state';
 import { LanguageToggle } from '../ui/LanguageToggle';
 import { ThemeToggle } from '../ui/ThemeToggle';
 
@@ -12,6 +18,7 @@ interface WelcomeScreenProps {
   onLanguageChange?: (lang: LanguageCode) => void;
   theme?: ThemeMode;
   onToggleTheme?: () => void;
+  onOpenAbout?: () => void;
 }
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
@@ -20,7 +27,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   language = 'en',
   onLanguageChange,
   theme = 'light',
-  onToggleTheme
+  onToggleTheme,
+  onOpenAbout
 }) => {
   const [isClicking, setIsClicking] = useState(false);
 
@@ -35,17 +43,27 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   };
 
   const isButtonDisabled = disabled || isClicking;
-  const isDark = theme === 'dark';
+  const strip = getTechnicalIndexStrip('welcome', APP_VERSION);
 
   return (
     <div
       data-testid="welcome-screen"
-      className={`relative flex-1 flex flex-col items-center justify-center w-full h-full p-6 select-none overflow-hidden transition-colors ${
-        isDark ? 'bg-[#0D1117] text-slate-100' : 'bg-slate-50 text-slate-900'
-      }`}
+      className="relative flex-1 flex flex-col items-center justify-center w-full h-full p-6 select-none overflow-hidden swiss-dot-matrix bg-[#FAF9F6] dark:bg-[#101216] text-[#111315] dark:text-[#F3F4F6] transition-colors"
     >
-      {/* Top right theme & language switches (FR-4, FR-5) */}
-      <div className="absolute top-6 right-6 flex items-center gap-2">
+      {/* Top right theme, language, and about switches (FR-4, FR-5, FR-7) */}
+      <div className={SWISS_CONTROL_LAYOUT.topRightClusterClass}>
+        {onOpenAbout && (
+          <button
+            type="button"
+            data-testid="about-btn"
+            onClick={onOpenAbout}
+            title={getTranslation(language, 'about_title')}
+            aria-label={getTranslation(language, 'about_title')}
+            className="inline-flex items-center justify-center w-[30px] h-[30px] rounded-[4px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#FFFFFF] dark:bg-[#181C23] text-[#111315] dark:text-[#F3F4F6] hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] hover:border-[#1B44E8] dark:hover:border-[#3B66FF] hover:text-[#1B44E8] dark:hover:text-[#3B66FF] transition-all duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#1B44E8] dark:focus-visible:ring-[#3B66FF] active:scale-95"
+          >
+            <Info className="w-3.5 h-3.5" />
+          </button>
+        )}
         {onToggleTheme && (
           <ThemeToggle
             theme={theme}
@@ -63,77 +81,63 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       </div>
 
       <div
-        className={`max-w-md w-full rounded-2xl p-8 text-center flex flex-col items-center border transition-colors ${
-          isDark
-            ? 'bg-[#161B22] border-slate-800 shadow-2xl shadow-black/50'
-            : 'bg-white border-slate-100 shadow-xl shadow-slate-200/50'
-        }`}
+        className="max-w-[420px] w-full rounded-[6px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#FFFFFF] dark:bg-[#181C23] overflow-hidden shadow-sm transition-colors"
       >
-        <div
-          className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm border ${
-            isDark
-              ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-              : 'bg-blue-50 text-blue-600 border-blue-100/50'
-          }`}
-        >
-          <Cloud className="w-9 h-9" />
+        {/* Swiss Archive Technical Index Strip (FR-6) */}
+        <div className="h-8 px-4 bg-[#F2F0EA] dark:bg-[#15181E] border-b border-[#C9C6BD] dark:border-[#2C323D] flex items-center justify-between font-mono text-[10.5px] text-[#7C8087] dark:text-[#6B7280] tracking-wider select-none">
+          <span>{strip.leftLabel}</span>
+          <span>{strip.rightLabel}</span>
         </div>
 
-        <h1
-          className={`text-2xl font-bold tracking-tight mb-2 ${
-            isDark ? 'text-slate-100' : 'text-slate-900'
-          }`}
-        >
-          {getTranslation(language, 'welcome_title')}
-        </h1>
-        <p
-          className={`text-sm mb-8 leading-relaxed max-w-xs ${
-            isDark ? 'text-slate-400' : 'text-slate-500'
-          }`}
-        >
-          {getTranslation(language, 'welcome_subtitle')}
-        </p>
+        <div className="p-8 flex flex-col items-center text-center">
+          <div
+            className="w-14 h-14 rounded-[6px] border border-[rgba(27,68,232,0.25)] dark:border-[rgba(59,102,255,0.32)] bg-[rgba(27,68,232,0.08)] dark:bg-[rgba(59,102,255,0.14)] text-[#1B44E8] dark:text-[#3B66FF] flex items-center justify-center mb-5"
+          >
+            <Cloud className="w-8 h-8" />
+          </div>
 
-        <button
-          type="button"
-          disabled={isButtonDisabled}
-          onClick={handleClick}
-          className={`w-full flex items-center justify-center gap-3 px-6 py-3.5 text-sm font-semibold rounded-xl border transition-all duration-200 shadow-sm ${
-            isButtonDisabled
-              ? isDark
-                ? 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed'
-                : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
-              : isDark
-                ? 'bg-slate-800/90 text-slate-100 border-slate-700 hover:bg-slate-800 hover:border-slate-600 active:scale-[0.98]'
-                : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-slate-400 active:scale-[0.98]'
-          }`}
-        >
-          {/* Official Google 'G' Icon */}
-          <svg className="w-5 h-5" viewBox="0 0 24 24">
-            <path
-              fill="#4285F4"
-              d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.03h3.88c2.28-2.1 3.66-5.2 3.66-9.12z"
-            />
-            <path
-              fill="#34A853"
-              d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.03c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.13C3.27 21.43 7.34 24 12 24z"
-            />
-            <path
-              fill="#FBBC05"
-              d="M5.28 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.58H1.25C.45 8.18 0 9.97 0 12s.45 3.82 1.25 5.42l4.03-3.13z"
-            />
-            <path
-              fill="#EA4335"
-              d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.27 2.57 1.25 6.58l4.03 3.13c.95-2.83 3.6-4.96 6.72-4.96z"
-            />
-          </svg>
-          <span>{getTranslation(language, 'sign_in_google')}</span>
-          <ArrowRight className="w-4 h-4 ml-auto text-slate-400" />
-        </button>
+          <h1 className="font-display text-2xl font-bold tracking-tight text-[#111315] dark:text-[#F3F4F6] mb-2">
+            {getTranslation(language, 'welcome_title')}
+          </h1>
+          <p className="font-sans text-sm text-[#4A4E54] dark:text-[#9CA3AF] mb-6 max-w-xs leading-relaxed">
+            {getTranslation(language, 'welcome_subtitle')}
+          </p>
 
-        <p className={`text-xs mt-6 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-          {getTranslation(language, 'browser_notice')}
-        </p>
+          <button
+            type="button"
+            disabled={isButtonDisabled}
+            onClick={handleClick}
+            className={getGoogleSignInButtonClasses(theme, isButtonDisabled)}
+          >
+            {/* Official Google 'G' Icon inside crisp white badge */}
+            <span className="w-6 h-6 rounded-[3px] bg-white border border-black/10 flex items-center justify-center shrink-0 shadow-xs">
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.03h3.88c2.28-2.1 3.66-5.2 3.66-9.12z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.03c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.13C3.27 21.43 7.34 24 12 24z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.28 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.58H1.25C.45 8.18 0 9.97 0 12s.45 3.82 1.25 5.42l4.03-3.13z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.27 2.57 1.25 6.58l4.03 3.13c.95-2.83 3.6-4.96 6.72-4.96z"
+                />
+              </svg>
+            </span>
+            <span className="font-display font-semibold">{getTranslation(language, 'sign_in_google')}</span>
+            <ArrowRight className="w-4 h-4 ml-auto text-[#7C8087] dark:text-[#6B7280] group-hover:text-white transition-colors" />
+          </button>
+
+          <p className="font-mono text-xs text-[#7C8087] dark:text-[#6B7280] mt-5 text-center leading-normal">
+            {getTranslation(language, 'browser_notice')}
+          </p>
+        </div>
       </div>
     </div>
   );

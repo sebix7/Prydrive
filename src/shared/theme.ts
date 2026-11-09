@@ -10,6 +10,34 @@ export const SWISS_ARCHIVE_FONTS = {
   mono: ['IBM Plex Mono', 'Cascadia Mono', 'Consolas', 'monospace']
 } as const;
 
+export const SWISS_CONTROL_LAYOUT = {
+  topRightClusterClass: 'absolute top-[5px] right-[12px] flex items-center gap-2',
+  buttonDimensionClass: 'w-[30px] h-[30px]',
+  languageContainerClass: 'h-[30px]',
+  controlRadiusClass: 'rounded-[4px]',
+  cardRadiusClass: 'rounded-[6px]',
+  cardContainerClass: 'max-w-[420px] w-full rounded-[6px] border overflow-hidden shadow-sm'
+} as const;
+
+/**
+ * Resolves the Google Sign-in button classes implementing Swiss Archive styling and Klein Blue hover state (Spec 006 FR-8).
+ */
+export function getGoogleSignInButtonClasses(
+  theme: ThemeMode = 'dark',
+  disabled: boolean = false
+): string {
+  const base =
+    'group w-full flex items-center justify-center gap-3 px-5 py-3 text-sm font-semibold rounded-[4px] border font-display transition-all duration-150';
+  if (disabled) {
+    return theme === 'dark'
+      ? `${base} bg-[#15181E] text-[#6B7280] border-[#2C323D] opacity-60 cursor-not-allowed`
+      : `${base} bg-[#F2F0EA] text-[#7C8087] border-[#C9C6BD] opacity-60 cursor-not-allowed`;
+  }
+  return theme === 'dark'
+    ? `${base} bg-[#15181E] text-[#F3F4F6] border-[#2C323D] hover:bg-[#3B66FF] hover:border-[#3B66FF] hover:text-white active:scale-[0.99]`
+    : `${base} bg-[#F2F0EA] text-[#111315] border-[#C9C6BD] hover:bg-[#1B44E8] hover:border-[#1B44E8] hover:text-white active:scale-[0.99]`;
+}
+
 export interface MinimalStorage {
   getItem?: (key: string) => string | null;
   setItem?: (key: string, value: string) => void;
@@ -159,7 +187,7 @@ export function getTechnicalIndexStrip(
     case 'welcome':
       return {
         leftLabel: 'PRYDRIVE // AUTHENTICATION',
-        rightLabel: `OAUTH 2.0 · ${formattedVersion}`
+        rightLabel: `${formattedVersion}`
       };
     case 'offline':
       return {

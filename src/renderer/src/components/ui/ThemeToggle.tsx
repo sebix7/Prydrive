@@ -31,10 +31,10 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
       onClick={onToggle}
       title={tooltip}
       aria-label={tooltip}
-      className={`inline-flex items-center justify-center w-7 h-7 rounded-lg border transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 active:scale-95 ${
+      className={`inline-flex items-center justify-center w-[30px] h-[30px] rounded-[4px] border transition-all duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#1B44E8] dark:focus-visible:ring-[#3B66FF] active:scale-95 ${
         theme === 'dark'
-          ? 'bg-slate-800/90 border-slate-700/80 text-amber-400 hover:bg-slate-700 hover:text-amber-300'
-          : 'bg-slate-100/90 border-slate-200/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
+          ? 'bg-[#181C23] border-[#2C323D] text-[#F3F4F6] hover:bg-[#1E232C] hover:border-[#3B66FF] hover:text-[#3B66FF]'
+          : 'bg-[#FFFFFF] border-[#C9C6BD] text-[#111315] hover:bg-[#ECEAE3] hover:border-[#1B44E8] hover:text-[#1B44E8]'
       } ${className}`}
     >
       {iconName === 'moon' ? (

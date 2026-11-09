@@ -21,27 +21,27 @@ export const LanguageToggle: React.FC<LanguageToggleProps> = ({
     <div
       role="group"
       aria-label="Language selection"
-      className={`inline-flex items-center gap-1 p-0.5 rounded-lg text-xs font-semibold border transition-colors ${
+      className={`inline-flex items-center gap-0.5 p-0.5 h-[30px] rounded-[4px] border font-mono text-[11px] transition-colors ${
         isDark
-          ? 'bg-slate-800/90 border-slate-700/80'
-          : 'bg-slate-100/90 border-slate-200/80'
+          ? 'bg-[#15181E] border-[#2C323D]'
+          : 'bg-[#F2F0EA] border-[#C9C6BD]'
       } ${className}`}
     >
-      <div className={`pl-1.5 pr-0.5 ${isDark ? 'text-slate-400' : 'text-slate-400'}`}>
-        <Globe className="w-3.5 h-3.5" />
+      <div className={`px-1.5 flex items-center justify-center ${isDark ? 'text-[#6B7280]' : 'text-[#7C8087]'}`}>
+        <Globe className="w-3 h-3" />
       </div>
       <button
         type="button"
         data-testid="lang-btn-en"
         onClick={() => onLanguageChange('en')}
-        className={`px-2 py-1 rounded-md transition-all text-[11px] ${
+        className={`px-2 h-6 rounded-[3px] font-mono text-[11px] transition-all ${
           currentLanguage === 'en'
             ? isDark
-              ? 'bg-slate-700 text-white shadow-xs font-bold'
-              : 'bg-white text-slate-900 shadow-xs font-bold'
+              ? 'bg-[#181C23] text-[#3B66FF] border border-[#2C323D] font-bold shadow-xs'
+              : 'bg-[#FFFFFF] text-[#1B44E8] border border-[#C9C6BD] font-bold shadow-xs'
             : isDark
-              ? 'text-slate-400 hover:text-slate-200'
-              : 'text-slate-500 hover:text-slate-800'
+              ? 'text-[#9CA3AF] hover:text-[#F3F4F6] border border-transparent'
+              : 'text-[#4A4E54] hover:text-[#111315] border border-transparent'
         }`}
         aria-pressed={currentLanguage === 'en'}
       >
@@ -51,14 +51,14 @@ export const LanguageToggle: React.FC<LanguageToggleProps> = ({
         type="button"
         data-testid="lang-btn-es"
         onClick={() => onLanguageChange('es')}
-        className={`px-2 py-1 rounded-md transition-all text-[11px] ${
+        className={`px-2 h-6 rounded-[3px] font-mono text-[11px] transition-all ${
           currentLanguage === 'es'
             ? isDark
-              ? 'bg-slate-700 text-white shadow-xs font-bold'
-              : 'bg-white text-slate-900 shadow-xs font-bold'
+              ? 'bg-[#181C23] text-[#3B66FF] border border-[#2C323D] font-bold shadow-xs'
+              : 'bg-[#FFFFFF] text-[#1B44E8] border border-[#C9C6BD] font-bold shadow-xs'
             : isDark
-              ? 'text-slate-400 hover:text-slate-200'
-              : 'text-slate-500 hover:text-slate-800'
+              ? 'text-[#9CA3AF] hover:text-[#F3F4F6] border border-transparent'
+              : 'text-[#4A4E54] hover:text-[#111315] border border-transparent'
         }`}
         aria-pressed={currentLanguage === 'es'}
       >
