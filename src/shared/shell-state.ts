@@ -1,5 +1,5 @@
 import { APP_VERSION, APP_NAME, RAW_VERSION } from './version';
-import type { ThemeMode } from './types';
+import type { LanguageCode, ThemeMode } from './types';
 
 export { APP_VERSION, APP_NAME, RAW_VERSION };
 
@@ -63,6 +63,23 @@ export function shellReducer(state: ShellState, action: ShellAction): ShellState
 }
 
 /**
+ * Returns the static monospace unit indicator for the left side of the 40px top header bar (FR-9, FR-10, EC-3).
+ * Always returns 'UNIDAD: //MY_DRIVE' for 'es' and 'DRIVE: //MY_DRIVE' for 'en'.
+ */
+export function getStaticDriveUnitBadge(language: LanguageCode = 'en'): string {
+  return language === 'es' ? 'UNIDAD: //MY_DRIVE' : 'DRIVE: //MY_DRIVE';
+}
+
+/**
+ * Determines whether the compact 30x30 icon-only Disconnect SVG button is shown
+ * in the top header bar to the right of the EN|ES selector (FR-16, EC-6).
+ * True strictly when the right telemetry sidebar is collapsed.
+ */
+export function shouldShowTopBarDisconnect(isSidebarExpanded: boolean): boolean {
+  return !isSidebarExpanded;
+}
+
+/**
  * Pure calculation to determine if the sidebar must auto-collapse
  * to preserve a minimum central canvas width of 480px.
  * Min window size = 64 (rail) + 260 (sidebar) + 480 (canvas) = 804px.
@@ -90,7 +107,7 @@ export function truncateEmail(email: string, maxChars: number = 24): string {
 }
 
 /**
- * Resolves sidebar CSS width, border, and transition classes across themes (NFR-3, Spec 005 FR-9, FR-10).
+ * Resolves sidebar CSS width, border, and transition classes across themes (NFR-3, Spec 006 FR-15).
  */
 export function getSidebarClasses(
   isExpanded: boolean,
@@ -99,7 +116,7 @@ export function getSidebarClasses(
   container: string;
   inner: string;
 } {
-  const borderClass = theme === 'light' ? 'border-slate-200' : 'border-slate-800';
+  const borderClass = theme === 'dark' ? 'border-[#2C323D]' : 'border-[#C9C6BD]';
   return {
     container: isExpanded
       ? `w-[260px] border-l ${borderClass} transition-all duration-200 ease-in-out`
@@ -126,7 +143,6 @@ export const NAV_ITEMS: readonly NavItem[] = [
  * Both 'prydrive' and 'google-drive' currently activate the Google Drive view.
  */
 export function resolveWorkspaceView(nav: ActiveNavTab): 'google-drive' {
-  // In this iteration, both tabs activate the Google Drive explorer view
   if (nav === 'prydrive' || nav === 'google-drive') {
     return 'google-drive';
   }
@@ -134,7 +150,7 @@ export function resolveWorkspaceView(nav: ActiveNavTab): 'google-drive' {
 }
 
 /**
- * Resolves active navigation button visual styling classes across themes (FR-4, Spec 005 FR-11).
+ * Resolves active navigation button visual styling classes across themes (FR-11).
  * Returns distinctive active fill vs subtle inactive hover.
  */
 export function getNavButtonStyles(
@@ -144,30 +160,57 @@ export function getNavButtonStyles(
   container: string;
   indicator: string;
 } {
-  const inactiveContainer =
-    theme === 'light'
-      ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/80'
-      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80';
+  const isDark = theme === 'dark';
+  const activeContainer = isDark
+    ? 'bg-[#181C23] border border-[#2C323D] text-[#3B66FF] shadow-xs'
+    : 'bg-[#FFFFFF] border border-[#C9C6BD] text-[#1B44E8] shadow-xs';
+  const inactiveContainer = isDark
+    ? 'text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-[#1E232C] border border-transparent'
+    : 'text-[#4A4E54] hover:text-[#111315] hover:bg-[#ECEAE3] border border-transparent';
+
   return {
-    container: isActive
-      ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25 ring-1 ring-blue-400/40'
-      : inactiveContainer,
+    container: isActive ? activeContainer : inactiveContainer,
     indicator: isActive ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-50'
   };
 }
 
 /**
- * Resolves the inner cutout circle color for the Prydrive brand icon so it remains crisp
- * against both active blue and inactive light/dark button backgrounds (Spec 005 FR-11, EC-6).
+ * Resolves the inner cutout circle color for the Prydrive brand icon so it matches
+ * the Swiss Archive active and inactive button surfaces (Spec 006 FR-11, EC-5).
  */
 export function getPrydriveLogoCutoutColor(
   isActive: boolean,
   theme: ThemeMode = 'dark'
 ): string {
   if (isActive) {
-    return '#2563EB';
+    return theme === 'dark' ? '#181C23' : '#FFFFFF';
   }
-  return theme === 'light' ? '#F1F5F9' : '#161B22';
+  return theme === 'dark' ? '#15181E' : '#F2F0EA';
+}
+
+/**
+ * Resolves the storage quota fill bar color class preserving usage thresholds (Spec 006 FR-15):
+ * - isUnmetered: Klein Blue at 60% opacity
+ * - >= 90%: Danger red ('bg-[#EF4444]' in dark, 'bg-[#DC2626]' in light)
+ * - >= 75%: Warning signal ('bg-[#F97316]' in dark, 'bg-[#D95D1E]' in light)
+ * - < 75%: Klein Blue ('bg-[#3B66FF]' in dark, 'bg-[#1B44E8]' in light)
+ */
+export function getQuotaProgressColorClass(
+  percentage: number,
+  isUnmetered: boolean = false,
+  theme: ThemeMode = 'dark'
+): string {
+  const isDark = theme === 'dark';
+  if (isUnmetered) {
+    return isDark ? 'bg-[#3B66FF]/60' : 'bg-[#1B44E8]/60';
+  }
+  if (percentage >= 90) {
+    return isDark ? 'bg-[#EF4444]' : 'bg-[#DC2626]';
+  }
+  if (percentage >= 75) {
+    return isDark ? 'bg-[#F97316]' : 'bg-[#D95D1E]';
+  }
+  return isDark ? 'bg-[#3B66FF]' : 'bg-[#1B44E8]';
 }
 
 export interface AboutMetadata {

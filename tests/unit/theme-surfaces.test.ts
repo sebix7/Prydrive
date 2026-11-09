@@ -95,56 +95,64 @@ describe('Theme Surfaces, Interactive Contrast & Brand Iconography (Spec 005 US-
     });
   });
 
-  describe('getRowSelectionClasses (FR-11, EC-3)', () => {
-    it('should return high-contrast selected and hover classes for dark mode', () => {
+  describe('getRowSelectionClasses (Spec 006 FR-12, FR-13, EC-4)', () => {
+    it('should return Swiss Archive selected and hover classes for dark mode', () => {
       const selectedDark = getRowSelectionClasses(true, 'dark');
-      expect(selectedDark).toContain('bg-blue-600/20');
-      expect(selectedDark).toContain('text-white');
+      expect(selectedDark).toContain('bg-[#1C2D52]');
+      expect(selectedDark).toContain('text-[#3B66FF]');
+      expect(selectedDark).toContain('border-l-[3px]');
+      expect(selectedDark).toContain('border-[#3B66FF]');
 
       const unselectedDark = getRowSelectionClasses(false, 'dark');
-      expect(unselectedDark).toContain('text-slate-200');
-      expect(unselectedDark).toContain('hover:bg-slate-800/50');
+      expect(unselectedDark).toContain('text-[#F3F4F6]');
+      expect(unselectedDark).toContain('hover:bg-[#1E232C]');
+      expect(unselectedDark).toContain('border-l-[3px]');
+      expect(unselectedDark).toContain('border-transparent');
     });
 
-    it('should return high-contrast selected and hover classes for light mode', () => {
+    it('should return Swiss Archive selected and hover classes for light mode', () => {
       const selectedLight = getRowSelectionClasses(true, 'light');
-      expect(selectedLight).toContain('bg-blue-50');
-      expect(selectedLight).toContain('text-blue-950');
+      expect(selectedLight).toContain('bg-[#DDE7FA]');
+      expect(selectedLight).toContain('text-[#1B44E8]');
+      expect(selectedLight).toContain('border-l-[3px]');
+      expect(selectedLight).toContain('border-[#1B44E8]');
 
       const unselectedLight = getRowSelectionClasses(false, 'light');
-      expect(unselectedLight).toContain('text-slate-800');
-      expect(unselectedLight).toContain('hover:bg-slate-100');
+      expect(unselectedLight).toContain('text-[#111315]');
+      expect(unselectedLight).toContain('hover:bg-[#ECEAE3]');
+      expect(unselectedLight).toContain('border-l-[3px]');
+      expect(unselectedLight).toContain('border-transparent');
     });
   });
 
-  describe('getNavButtonStyles & getSidebarClasses across themes (FR-11)', () => {
-    it('should adapt inactive navigation button styles for light and dark themes while keeping active blue button', () => {
-      expect(getNavButtonStyles(true, 'dark').container).toContain('bg-blue-600');
-      expect(getNavButtonStyles(true, 'light').container).toContain('bg-blue-600');
+  describe('getNavButtonStyles & getSidebarClasses across themes (FR-11, FR-15)', () => {
+    it('should adapt navigation button styles for light and dark themes using Swiss Archive palettes', () => {
+      expect(getNavButtonStyles(true, 'dark').container).toContain('bg-[#181C23]');
+      expect(getNavButtonStyles(true, 'light').container).toContain('bg-[#FFFFFF]');
 
-      expect(getNavButtonStyles(false, 'dark').container).toContain('text-slate-400');
-      expect(getNavButtonStyles(false, 'light').container).toContain('text-slate-600');
-      expect(getNavButtonStyles(false, 'light').container).toContain('hover:bg-slate-200');
+      expect(getNavButtonStyles(false, 'dark').container).toContain('text-[#9CA3AF]');
+      expect(getNavButtonStyles(false, 'light').container).toContain('text-[#4A4E54]');
+      expect(getNavButtonStyles(false, 'light').container).toContain('hover:bg-[#ECEAE3]');
     });
 
-    it('should adapt expanded sidebar border color for light and dark themes', () => {
-      expect(getSidebarClasses(true, 'dark').container).toContain('border-slate-800');
-      expect(getSidebarClasses(true, 'light').container).toContain('border-slate-200');
+    it('should adapt expanded sidebar border color for light and dark themes using Swiss Archive rules', () => {
+      expect(getSidebarClasses(true, 'dark').container).toContain('border-[#2C323D]');
+      expect(getSidebarClasses(true, 'light').container).toContain('border-[#C9C6BD]');
       expect(getSidebarClasses(false, 'light').container).toContain('w-0');
     });
   });
 
-  describe('getPrydriveLogoCutoutColor (EC-6)', () => {
+  describe('getPrydriveLogoCutoutColor (EC-5)', () => {
     it('should adapt the Prydrive inner cutout color across active/inactive states in light and dark modes', () => {
       const activeDark = getPrydriveLogoCutoutColor(true, 'dark');
       const activeLight = getPrydriveLogoCutoutColor(true, 'light');
       const inactiveDark = getPrydriveLogoCutoutColor(false, 'dark');
       const inactiveLight = getPrydriveLogoCutoutColor(false, 'light');
 
-      expect(activeDark).toBe('#2563EB');
-      expect(activeLight).toBe('#2563EB');
-      expect(inactiveDark).toBe('#161B22');
-      expect(inactiveLight).toBe('#F1F5F9');
+      expect(activeDark).toBe('#181C23');
+      expect(activeLight).toBe('#FFFFFF');
+      expect(inactiveDark).toBe('#15181E');
+      expect(inactiveLight).toBe('#F2F0EA');
       expect(inactiveDark).not.toBe(inactiveLight);
     });
   });

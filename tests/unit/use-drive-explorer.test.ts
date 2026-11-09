@@ -65,14 +65,15 @@ describe('Drive Explorer State, Selection & Unified Rail Access (US-3 / T3)', ()
     expect(afterFolderClick.selectedItemId).toBe('folder-projects');
   });
 
-  it('should return distinct visual classes for selected vs unselected rows (FR-11, NFR-2)', () => {
+  it('should return distinct visual classes for selected vs unselected rows (Spec 006 FR-12, FR-13, NFR-3)', () => {
     const selectedClasses = getRowSelectionClasses(true);
     const unselectedClasses = getRowSelectionClasses(false);
 
-    expect(selectedClasses).toContain('bg-blue-600/20');
-    expect(selectedClasses).toContain('text-white');
-    expect(unselectedClasses).toContain('text-slate-200');
-    expect(unselectedClasses).not.toContain('bg-blue-600/20');
+    expect(selectedClasses).toContain('bg-[#1C2D52]');
+    expect(selectedClasses).toContain('text-[#3B66FF]');
+    expect(selectedClasses).toContain('border-l-[3px]');
+    expect(unselectedClasses).toContain('text-[#F3F4F6]');
+    expect(unselectedClasses).not.toContain('bg-[#1C2D52]');
   });
 
   it('should clear active selection when double-clicking a folder to navigate inside (FR-6)', () => {

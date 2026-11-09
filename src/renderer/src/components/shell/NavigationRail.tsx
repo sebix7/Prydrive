@@ -61,25 +61,21 @@ export const NavigationRail: React.FC<NavigationRailProps> = ({
   return (
     <aside
       data-testid="shell-nav-rail-zone"
-      className={`w-16 border-r flex flex-col items-center py-3 gap-2.5 z-20 shrink-0 h-full select-none transition-colors ${
-        isDark
-          ? 'border-slate-800 bg-[#161B22]'
-          : 'border-slate-200 bg-slate-100/90'
-      }`}
+      className="w-16 border-r border-[#C9C6BD] dark:border-[#2C323D] bg-[#F2F0EA] dark:bg-[#15181E] flex flex-col items-center py-3 gap-2.5 z-20 shrink-0 h-full select-none transition-colors"
       aria-label="Application navigation"
     >
       {/* 1. Prydrive Brand Button */}
       <div className="relative flex items-center justify-center w-full">
-        {/* Left active vertical indicator bar */}
+        {/* Left active vertical indicator bar (3px wide) */}
         <span
-          className={`absolute left-0 w-1 h-6 rounded-r bg-blue-500 transition-all duration-200 ${prydriveStyles.indicator}`}
+          className={`absolute left-0 w-[3px] h-6 rounded-r bg-[#1B44E8] dark:bg-[#3B66FF] transition-all duration-200 ${prydriveStyles.indicator}`}
           aria-hidden="true"
         />
         <button
           type="button"
           data-testid="nav-btn-prydrive"
           onClick={() => onSelectNav('prydrive')}
-          className={`group relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${prydriveStyles.container}`}
+          className={`group relative w-10 h-10 rounded-[6px] flex items-center justify-center transition-all duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#1B44E8] dark:focus-visible:ring-[#3B66FF] ${prydriveStyles.container}`}
           title={getTranslation(language, 'nav_prydrive_tooltip')}
           aria-label={getTranslation(language, 'nav_prydrive_tooltip')}
           aria-pressed={isPrydriveActive}
@@ -93,22 +89,22 @@ export const NavigationRail: React.FC<NavigationRailProps> = ({
 
       {/* Subtle structural rail divider */}
       <div
-        className={`w-7 h-px my-0.5 ${isDark ? 'bg-slate-800/80' : 'bg-slate-300/80'}`}
+        className="w-7 h-px my-0.5 bg-[#DFDDD6] dark:bg-[#222730]"
         role="separator"
       />
 
       {/* 2. Google Drive Provider Button */}
       <div className="relative flex items-center justify-center w-full">
-        {/* Left active vertical indicator bar */}
+        {/* Left active vertical indicator bar (3px wide) */}
         <span
-          className={`absolute left-0 w-1 h-6 rounded-r bg-blue-500 transition-all duration-200 ${googleDriveStyles.indicator}`}
+          className={`absolute left-0 w-[3px] h-6 rounded-r bg-[#1B44E8] dark:bg-[#3B66FF] transition-all duration-200 ${googleDriveStyles.indicator}`}
           aria-hidden="true"
         />
         <button
           type="button"
           data-testid="nav-btn-google-drive"
           onClick={() => onSelectNav('google-drive')}
-          className={`group relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${googleDriveStyles.container}`}
+          className={`group relative w-10 h-10 rounded-[6px] flex items-center justify-center transition-all duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#1B44E8] dark:focus-visible:ring-[#3B66FF] ${googleDriveStyles.container}`}
           title={getTranslation(language, 'nav_google_drive_tooltip')}
           aria-label={getTranslation(language, 'nav_google_drive_tooltip')}
           aria-pressed={isGoogleDriveActive}

@@ -4,10 +4,16 @@ import {
   shellReducer,
   shouldAutoCollapseSidebar,
   truncateEmail,
+  getStaticDriveUnitBadge,
+  shouldShowTopBarDisconnect,
+  getPrydriveLogoCutoutColor,
+  getQuotaProgressColorClass,
+  getNavButtonStyles,
+  getSidebarClasses,
   type ShellState
 } from '../../src/shared/shell-state';
 
-describe('Shell State & Utilities (US-1 / T1)', () => {
+describe('Shell State & Utilities (US-1 / T1 & US-3 / T3)', () => {
   it('should initialize with expanded right sidebar and google-drive active nav', () => {
     expect(initialShellState.activeNav).toBe('google-drive');
     expect(initialShellState.isSidebarExpanded).toBe(true);
@@ -75,5 +81,70 @@ describe('Shell State & Utilities (US-1 / T1)', () => {
     expect(truncated.length).toBeLessThanOrEqual(24);
     expect(truncated).toContain('...');
     expect(truncated).toContain('@companydomain.com');
+  });
+
+  describe('Static Drive Unit Badge Resolver (FR-9, FR-10, EC-3)', () => {
+    it('should return UNIDAD: //MY_DRIVE for es and DRIVE: //MY_DRIVE for en', () => {
+      expect(getStaticDriveUnitBadge('es')).toBe('UNIDAD: //MY_DRIVE');
+      expect(getStaticDriveUnitBadge('en')).toBe('DRIVE: //MY_DRIVE');
+      expect(getStaticDriveUnitBadge()).toBe('DRIVE: //MY_DRIVE');
+    });
+  });
+
+  describe('Conditional Top-Bar Disconnect Visibility (FR-16, EC-6)', () => {
+    it('should show top-bar icon disconnect ONLY when sidebar is collapsed', () => {
+      expect(shouldShowTopBarDisconnect(true)).toBe(false);
+      expect(shouldShowTopBarDisconnect(false)).toBe(true);
+    });
+  });
+
+  describe('Swiss Archive Prydrive Logo Cutout Color (FR-11, EC-5)', () => {
+    it('should return exact Swiss Archive cutout surfaces matching active and inactive button surfaces', () => {
+      expect(getPrydriveLogoCutoutColor(true, 'light')).toBe('#FFFFFF');
+      expect(getPrydriveLogoCutoutColor(true, 'dark')).toBe('#181C23');
+      expect(getPrydriveLogoCutoutColor(false, 'light')).toBe('#F2F0EA');
+      expect(getPrydriveLogoCutoutColor(false, 'dark')).toBe('#15181E');
+    });
+  });
+
+  describe('Swiss Archive Quota Progress Color Thresholds (FR-15)', () => {
+    it('should return Klein Blue for normal usage (< 75%)', () => {
+      expect(getQuotaProgressColorClass(50, false, 'light')).toContain('bg-[#1B44E8]');
+      expect(getQuotaProgressColorClass(74, false, 'dark')).toContain('bg-[#3B66FF]');
+    });
+
+    it('should return warning/signal orange for usage >= 75% and < 90%', () => {
+      expect(getQuotaProgressColorClass(75, false, 'light')).toContain('bg-[#D95D1E]');
+      expect(getQuotaProgressColorClass(89, false, 'dark')).toContain('bg-[#F97316]');
+    });
+
+    it('should return danger red for critical usage >= 90%', () => {
+      expect(getQuotaProgressColorClass(90, false, 'light')).toContain('bg-[#DC2626]');
+      expect(getQuotaProgressColorClass(99, false, 'dark')).toContain('bg-[#EF4444]');
+    });
+
+    it('should return translucent Klein Blue for unmetered storage', () => {
+      expect(getQuotaProgressColorClass(0, true, 'light')).toContain('bg-[#1B44E8]/60');
+      expect(getQuotaProgressColorClass(0, true, 'dark')).toContain('bg-[#3B66FF]/60');
+    });
+  });
+
+  describe('Swiss Archive Navigation Rail & Sidebar Styles (FR-11, FR-15)', () => {
+    it('should return Swiss Archive active/inactive classes for rail buttons', () => {
+      const activeDark = getNavButtonStyles(true, 'dark');
+      expect(activeDark.container).toContain('bg-[#181C23]');
+      expect(activeDark.container).toContain('border-[#2C323D]');
+      expect(activeDark.container).toContain('text-[#3B66FF]');
+
+      const activeLight = getNavButtonStyles(true, 'light');
+      expect(activeLight.container).toContain('bg-[#FFFFFF]');
+      expect(activeLight.container).toContain('border-[#C9C6BD]');
+      expect(activeLight.container).toContain('text-[#1B44E8]');
+    });
+
+    it('should return Swiss Archive border classes for expanded sidebar', () => {
+      expect(getSidebarClasses(true, 'dark').container).toContain('border-[#2C323D]');
+      expect(getSidebarClasses(true, 'light').container).toContain('border-[#C9C6BD]');
+    });
   });
 });

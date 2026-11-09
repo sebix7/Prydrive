@@ -33,11 +33,7 @@ export const ExplorerStatusBar: React.FC<ExplorerStatusBarProps> = ({
   return (
     <footer
       data-testid="explorer-status-bar"
-      className={`h-9 px-3 border-t flex items-center justify-between text-xs shrink-0 select-none transition-colors ${
-        isDark
-          ? 'bg-[#161B22] border-slate-800 text-slate-400'
-          : 'bg-slate-100/90 border-slate-200 text-slate-600'
-      }`}
+      className="h-9 px-3 border-t border-[#C9C6BD] dark:border-[#2C323D] bg-[#F2F0EA] dark:bg-[#15181E] flex items-center justify-between text-xs shrink-0 select-none transition-colors"
     >
       {/* Left: Manual Refresh Action */}
       <div className="flex items-center">
@@ -47,14 +43,10 @@ export const ExplorerStatusBar: React.FC<ExplorerStatusBarProps> = ({
           onClick={onRefresh}
           disabled={isLoading}
           title={refreshLabel}
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium active:scale-95 transition-all disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-400 ${
-            isDark
-              ? 'text-slate-300 hover:text-white hover:bg-slate-800'
-              : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200/80'
-          }`}
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#FFFFFF] dark:bg-[#181C23] hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] text-[#111315] dark:text-[#F3F4F6] text-[11px] font-mono font-medium shadow-xs active:scale-95 transition-all disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus-visible:ring-1 focus-visible:ring-[#1B44E8] dark:focus-visible:ring-[#3B66FF]"
         >
           <RotateCw
-            className={`w-3.5 h-3.5 ${isDark ? 'text-blue-400' : 'text-blue-600'} ${
+            className={`w-3.5 h-3.5 text-[#1B44E8] dark:text-[#3B66FF] ${
               isLoading ? 'animate-spin' : ''
             }`}
           />
@@ -65,9 +57,7 @@ export const ExplorerStatusBar: React.FC<ExplorerStatusBarProps> = ({
       {/* Center: Real Folder and File Counts (strictly excluding "...") */}
       <div
         data-testid="explorer-status-counts"
-        className={`text-[11px] font-medium truncate px-3 ${
-          isDark ? 'text-slate-300' : 'text-slate-700'
-        }`}
+        className="text-[11px] font-mono text-[#7C8087] dark:text-[#6B7280] truncate px-3"
       >
         {countsLabel}
       </div>
@@ -75,9 +65,7 @@ export const ExplorerStatusBar: React.FC<ExplorerStatusBarProps> = ({
       {/* Right: Aggregate File Size */}
       <div
         data-testid="explorer-status-total-size"
-        className={`text-[11px] font-mono shrink-0 ${
-          isDark ? 'text-slate-300' : 'text-slate-700'
-        }`}
+        className="text-[11px] font-mono text-[#7C8087] dark:text-[#6B7280] shrink-0"
       >
         {totalSizeLabel}
       </div>

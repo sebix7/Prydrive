@@ -2,6 +2,7 @@ import React from 'react';
 import { RefreshCw, AlertCircle, HardDrive } from 'lucide-react';
 import type { StorageQuota, LanguageCode } from '../../../../shared/types';
 import { getTranslation } from '../../../../shared/i18n/translations';
+import { getQuotaProgressColorClass } from '../../../../shared/shell-state';
 
 export interface QuotaBarProps {
   quota: StorageQuota | null;
@@ -79,23 +80,16 @@ export const QuotaBar: React.FC<QuotaBarProps> = ({
     );
   }
 
-  // Progress Bar Color based on usage percentage
-  const getProgressColor = (pct: number) => {
-    if (pct >= 90) return 'bg-red-500';
-    if (pct >= 75) return 'bg-amber-500';
-    return 'bg-blue-600';
-  };
-
   return (
     <div
       data-testid="quota-bar"
       className="flex items-center gap-2.5 min-w-[200px] w-full"
     >
-      <HardDrive className={`w-4 h-4 shrink-0 ${isDark ? 'text-slate-400' : 'text-slate-400'}`} />
+      <HardDrive className={`w-4 h-4 shrink-0 ${isDark ? 'text-[#6B7280]' : 'text-[#7C8087]'}`} />
       <div className="flex-1 flex flex-col gap-1.5 min-w-0">
         <div
-          className={`flex items-center justify-between text-[11px] font-medium ${
-            isDark ? 'text-slate-300' : 'text-slate-600'
+          className={`flex items-center justify-between font-mono text-[11px] ${
+            isDark ? 'text-[#9CA3AF]' : 'text-[#4A4E54]'
           }`}
         >
           {quota.isUnmetered ? (
@@ -110,21 +104,23 @@ export const QuotaBar: React.FC<QuotaBarProps> = ({
                   total: quota.formattedTotal
                 })}
               </span>
-              <span className={`font-mono text-[10px] ml-1 shrink-0 ${isDark ? 'text-slate-400' : 'text-slate-400'}`}>
+              <span className={`font-mono text-[10px] ml-1 shrink-0 ${isDark ? 'text-[#6B7280]' : 'text-[#7C8087]'}`}>
                 {quota.percentage}%
               </span>
             </>
           )}
         </div>
         <div
-          className={`w-full h-1.5 rounded-full overflow-hidden ${
-            isDark ? 'bg-slate-800 border border-slate-700/60' : 'bg-slate-100 border border-slate-200/60'
+          className={`w-full h-1.5 rounded-[2px] overflow-hidden border ${
+            isDark ? 'bg-[#15181E] border-[#2C323D]' : 'bg-[#F2F0EA] border-[#C9C6BD]'
           }`}
         >
           <div
-            className={`h-full rounded-full transition-all duration-500 ${
-              quota.isUnmetered ? 'bg-blue-300 w-full opacity-60' : getProgressColor(quota.percentage)
-            }`}
+            className={`h-full rounded-[1px] transition-all duration-300 ${getQuotaProgressColorClass(
+              quota.percentage,
+              quota.isUnmetered,
+              variant
+            )}`}
             style={{ width: quota.isUnmetered ? '100%' : `${quota.percentage}%` }}
           />
         </div>

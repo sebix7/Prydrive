@@ -1,300 +1,115 @@
-import React, { useState } from 'react';
-import {
-  LogOut,
-  Info,
-  Languages,
-  Palette,
-  Check,
-  ChevronRight
-} from 'lucide-react';
+import React from 'react';
+import { LogOut, Info } from 'lucide-react';
 import type { LanguageCode, ThemeMode } from '../../../../shared/types';
-import type { ActiveMenu, OptionsSubmenu } from '../../../../shared/shell-state';
-import { toggleMenuHeader, resolveOptionsSubmenu } from '../../../../shared/shell-state';
+import type { ActiveMenu } from '../../../../shared/shell-state';
+import {
+  getStaticDriveUnitBadge,
+  shouldShowTopBarDisconnect
+} from '../../../../shared/shell-state';
 import { getTranslation } from '../../../../shared/i18n/translations';
+import { ThemeToggle } from '../ui/ThemeToggle';
+import { LanguageToggle } from '../ui/LanguageToggle';
 
 export interface MenuBarProps {
   language: LanguageCode;
   userEmail: string;
-  openMenu: ActiveMenu;
-  menuBarRef: React.RefObject<HTMLDivElement>;
-  onToggleMenu: (menu: ActiveMenu) => void;
-  onCloseMenus: () => void;
+  openMenu?: ActiveMenu;
+  menuBarRef?: React.RefObject<HTMLDivElement>;
+  onToggleMenu?: (menu: ActiveMenu) => void;
+  onCloseMenus?: () => void;
   onDisconnectClick: () => void;
   onToggleSidebar?: () => void;
   onOpenAbout: () => void;
   onSetLanguage: (lang: LanguageCode) => void;
   theme?: ThemeMode;
   onSetTheme?: (theme: ThemeMode) => void;
+  onToggleTheme?: () => void;
   onCloseWindow?: () => void;
+  isSidebarExpanded?: boolean;
 }
 
+/**
+ * Swiss Archive 40px Top Header Bar (Spec 006 FR-7, FR-9, FR-10, FR-16).
+ * Features static drive unit badge on the left, unified controls on the right,
+ * and a compact icon-only Disconnect button when the right sidebar is collapsed.
+ */
 export const MenuBar: React.FC<MenuBarProps> = ({
   language,
-  openMenu,
-  menuBarRef,
-  onToggleMenu,
-  onCloseMenus,
   onDisconnectClick,
   onOpenAbout,
   onSetLanguage,
   theme = 'dark',
-  onSetTheme
+  onSetTheme,
+  onToggleTheme,
+  isSidebarExpanded = true
 }) => {
-  const [activeSubmenu, setActiveSubmenu] = useState<OptionsSubmenu>(null);
-
-  const handleHeaderClick = (menu: ActiveMenu) => {
-    setActiveSubmenu(null);
-    onToggleMenu(toggleMenuHeader(openMenu, menu));
+  const handleToggleTheme = () => {
+    if (onToggleTheme) {
+      onToggleTheme();
+    } else if (onSetTheme) {
+      onSetTheme(theme === 'dark' ? 'light' : 'dark');
+    }
   };
 
-  const handleSelectLanguage = (lang: LanguageCode) => {
-    onSetLanguage(lang);
-    setActiveSubmenu(null);
-    onCloseMenus();
-  };
-
-  const handleSelectTheme = (selectedTheme: ThemeMode) => {
-    onSetTheme?.(selectedTheme);
-    setActiveSubmenu(null);
-    onCloseMenus();
-  };
-
-  const themeMenuLabel = getTranslation(language, 'menu_theme');
-  const lightThemeLabel = getTranslation(language, 'theme_light');
-  const darkThemeLabel = getTranslation(language, 'theme_dark');
-  const isDark = theme === 'dark';
-  const dropdownPanelClasses = isDark
-    ? 'bg-[#161B22] border-slate-700/80 text-slate-200'
-    : 'bg-white border-slate-200 text-slate-800';
-  const menuItemClasses = isDark
-    ? 'text-slate-200 hover:bg-blue-600 hover:text-white'
-    : 'text-slate-800 hover:bg-blue-600 hover:text-white';
-  const menuIconClasses = isDark
-    ? 'text-slate-400 group-hover:text-white'
-    : 'text-slate-500 group-hover:text-white';
+  const showTopBarDisconnect = shouldShowTopBarDisconnect(isSidebarExpanded);
 
   return (
-    <div
-      ref={menuBarRef}
+    <header
       data-testid="shell-menu-bar"
-      className={`flex items-center w-full h-full text-xs font-medium relative select-none ${
-        isDark ? 'text-slate-300' : 'text-slate-700'
-      }`}
+      className="h-10 px-3 flex items-center justify-between border-b border-[#C9C6BD] dark:border-[#2C323D] bg-[#F2F0EA] dark:bg-[#15181E] text-xs font-mono select-none flex-shrink-0 z-30"
     >
-      <div className="flex items-center gap-1">
-        {/* 1. Options (Opciones) Menu */}
-        <div className="relative">
-          <button
-            type="button"
-            data-testid="menu-trigger-options"
-            onClick={() => handleHeaderClick('options')}
-            aria-haspopup="true"
-            aria-expanded={openMenu === 'options'}
-            className={`px-2.5 py-1 rounded-md transition-colors duration-100 ${
-              openMenu === 'options'
-                ? isDark
-                  ? 'bg-slate-800 text-white font-semibold'
-                  : 'bg-slate-200 text-slate-900 font-semibold'
-                : isDark
-                  ? 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200/70'
-            }`}
-          >
-            {getTranslation(language, 'menu_options')}
-          </button>
-
-          {openMenu === 'options' && (
-            <div
-              data-testid="menu-dropdown-options"
-              className={`absolute top-full left-0 mt-1 min-w-[190px] border rounded-xl shadow-2xl py-1 z-50 text-xs backdrop-blur-md animate-in fade-in zoom-in-95 duration-100 ${dropdownPanelClasses}`}
-            >
-              {/* Language Submenu Trigger */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveSubmenu('language')}
-                onMouseLeave={() =>
-                  setActiveSubmenu((prev) => (prev === 'language' ? null : prev))
-                }
-              >
-                <button
-                  type="button"
-                  data-testid="menu-item-lang-parent"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveSubmenu((prev) => resolveOptionsSubmenu(prev, 'language'));
-                  }}
-                  className={`w-full px-3 py-1.5 flex items-center justify-between text-left transition-colors group ${menuItemClasses}`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Languages className={`w-3.5 h-3.5 ${menuIconClasses}`} />
-                    <span>{getTranslation(language, 'menu_language')}</span>
-                  </div>
-                  <ChevronRight className={`w-3.5 h-3.5 ml-2 ${menuIconClasses}`} />
-                </button>
-
-                {/* Nested Flyout Language Submenu */}
-                {activeSubmenu === 'language' && (
-                  <div
-                    data-testid="menu-submenu-lang"
-                    className={`absolute left-full -top-1 ml-1 min-w-[130px] border rounded-xl shadow-2xl py-1 z-50 text-xs backdrop-blur-md animate-in fade-in zoom-in-95 duration-100 ${dropdownPanelClasses}`}
-                  >
-                    <button
-                      type="button"
-                      data-testid="menu-item-lang-en"
-                      onClick={() => handleSelectLanguage('en')}
-                      className={`w-full px-3 py-1.5 flex items-center justify-between text-left transition-colors group ${menuItemClasses}`}
-                    >
-                      <span>English</span>
-                      {language === 'en' && (
-                        <Check className="w-3.5 h-3.5 text-blue-500 group-hover:text-white" />
-                      )}
-                    </button>
-                    <button
-                      type="button"
-                      data-testid="menu-item-lang-es"
-                      onClick={() => handleSelectLanguage('es')}
-                      className={`w-full px-3 py-1.5 flex items-center justify-between text-left transition-colors group ${menuItemClasses}`}
-                    >
-                      <span>Español</span>
-                      {language === 'es' && (
-                        <Check className="w-3.5 h-3.5 text-blue-500 group-hover:text-white" />
-                      )}
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Theme Submenu Trigger (FR-6, FR-7, FR-8) */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveSubmenu('theme')}
-                onMouseLeave={() =>
-                  setActiveSubmenu((prev) => (prev === 'theme' ? null : prev))
-                }
-              >
-                <button
-                  type="button"
-                  data-testid="menu-item-theme-parent"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveSubmenu((prev) => resolveOptionsSubmenu(prev, 'theme'));
-                  }}
-                  className={`w-full px-3 py-1.5 flex items-center justify-between text-left transition-colors group ${menuItemClasses}`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Palette className={`w-3.5 h-3.5 ${menuIconClasses}`} />
-                    <span>{themeMenuLabel}</span>
-                  </div>
-                  <ChevronRight className={`w-3.5 h-3.5 ml-2 ${menuIconClasses}`} />
-                </button>
-
-                {/* Nested Flyout Theme Submenu */}
-                {activeSubmenu === 'theme' && (
-                  <div
-                    data-testid="menu-submenu-theme"
-                    className={`absolute left-full -top-1 ml-1 min-w-[130px] border rounded-xl shadow-2xl py-1 z-50 text-xs backdrop-blur-md animate-in fade-in zoom-in-95 duration-100 ${dropdownPanelClasses}`}
-                  >
-                    <button
-                      type="button"
-                      data-testid="menu-item-theme-light"
-                      onClick={() => handleSelectTheme('light')}
-                      className={`w-full px-3 py-1.5 flex items-center justify-between text-left transition-colors group ${menuItemClasses}`}
-                    >
-                      <span>{lightThemeLabel}</span>
-                      {theme === 'light' && (
-                        <Check
-                          data-testid="theme-check-light"
-                          className="w-3.5 h-3.5 text-blue-500 group-hover:text-white"
-                        />
-                      )}
-                    </button>
-                    <button
-                      type="button"
-                      data-testid="menu-item-theme-dark"
-                      onClick={() => handleSelectTheme('dark')}
-                      className={`w-full px-3 py-1.5 flex items-center justify-between text-left transition-colors group ${menuItemClasses}`}
-                    >
-                      <span>{darkThemeLabel}</span>
-                      {theme === 'dark' && (
-                        <Check
-                          data-testid="theme-check-dark"
-                          className="w-3.5 h-3.5 text-blue-500 group-hover:text-white"
-                        />
-                      )}
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Structural Divider */}
-              <div
-                className={`my-1 border-t ${isDark ? 'border-slate-800' : 'border-slate-200'}`}
-                role="separator"
-              />
-
-              {/* Disconnect Action */}
-              <button
-                type="button"
-                data-testid="menu-item-disconnect"
-                onClick={() => {
-                  onCloseMenus();
-                  onDisconnectClick();
-                }}
-                className={`w-full px-3 py-1.5 flex items-center gap-2 text-left transition-colors ${
-                  isDark
-                    ? 'text-rose-400 hover:bg-rose-500/15 hover:text-rose-300'
-                    : 'text-rose-600 hover:bg-rose-50 hover:text-rose-700'
-                }`}
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>{getTranslation(language, 'menu_disconnect')}</span>
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* 2. Help (Ayuda) Menu */}
-        <div className="relative">
-          <button
-            type="button"
-            data-testid="menu-trigger-help"
-            onClick={() => handleHeaderClick('help')}
-            aria-haspopup="true"
-            aria-expanded={openMenu === 'help'}
-            className={`px-2.5 py-1 rounded-md transition-colors duration-100 ${
-              openMenu === 'help'
-                ? isDark
-                  ? 'bg-slate-800 text-white font-semibold'
-                  : 'bg-slate-200 text-slate-900 font-semibold'
-                : isDark
-                  ? 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200/70'
-            }`}
-          >
-            {getTranslation(language, 'menu_help')}
-          </button>
-
-          {openMenu === 'help' && (
-            <div
-              data-testid="menu-dropdown-help"
-              className={`absolute top-full left-0 mt-1 min-w-[190px] border rounded-xl shadow-2xl py-1 z-50 text-xs backdrop-blur-md animate-in fade-in zoom-in-95 duration-100 ${dropdownPanelClasses}`}
-            >
-              <button
-                type="button"
-                data-testid="menu-item-about"
-                onClick={() => {
-                  onCloseMenus();
-                  onOpenAbout();
-                }}
-                className={`w-full px-3 py-1.5 flex items-center gap-2 text-left transition-colors group ${menuItemClasses}`}
-              >
-                <Info className={`w-3.5 h-3.5 ${menuIconClasses}`} />
-                <span>{getTranslation(language, 'menu_about')}</span>
-              </button>
-            </div>
-          )}
-        </div>
+      {/* Left side: Static drive unit badge (FR-9, FR-10, EC-3) */}
+      <div className="flex items-center gap-2">
+        <span
+          data-testid="drive-unit-badge"
+          className="font-mono text-[11px] text-[#7C8087] dark:text-[#6B7280] tracking-wide select-none"
+        >
+          {getStaticDriveUnitBadge(language)}
+        </span>
       </div>
-    </div>
+
+      {/* Right side: Unified control cluster (FR-7, FR-16, EC-6) */}
+      <div className="flex items-center gap-2">
+        {/* About Prydrive info button (FR-7, EC-7) */}
+        <button
+          type="button"
+          data-testid="about-btn"
+          onClick={onOpenAbout}
+          title={getTranslation(language, 'about_title')}
+          aria-label={getTranslation(language, 'about_title')}
+          className="inline-flex items-center justify-center w-[30px] h-[30px] rounded-[4px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#FFFFFF] dark:bg-[#181C23] text-[#111315] dark:text-[#F3F4F6] hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] hover:border-[#1B44E8] dark:hover:border-[#3B66FF] hover:text-[#1B44E8] dark:hover:text-[#3B66FF] transition-all duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#1B44E8] dark:focus-visible:ring-[#3B66FF] active:scale-95"
+        >
+          <Info className="w-3.5 h-3.5" />
+        </button>
+
+        {/* Theme toggle button (FR-7) */}
+        <ThemeToggle
+          theme={theme}
+          onToggle={handleToggleTheme}
+          language={language}
+        />
+
+        {/* Language selector (FR-7) */}
+        <LanguageToggle
+          currentLanguage={language}
+          onLanguageChange={onSetLanguage}
+          theme={theme}
+        />
+
+        {/* Compact icon-only Disconnect SVG button (FR-16, EC-6) */}
+        {showTopBarDisconnect && (
+          <button
+            type="button"
+            data-testid="topbar-disconnect-btn"
+            onClick={onDisconnectClick}
+            title={getTranslation(language, 'disconnect')}
+            aria-label={getTranslation(language, 'disconnect')}
+            className="inline-flex items-center justify-center w-[30px] h-[30px] rounded-[4px] border border-[rgba(220,38,38,0.25)] dark:border-[rgba(239,68,68,0.30)] bg-[rgba(220,38,38,0.08)] dark:bg-[rgba(239,68,68,0.12)] text-[#DC2626] dark:text-[#EF4444] hover:bg-[#DC2626] dark:hover:bg-[#EF4444] hover:text-white transition-all duration-150 focus:outline-none active:scale-95"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+    </header>
   );
 };

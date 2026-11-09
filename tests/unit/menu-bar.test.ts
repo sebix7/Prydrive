@@ -1,86 +1,90 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import packageInfo from '../../package.json';
 import {
   shellReducer,
   initialShellState,
-  toggleMenuHeader,
   ABOUT_METADATA,
   APP_VERSION,
   RAW_VERSION,
-  resolveOptionsSubmenu,
-  type ShellState,
-  type ActiveMenu
+  getStaticDriveUnitBadge,
+  shouldShowTopBarDisconnect,
+  type ShellState
 } from '../../src/shared/shell-state';
 
-describe('Menu Bar & Dialog Transitions (US-3 / T3)', () => {
-  it('should toggle menu header idempotently (open if closed, close if open)', () => {
-    expect(toggleMenuHeader(null, 'options')).toBe('options');
-    expect(toggleMenuHeader('options', 'options')).toBeNull();
-    expect(toggleMenuHeader('options', 'help')).toBe('help');
-    expect(toggleMenuHeader('help', 'help')).toBeNull();
-  });
-
-  it('should open and switch between drop-down menus in shell state (FR-6)', () => {
-    let state = shellReducer(initialShellState, { type: 'OPEN_MENU', payload: 'options' });
-    expect(state.openMenu).toBe('options');
-
-    state = shellReducer(state, { type: 'OPEN_MENU', payload: 'help' });
-    expect(state.openMenu).toBe('help');
-
-    state = shellReducer(state, { type: 'CLOSE_MENUS' });
-    expect(state.openMenu).toBeNull();
-  });
-
-  it('should close open menus and open disconnect modal upon disconnect trigger (FR-7 / EC-4)', () => {
-    const stateWithMenu: ShellState = {
-      ...initialShellState,
-      openMenu: 'options',
-      isDisconnectModalOpen: false
-    };
-
-    const nextState = shellReducer(stateWithMenu, { type: 'OPEN_DISCONNECT_MODAL' });
-    expect(nextState.openMenu).toBeNull();
-    expect(nextState.isDisconnectModalOpen).toBe(true);
-
-    const closedState = shellReducer(nextState, { type: 'CLOSE_DISCONNECT_MODAL' });
-    expect(closedState.isDisconnectModalOpen).toBe(false);
-  });
-
-  it('should dynamically synchronize About modal version with package.json (FR-6 / Help)', () => {
+describe('Swiss Archive Menu Bar & Desktop Shell (Spec 006 US-3 / T3)', () => {
+  it('should dynamically synchronize About modal version with package.json', () => {
     expect(ABOUT_METADATA.version).toBe(`v${packageInfo.version}`);
     expect(ABOUT_METADATA.appName).toBe('Prydrive');
     expect(APP_VERSION).toBe(`v${packageInfo.version}`);
     expect(RAW_VERSION).toBe(packageInfo.version);
 
-    const stateWithHelp: ShellState = {
-      ...initialShellState,
-      openMenu: 'help',
-      isAboutModalOpen: false
-    };
+    const withAbout = shellReducer(initialShellState, { type: 'OPEN_ABOUT_MODAL' });
+    expect(withAbout.isAboutModalOpen).toBe(true);
 
-    const nextState = shellReducer(stateWithHelp, { type: 'OPEN_ABOUT_MODAL' });
-    expect(nextState.openMenu).toBeNull();
-    expect(nextState.isAboutModalOpen).toBe(true);
-
-    const closedState = shellReducer(nextState, { type: 'CLOSE_ABOUT_MODAL' });
-    expect(closedState.isAboutModalOpen).toBe(false);
+    const closedAbout = shellReducer(withAbout, { type: 'CLOSE_ABOUT_MODAL' });
+    expect(closedAbout.isAboutModalOpen).toBe(false);
   });
 
-  it('should enforce mutual exclusion between Language and Theme submenus in Options (Spec 005 US-3 / FR-6)', () => {
-    // Initially closed -> open 'language'
-    expect(resolveOptionsSubmenu(null, 'language')).toBe('language');
+  it('should open and close disconnect modal directly from shell state', () => {
+    const withDisconnect = shellReducer(initialShellState, { type: 'OPEN_DISCONNECT_MODAL' });
+    expect(withDisconnect.isDisconnectModalOpen).toBe(true);
 
-    // Switching from 'language' to 'theme' automatically closes 'language' and opens 'theme'
-    expect(resolveOptionsSubmenu('language', 'theme')).toBe('theme');
+    const closedDisconnect = shellReducer(withDisconnect, { type: 'CLOSE_DISCONNECT_MODAL' });
+    expect(closedDisconnect.isDisconnectModalOpen).toBe(false);
+  });
 
-    // Switching from 'theme' to 'language' automatically closes 'theme' and opens 'language'
-    expect(resolveOptionsSubmenu('theme', 'language')).toBe('language');
+  describe('MenuBar.tsx Swiss Archive Implementation (FR-7, FR-9, FR-10, FR-16)', () => {
+    it('should eliminate legacy Options and Help dropdowns and render static drive badge and unified controls', () => {
+      const menuBarSource = readFileSync(
+        resolve(__dirname, '../../src/renderer/src/components/shell/MenuBar.tsx'),
+        'utf-8'
+      );
+      expect(menuBarSource).toContain('getStaticDriveUnitBadge');
+      expect(menuBarSource).toContain('shouldShowTopBarDisconnect');
+      expect(menuBarSource).toContain('ThemeToggle');
+      expect(menuBarSource).toContain('LanguageToggle');
+      expect(menuBarSource).toContain('topbar-disconnect-btn');
+      expect(menuBarSource).not.toContain('menu-trigger-options');
+      expect(menuBarSource).not.toContain('menu-trigger-help');
+      expect(menuBarSource).not.toContain('resolveOptionsSubmenu');
+    });
+  });
 
-    // Clicking the already open submenu toggles it closed
-    expect(resolveOptionsSubmenu('theme', 'theme')).toBeNull();
-    expect(resolveOptionsSubmenu('language', 'language')).toBeNull();
+  describe('NavigationRail.tsx Swiss Archive Implementation (FR-11, EC-5)', () => {
+    it('should render a 3px left Klein Blue indicator bar and dynamic Prydrive logo cutout', () => {
+      const railSource = readFileSync(
+        resolve(__dirname, '../../src/renderer/src/components/shell/NavigationRail.tsx'),
+        'utf-8'
+      );
+      expect(railSource).toContain('w-[3px]');
+      expect(railSource).toContain('getPrydriveLogoCutoutColor');
+      expect(railSource).toContain('rounded-[6px]');
+    });
+  });
 
-    // Explicitly passing null closes any open submenu
-    expect(resolveOptionsSubmenu('theme', null)).toBeNull();
+  describe('WorkspaceCanvas.tsx Swiss Archive Implementation (FR-5, US-3)', () => {
+    it('should render PRYDRIVE // WORKSPACE framed card over swiss-dot-matrix when activeNav is prydrive', () => {
+      const canvasSource = readFileSync(
+        resolve(__dirname, '../../src/renderer/src/components/shell/WorkspaceCanvas.tsx'),
+        'utf-8'
+      );
+      expect(canvasSource).toContain('PRYDRIVE // WORKSPACE');
+      expect(canvasSource).toContain('swiss-dot-matrix');
+      expect(canvasSource).toContain('FileExplorer');
+    });
+  });
+
+  describe('TelemetrySidebar.tsx Swiss Archive Implementation (FR-15, FR-16)', () => {
+    it('should include bottom-pinned danger Disconnect button and 1px bordered cards', () => {
+      const sidebarSource = readFileSync(
+        resolve(__dirname, '../../src/renderer/src/components/shell/TelemetrySidebar.tsx'),
+        'utf-8'
+      );
+      expect(sidebarSource).toContain('sidebar-disconnect-btn');
+      expect(sidebarSource).toContain('onDisconnect');
+      expect(sidebarSource).toContain('rounded-[6px]');
+    });
   });
 });

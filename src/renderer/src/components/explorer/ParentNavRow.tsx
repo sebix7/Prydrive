@@ -24,31 +24,25 @@ export const ParentNavRow: React.FC<ParentNavRowProps> = ({
       title={tooltip}
       aria-label={tooltip}
       onDoubleClick={onNavigateUp}
-      className={`h-9 flex items-center px-3 border-b text-xs transition-colors cursor-default select-none ${
-        isDark
-          ? 'border-slate-800/50 text-slate-200 hover:bg-slate-800/50'
-          : 'border-slate-200/70 text-slate-800 hover:bg-slate-100'
-      }`}
+      className="h-9 flex items-center px-3 border-b border-b-[#DFDDD6] dark:border-b-[#222730] border-l-[3px] border-l-transparent text-[#111315] dark:text-[#F3F4F6] hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] text-xs transition-colors cursor-default select-none"
     >
       {/* Column 1: Folder Icon */}
       <div className="w-10 flex items-center justify-center shrink-0">
-        <Folder className="w-4 h-4 text-blue-400 fill-blue-400/20" />
+        <Folder className="w-4 h-4 text-[#1B44E8] dark:text-[#3B66FF] fill-[#1B44E8]/20 dark:fill-[#3B66FF]/20" />
       </div>
 
       {/* Column 2: "..." Parent Label */}
       <div
-        className={`flex-1 min-w-0 pr-4 font-mono font-bold ${
-          isDark ? 'text-slate-300' : 'text-slate-700'
-        }`}
+        className="flex-1 min-w-0 pr-4 font-mono font-bold text-[#4A4E54] dark:text-[#9CA3AF]"
       >
         ...
       </div>
 
       {/* Column 3: Empty Creation Date */}
-      <div className="w-44 shrink-0 text-slate-500 font-mono text-[11px]" />
+      <div className="w-44 shrink-0 text-[#7C8087] dark:text-[#6B7280] font-mono text-[11px]" />
 
       {/* Column 4: Empty Size */}
-      <div className="w-24 shrink-0 text-right text-slate-500 font-mono text-[11px] pr-2" />
+      <div className="w-24 shrink-0 text-right text-[#7C8087] dark:text-[#6B7280] font-mono text-[11px] pr-2" />
     </div>
   );
 };

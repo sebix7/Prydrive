@@ -171,7 +171,9 @@ export function shouldTriggerScrollPagination(
 }
 
 /**
- * Resolves row visual classes based on active selection state and theme (FR-11, NFR-2, Spec 005 FR-11, EC-3).
+ * Resolves Swiss Archive row classes for selected and unselected states across Light and Dark modes (Spec 006 FR-12, FR-13, EC-4).
+ * Selected rows receive the selected surface ('bg-[#DDE7FA]' / 'bg-[#1C2D52]'), Klein Blue text ('text-[#1B44E8]' / 'text-[#3B66FF]'),
+ * and a 3px left Klein Blue indicator bar. Unselected rows use primary ink with hover surfaces and transparent 3px left border.
  */
 export function getRowSelectionClasses(
   isSelected: boolean,
@@ -179,12 +181,12 @@ export function getRowSelectionClasses(
 ): string {
   if (theme === 'light') {
     return isSelected
-      ? 'bg-blue-50 text-blue-950 border-blue-200'
-      : 'text-slate-800 hover:bg-slate-100';
+      ? 'bg-[#DDE7FA] text-[#1B44E8] border-l-[3px] border-l-[#1B44E8] border-[#1B44E8]'
+      : 'text-[#111315] hover:bg-[#ECEAE3] border-l-[3px] border-l-transparent border-transparent';
   }
   return isSelected
-    ? 'bg-blue-600/20 text-white border-blue-500/30'
-    : 'text-slate-200 hover:bg-slate-800/50';
+    ? 'bg-[#1C2D52] text-[#3B66FF] border-l-[3px] border-l-[#3B66FF] border-[#3B66FF]'
+    : 'text-[#F3F4F6] hover:bg-[#1E232C] border-l-[3px] border-l-transparent border-transparent';
 }
 
 /**

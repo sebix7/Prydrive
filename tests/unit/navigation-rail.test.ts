@@ -22,14 +22,14 @@ describe('Navigation Rail & View Activation (US-2 / T2)', () => {
     expect(resolveWorkspaceView('google-drive')).toBe('google-drive');
   });
 
-  it('should return distinctive active fill vs subtle inactive styling (FR-4)', () => {
-    const activeStyles = getNavButtonStyles(true);
-    expect(activeStyles.container).toContain('bg-blue-600');
-    expect(activeStyles.container).toContain('text-white');
+  it('should return distinctive active fill vs subtle inactive styling (FR-4, FR-11)', () => {
+    const activeStyles = getNavButtonStyles(true, 'dark');
+    expect(activeStyles.container).toContain('bg-[#181C23]');
+    expect(activeStyles.container).toContain('text-[#3B66FF]');
 
-    const inactiveStyles = getNavButtonStyles(false);
-    expect(inactiveStyles.container).toContain('text-slate-400');
-    expect(inactiveStyles.container).not.toContain('bg-blue-600');
+    const inactiveStyles = getNavButtonStyles(false, 'dark');
+    expect(inactiveStyles.container).toContain('text-[#9CA3AF]');
+    expect(inactiveStyles.container).not.toContain('bg-[#181C23]');
   });
 
   it('should handle navigation selection idempotently without state corruption (EC-5)', () => {
