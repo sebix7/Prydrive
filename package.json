@@ -1,6 +1,6 @@
 {
   "name": "prydrive",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Desktop client for Google Drive",
   "main": "./out/main/index.js",
   "author": "Prydrive",

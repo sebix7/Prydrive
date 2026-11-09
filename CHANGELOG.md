@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.5.0](https://github.com/sebix7/Prydrive/compare/v0.4.0...v0.5.0) (2026-11-09)
+
+
+### Features
+
+* **auth:** implement swiss archive pre-authentication and offline views ([83ff483](https://github.com/sebix7/Prydrive/commit/83ff48303ffe7f67252fc3829560bee450deed29)), closes [#1B44E8](https://github.com/sebix7/Prydrive/issues/1B44E8) [#3B66](https://github.com/sebix7/Prydrive/issues/3B66)
+* **theme:** implement swiss archive palettes, typography, and surface tokens ([73cd606](https://github.com/sebix7/Prydrive/commit/73cd6060623b727098e4b36daf0da787a324d348)), closes [#FAF9F6](https://github.com/sebix7/Prydrive/issues/FAF9F6) [#F2F0](https://github.com/sebix7/Prydrive/issues/F2F0) [#C9C6](https://github.com/sebix7/Prydrive/issues/C9C6) [#1B44E8](https://github.com/sebix7/Prydrive/issues/1B44E8) [#101216](https://github.com/sebix7/Prydrive/issues/101216) [#15181](https://github.com/sebix7/Prydrive/issues/15181) [#181C23](https://github.com/sebix7/Prydrive/issues/181C23) [#2C323](https://github.com/sebix7/Prydrive/issues/2C323) [#3B66](https://github.com/sebix7/Prydrive/issues/3B66)
+* **ui:** implement swiss archive desktop shell and file explorer table ([0456c33](https://github.com/sebix7/Prydrive/commit/0456c33274d075d0c721a28c8844e3e129b31806))
+* **ui:** implement swiss archive modals, brand mark unification, and favicons ([913f1ae](https://github.com/sebix7/Prydrive/commit/913f1ae1907fde6919c7abf95da0cbd74ab75836))
+
+
+### Documentation
+
+* **memory:** record spec 005 validation closure and v0.4.0 release ([843bc14](https://github.com/sebix7/Prydrive/commit/843bc14b8146d73bc0f7a8ebfce3c7fb26873801))
+
 ## [0.4.0](https://github.com/sebix7/Prydrive/compare/v0.3.0...v0.4.0) (2026-11-08)
 
 
