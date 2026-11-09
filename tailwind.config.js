@@ -7,7 +7,13 @@ module.exports = {
     './src/shared/**/*.{js,ts,jsx,tsx}'
   ],
   theme: {
-    extend: {}
+    extend: {
+      fontFamily: {
+        display: ['Space Grotesk', 'Segoe UI', 'system-ui', 'sans-serif'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        mono: ['IBM Plex Mono', 'Cascadia Mono', 'Consolas', 'monospace']
+      }
+    }
   },
   plugins: []
 };

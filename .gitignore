@@ -22,10 +22,11 @@ credentials/
 .env.local
 .env.*.local
 
-# Temporary files and local downloads
+# Temporary files, design proposals, and local downloads
 downloads/
 .tmp/
 .temp/
+ui-proposals/
 
 # Testing and coverage
 coverage/

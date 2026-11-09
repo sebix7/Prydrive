@@ -4,6 +4,12 @@ export type { ThemeMode };
 
 export const THEME_STORAGE_KEY = 'prydrive_theme';
 
+export const SWISS_ARCHIVE_FONTS = {
+  display: ['Space Grotesk', 'Segoe UI', 'system-ui', 'sans-serif'],
+  sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+  mono: ['IBM Plex Mono', 'Cascadia Mono', 'Consolas', 'monospace']
+} as const;
+
 export interface MinimalStorage {
   getItem?: (key: string) => string | null;
   setItem?: (key: string, value: string) => void;
@@ -69,42 +75,118 @@ export function getThemeToggleMetadata(activeTheme: ThemeMode): ThemeToggleMetad
 }
 
 export interface ThemeSurfacePalette {
+  frameBg: string;
   canvasBg: string;
   secondaryBg: string;
   cardBg: string;
   modalBg: string;
+  hoverBg: string;
+  selectedBg: string;
   border: string;
+  borderSubtle: string;
   textPrimary: string;
   textSecondary: string;
   textMuted: string;
+  accentBg: string;
+  accentText: string;
+  accentBorder: string;
 }
 
 /**
- * Resolves standardized semantic surface and typography classes for Light and Dark modes (FR-9, FR-10, NFR-2).
+ * Resolves standardized Swiss Archive semantic surface and typography classes for Light and Dark modes (Spec 006 FR-1, FR-2, NFR-1).
  */
 export function getThemeSurfaceClasses(theme: ThemeMode): ThemeSurfacePalette {
   if (theme === 'light') {
     return {
-      canvasBg: 'bg-white',
-      secondaryBg: 'bg-slate-100/90',
-      cardBg: 'bg-white',
-      modalBg: 'bg-white',
-      border: 'border-slate-200',
-      textPrimary: 'text-slate-900',
-      textSecondary: 'text-slate-700',
-      textMuted: 'text-slate-500'
+      frameBg: 'bg-[#E4E2DC]',
+      canvasBg: 'bg-[#FAF9F6]',
+      secondaryBg: 'bg-[#F2F0EA]',
+      cardBg: 'bg-[#FFFFFF]',
+      modalBg: 'bg-[#FFFFFF]',
+      hoverBg: 'hover:bg-[#ECEAE3]',
+      selectedBg: 'bg-[#DDE7FA]',
+      border: 'border-[#C9C6BD]',
+      borderSubtle: 'border-[#DFDDD6]',
+      textPrimary: 'text-[#111315]',
+      textSecondary: 'text-[#4A4E54]',
+      textMuted: 'text-[#7C8087]',
+      accentBg: 'bg-[#1B44E8]',
+      accentText: 'text-[#1B44E8]',
+      accentBorder: 'border-[#1B44E8]'
     };
   }
   return {
-    canvasBg: 'bg-[#0D1117]',
-    secondaryBg: 'bg-[#161B22]',
-    cardBg: 'bg-[#161B22]',
-    modalBg: 'bg-[#161B22]',
-    border: 'border-slate-800',
-    textPrimary: 'text-slate-100',
-    textSecondary: 'text-slate-300',
-    textMuted: 'text-slate-400'
+    frameBg: 'bg-[#08090B]',
+    canvasBg: 'bg-[#101216]',
+    secondaryBg: 'bg-[#15181E]',
+    cardBg: 'bg-[#181C23]',
+    modalBg: 'bg-[#181C23]',
+    hoverBg: 'hover:bg-[#1E232C]',
+    selectedBg: 'bg-[#1C2D52]',
+    border: 'border-[#2C323D]',
+    borderSubtle: 'border-[#222730]',
+    textPrimary: 'text-[#F3F4F6]',
+    textSecondary: 'text-[#9CA3AF]',
+    textMuted: 'text-[#6B7280]',
+    accentBg: 'bg-[#3B66FF]',
+    accentText: 'text-[#3B66FF]',
+    accentBorder: 'border-[#3B66FF]'
   };
+}
+
+export type TechnicalIndexContext =
+  | 'welcome'
+  | 'offline'
+  | 'workspace'
+  | 'awaiting_auth'
+  | 'about'
+  | 'disconnect';
+
+export interface TechnicalIndexStrip {
+  leftLabel: string;
+  rightLabel: string;
+}
+
+/**
+ * Resolves deterministic uppercase labels for Swiss Archive Technical Index Strips (Spec 006 FR-6, FR-17).
+ */
+export function getTechnicalIndexStrip(
+  context: TechnicalIndexContext,
+  version = 'v0.4.0'
+): TechnicalIndexStrip {
+  const formattedVersion = version.startsWith('v') ? version : `v${version}`;
+  switch (context) {
+    case 'welcome':
+      return {
+        leftLabel: 'PRYDRIVE // AUTHENTICATION',
+        rightLabel: `OAUTH 2.0 · ${formattedVersion}`
+      };
+    case 'offline':
+      return {
+        leftLabel: 'PRYDRIVE // OFFLINE',
+        rightLabel: 'NETWORK_STATUS'
+      };
+    case 'workspace':
+      return {
+        leftLabel: 'PRYDRIVE // WORKSPACE',
+        rightLabel: formattedVersion
+      };
+    case 'awaiting_auth':
+      return {
+        leftLabel: 'OAUTH 2.0 LOOPBACK',
+        rightLabel: '127.0.0.1'
+      };
+    case 'about':
+      return {
+        leftLabel: 'SYSTEM // ABOUT',
+        rightLabel: '[ESC]'
+      };
+    case 'disconnect':
+      return {
+        leftLabel: 'SECURITY // REVOKE SESSION',
+        rightLabel: 'SAFE_STORAGE'
+      };
+  }
 }
 
 /**
