@@ -86,6 +86,8 @@ export const translations = {
     about_contact: 'Contact:',
     about_copy_email: 'Copy email',
     about_copied: 'Copied!',
+    about_copy_short: 'COPY',
+    about_copied_short: 'COPIED!',
     about_close: 'Close',
     about_got_it: 'Got it',
 
@@ -196,6 +198,8 @@ export const translations = {
     about_contact: 'Contacto:',
     about_copy_email: 'Copiar correo',
     about_copied: '¡Copiado!',
+    about_copy_short: 'COPIAR',
+    about_copied_short: '¡COPIADO!',
     about_close: 'Cerrar',
     about_got_it: 'Entendido',
 

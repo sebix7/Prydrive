@@ -14,7 +14,7 @@ Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete i
 - `specs/003-about-links/` released in `v0.2.1`.
 - `specs/004-drive-explorer/` completed, validated (`FULFILLED`), and released in `v0.3.0`.
 - `specs/005-theme-mode/` completed, validated (`FULFILLED`), and released in `v0.4.0`.
-- `specs/006-swiss-archive-ui/` spec approved (`Status: approved`), plan (`plan.md`), and tasks (`tasks.md`: T1-T5) generated. `T1` (`US-1`), `T2` (`US-2`), `T3` (`US-3`), and `T4` (`US-4`) completed and verified. Next step: `/sdd-implement 006-swiss-archive-ui T5`.
+- `specs/006-swiss-archive-ui/` spec approved (`Status: approved`), plan (`plan.md`), and tasks (`tasks.md`: T1-T5) generated. All tasks `T1` through `T5` completed and verified. Brand logo unified and multi-resolution favicon/app icons generated and integrated. Next step: `/sdd-validate 006-swiss-archive-ui` or `/git-commit-msg`.
 
 ## Decisions (and why)
 - **Tailwind content scan of shared code**: `tailwind.config.js` includes `./src/shared/**` so utility classes in shared state reducers (e.g. `.w-0`, `.min-w-0`) are compiled into CSS.

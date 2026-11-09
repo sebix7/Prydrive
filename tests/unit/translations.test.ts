@@ -117,12 +117,14 @@ describe('Bilingual Localization Dictionary (US-6 / T6 / FR-15)', () => {
     });
   });
 
-  describe('About Modal Project Metadata & Contact Parity (US-3 / T3 / FR-7)', () => {
+  describe('About Modal Project Metadata & Contact Parity (US-3 / T3 / Spec 006 US-5 / T5)', () => {
     const requiredAboutKeys: TranslationKey[] = [
       'about_board',
       'about_contact',
       'about_copy_email',
-      'about_copied'
+      'about_copied',
+      'about_copy_short',
+      'about_copied_short'
     ];
 
     it('should have all About modal link and contact keys defined in both English and Spanish', () => {
@@ -146,6 +148,12 @@ describe('Bilingual Localization Dictionary (US-6 / T6 / FR-15)', () => {
 
       expect(getTranslation('en', 'about_copied')).toBe('Copied!');
       expect(getTranslation('es', 'about_copied')).toBe('¡Copiado!');
+
+      expect(getTranslation('en', 'about_copy_short')).toBe('COPY');
+      expect(getTranslation('es', 'about_copy_short')).toBe('COPIAR');
+
+      expect(getTranslation('en', 'about_copied_short')).toBe('COPIED!');
+      expect(getTranslation('es', 'about_copied_short')).toBe('¡COPIADO!');
     });
   });
 

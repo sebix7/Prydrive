@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Cloud, ArrowRight, Info } from 'lucide-react';
+import { ArrowRight, Info } from 'lucide-react';
 import type { LanguageCode, ThemeMode } from '../../../../shared/types';
 import { getTranslation } from '../../../../shared/i18n/translations';
 import {
@@ -10,6 +10,7 @@ import {
 import { APP_VERSION } from '../../../../shared/shell-state';
 import { LanguageToggle } from '../ui/LanguageToggle';
 import { ThemeToggle } from '../ui/ThemeToggle';
+import { PrydriveLogo } from '../ui/PrydriveLogo';
 
 interface WelcomeScreenProps {
   onSignIn: () => Promise<void>;
@@ -91,9 +92,12 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 
         <div className="p-8 flex flex-col items-center text-center">
           <div
-            className="w-14 h-14 rounded-[6px] border border-[rgba(27,68,232,0.25)] dark:border-[rgba(59,102,255,0.32)] bg-[rgba(27,68,232,0.08)] dark:bg-[rgba(59,102,255,0.14)] text-[#1B44E8] dark:text-[#3B66FF] flex items-center justify-center mb-5"
+            className="w-14 h-14 rounded-[6px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#F2F0EA] dark:bg-[#15181E] text-[#1B44E8] dark:text-[#3B66FF] flex items-center justify-center mb-5 shadow-xs"
           >
-            <Cloud className="w-8 h-8" />
+            <PrydriveLogo
+              className="w-8 h-8"
+              cutoutColor={theme === 'dark' ? '#15181E' : '#F2F0EA'}
+            />
           </div>
 
           <h1 className="font-display text-2xl font-bold tracking-tight text-[#111315] dark:text-[#F3F4F6] mb-2">

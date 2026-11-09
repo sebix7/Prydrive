@@ -65,13 +65,12 @@ describe('Swiss Archive Menu Bar & Desktop Shell (Spec 006 US-3 / T3)', () => {
   });
 
   describe('WorkspaceCanvas.tsx Swiss Archive Implementation (FR-5, US-3)', () => {
-    it('should render PRYDRIVE // WORKSPACE framed card over swiss-dot-matrix when activeNav is prydrive', () => {
+    it('should render unified Google Drive FileExplorer when activeNav is prydrive or google-drive', () => {
       const canvasSource = readFileSync(
         resolve(__dirname, '../../src/renderer/src/components/shell/WorkspaceCanvas.tsx'),
         'utf-8'
       );
-      expect(canvasSource).toContain('PRYDRIVE // WORKSPACE');
-      expect(canvasSource).toContain('swiss-dot-matrix');
+      expect(canvasSource).toContain('resolveWorkspaceView');
       expect(canvasSource).toContain('FileExplorer');
     });
   });

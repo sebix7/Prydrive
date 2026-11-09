@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Loader2, ExternalLink, XCircle } from 'lucide-react';
 import type { LanguageCode, ThemeMode } from '../../../../shared/types';
+import { getTechnicalIndexStrip } from '../../../../shared/theme';
 import { getTranslation } from '../../../../shared/i18n/translations';
 
 interface AwaitingAuthModalProps {
@@ -55,84 +56,66 @@ export const AwaitingAuthModal: React.FC<AwaitingAuthModalProps> = ({
   };
 
   const progressPercent = Math.max(0, Math.min(100, (secondsRemaining / totalSeconds) * 100));
-  const isDark = theme === 'dark';
+  const strip = getTechnicalIndexStrip('awaiting_auth');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200 select-none">
       <div
         data-testid="awaiting-auth-modal"
-        className={`rounded-2xl shadow-2xl border max-w-sm w-full p-6 text-center flex flex-col items-center transition-colors ${
-          isDark
-            ? 'bg-[#161B22] border-slate-700/80 text-slate-100'
-            : 'bg-white border-slate-100 text-slate-900'
-        }`}
+        className="rounded-[6px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#FFFFFF] dark:bg-[#181C23] text-[#111315] dark:text-[#F3F4F6] max-w-sm w-full overflow-hidden shadow-2xl flex flex-col transition-colors"
       >
-        {/* Animated Spinner Icon */}
-        <div
-          className={`w-16 h-16 rounded-full flex items-center justify-center mb-5 relative ${
-            isDark
-              ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-              : 'bg-blue-50 text-blue-600'
-          }`}
-        >
-          <Loader2 className="w-8 h-8 animate-spin" />
+        {/* Upper Technical Index Strip (FR-17) */}
+        <div className="h-8 px-4 bg-[#F2F0EA] dark:bg-[#15181E] border-b border-[#C9C6BD] dark:border-[#2C323D] flex items-center justify-between font-mono text-[10.5px] text-[#7C8087] dark:text-[#6B7280] tracking-wider select-none shrink-0">
+          <span>{strip.leftLabel}</span>
+          <span>{strip.rightLabel}</span>
         </div>
 
-        <h3
-          className={`text-lg font-bold mb-2 ${
-            isDark ? 'text-slate-100' : 'text-slate-900'
-          }`}
-        >
-          {getTranslation(language, 'awaiting_title')}
-        </h3>
+        <div className="p-6 text-center flex flex-col items-center">
+          {/* Animated Spinner Icon Badge */}
+          <div className="w-14 h-14 rounded-[6px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#F2F0EA] dark:bg-[#15181E] flex items-center justify-center mb-4 text-[#1B44E8] dark:text-[#3B66FF] shadow-xs">
+            <Loader2 className="w-7 h-7 animate-spin" />
+          </div>
 
-        <p
-          className={`text-xs mb-5 leading-relaxed ${
-            isDark ? 'text-slate-400' : 'text-slate-500'
-          }`}
-        >
-          {getTranslation(language, 'awaiting_desc')}
-        </p>
+          <h3 className="font-display text-lg font-bold mb-1.5 text-[#111315] dark:text-[#F3F4F6]">
+            {getTranslation(language, 'awaiting_title')}
+          </h3>
 
-        {/* Progress bar & Timer */}
-        <div
-          className={`w-full rounded-full h-1.5 mb-2 overflow-hidden ${
-            isDark ? 'bg-slate-800' : 'bg-slate-100'
-          }`}
-        >
-          <div
-            className="bg-blue-600 h-1.5 rounded-full transition-all duration-1000 ease-linear"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
-        <span className="text-[11px] text-slate-400 font-medium mb-6">
-          {secondsRemaining}s
-        </span>
+          <p className="font-sans text-xs mb-5 leading-relaxed text-[#4A4E54] dark:text-[#9CA3AF]">
+            {getTranslation(language, 'awaiting_desc')}
+          </p>
 
-        {/* Actions */}
-        <div className="w-full flex flex-col gap-2">
-          <button
-            type="button"
-            disabled={isCanceling}
-            onClick={handleCancel}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-xl transition-colors disabled:opacity-50 ${
-              isDark
-                ? 'text-slate-200 bg-slate-800 hover:bg-slate-700 active:bg-slate-900'
-                : 'text-slate-700 bg-slate-100 hover:bg-slate-200 active:bg-slate-300'
-            }`}
-          >
-            <XCircle className="w-4 h-4 text-slate-400" />
-            <span>
-              {isCanceling
-                ? getTranslation(language, 'validating_session')
-                : getTranslation(language, 'awaiting_cancel')}
-            </span>
-          </button>
-        </div>
+          {/* Progress bar & Timer */}
+          <div className="w-full rounded-[2px] h-1.5 mb-2 overflow-hidden bg-[#DFDDD6] dark:bg-[#222730]">
+            <div
+              className="bg-[#1B44E8] dark:bg-[#3B66FF] h-1.5 rounded-[2px] transition-all duration-1000 ease-linear"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+          <span className="font-mono text-[11px] text-[#7C8087] dark:text-[#6B7280] font-medium mb-6">
+            {secondsRemaining}s
+          </span>
 
-        <div className="mt-4 flex items-center gap-1.5 text-[11px] text-slate-400">
-          <ExternalLink className="w-3.5 h-3.5" />
-          <span>Google Accounts</span>
+          {/* Actions */}
+          <div className="w-full flex flex-col gap-2">
+            <button
+              type="button"
+              disabled={isCanceling}
+              onClick={handleCancel}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-[4px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#FFFFFF] dark:bg-[#181C23] hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] text-[#111315] dark:text-[#F3F4F6] font-display transition-colors disabled:opacity-50 active:scale-[0.99] shadow-xs"
+            >
+              <XCircle className="w-3.5 h-3.5 text-[#7C8087] dark:text-[#6B7280]" />
+              <span>
+                {isCanceling
+                  ? getTranslation(language, 'validating_session')
+                  : getTranslation(language, 'awaiting_cancel')}
+              </span>
+            </button>
+          </div>
+
+          <div className="mt-4 flex items-center gap-1.5 font-mono text-[11px] text-[#7C8087] dark:text-[#6B7280]">
+            <ExternalLink className="w-3 h-3" />
+            <span>Google Accounts</span>
+          </div>
         </div>
       </div>
     </div>
