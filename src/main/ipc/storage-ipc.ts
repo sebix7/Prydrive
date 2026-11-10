@@ -85,12 +85,21 @@ export class StorageIpcController {
           const pageToken = params?.pageToken || undefined;
           const pageSize = params?.pageSize || 50;
 
-          const rawResult = await this.googleClient.listDirectory(
-            session.refreshToken,
-            folderId,
-            pageToken,
-            pageSize
-          );
+          const rawResult =
+            params?.foldersOnly !== undefined
+              ? await this.googleClient.listDirectory(
+                  session.refreshToken,
+                  folderId,
+                  pageToken,
+                  pageSize,
+                  params.foldersOnly
+                )
+              : await this.googleClient.listDirectory(
+                  session.refreshToken,
+                  folderId,
+                  pageToken,
+                  pageSize
+                );
 
           const mappedItems = (rawResult.files || []).map((file) =>
             mapGoogleDriveFileToStorageItem(file)

@@ -78,14 +78,18 @@ export class GoogleAuthClient {
     refreshToken: string,
     folderId = 'root',
     pageToken?: string,
-    pageSize = 50
+    pageSize = 50,
+    foldersOnly = false
   ): Promise<{ files: Array<Record<string, unknown>>; nextPageToken: string | null }> {
     const client = this.createOAuthClient('http://127.0.0.1');
     client.setCredentials({ refresh_token: refreshToken });
 
+    const folderFilter = foldersOnly ? " and mimeType = 'application/vnd.google-apps.folder'" : '';
+    const q = `'${folderId}' in parents and trashed = false${folderFilter}`;
+
     const drive = google.drive({ version: 'v3', auth: client });
     const response = await drive.files.list({
-      q: `'${folderId}' in parents and trashed = false`,
+      q,
       fields:
         'nextPageToken, files(id, name, mimeType, size, quotaBytesUsed, createdTime, shortcutDetails, trashed)',
       pageSize,

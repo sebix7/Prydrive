@@ -70,7 +70,23 @@ export interface ListDirectoryParams {
   folderId?: string;
   pageToken?: string;
   pageSize?: number;
+  foldersOnly?: boolean;
 }
+
+export interface TreeNode {
+  id: string;
+  name: string;
+  parentId: string | null;
+  depth: number;
+  isExpanded: boolean;
+  isLoading: boolean;
+  hasLoadedChildren: boolean;
+  isLeaf: boolean;
+  childrenIds: string[];
+  error?: string | null;
+}
+
+export type TreeStateMap = Record<string, TreeNode>;
 
 export interface ListDirectoryResult {
   items: StorageItem[];

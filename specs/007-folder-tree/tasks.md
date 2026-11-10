@@ -4,7 +4,7 @@
   - Depends on: None
   - Done when: `src/shared/shell-state.ts` defines `isTreeExpanded` (default `false`), `TOGGLE_TREE`, and `SET_TREE_EXPANDED` reducers, `shouldAutoCollapseTree(windowWidth, isSidebarExpanded)`, and `getTreePanelClasses(isExpanded, theme)`; `NavigationRail.tsx` renders the 28px circular `RailDividerToggle` on its right border with chevron iconography (`>` / `<`); and `DirectoryTreePanel.tsx` is mounted between the rail and central table with fluid `duration-200` CSS transitions. Verified via automated unit tests in `tests/unit/tree-shell-state.test.ts`.
 
-- [ ] **T2. Implement Main Process folder-only query filtering, on-demand lazy tree loading, boxed `[+]` / `[-]` expanders, dotted guidelines, and leaf folder detection.** US-2 (FR-4, FR-5, FR-6, FR-7, NFR-1, EC-1, EC-6)
+- [x] **T2. Implement Main Process folder-only query filtering, on-demand lazy tree loading, boxed `[+]` / `[-]` expanders, dotted guidelines, and leaf folder detection.** US-2 (FR-4, FR-5, FR-6, FR-7, NFR-1, EC-1, EC-6)
   - Depends on: T1
   - Done when: `src/shared/types.ts` defines `TreeNode`, `TreeStateMap`, and extends `ListDirectoryParams` with `foldersOnly?: boolean`; `src/main/core/google-client.ts` and `src/main/ipc/storage-ipc.ts` filter Drive queries by folder MIME type; `src/shared/tree-helpers.ts` implements `createInitialTree`, `addChildrenToTree`, `expandTreeNode`, and `collapseTreeNode` (navigating to parent on `[-]`); and `TreeNodeItem.tsx` + `TreeExpanderBox.tsx` render 32px rows with dotted guidelines, boxed `[+]` and `[-]` expanders, and no expander box on leaf folders. Verified via automated unit tests in `tests/unit/tree-helpers.test.ts` and `tests/unit/directory-tree.test.ts`.
 
