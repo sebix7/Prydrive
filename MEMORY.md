@@ -16,7 +16,7 @@ Project memory across sessions. Maximum ~75 lines: summarize or prune obsolete i
 - `specs/005-theme-mode/` completed, validated (`FULFILLED`), and released in `v0.4.0`.
 - `specs/006-swiss-archive-ui/` completed, validated (`FULFILLED`), and released in `v0.5.0`.
 - `specs/007-folder-tree/` completed, validated (`FULFILLED`), and released in `v0.6.0`.
-- Two-tone brand wordmark and inverted white-tile favicon released in `v0.6.1`.
+- Brand identity normalized to unified white-tile icon (no nested boxes) in `v0.6.2`.
 
 ## Decisions (and why)
 - **Tailwind content scan of shared code**: `tailwind.config.js` includes `./src/shared/**` so utility classes in shared state reducers (e.g. `.w-0`, `.min-w-0`) are compiled into CSS.
