@@ -26,7 +26,9 @@ export type ExplorerAction =
   | { type: 'SELECT_ITEM'; payload: string | null }
   | { type: 'DOUBLE_CLICK_ITEM'; payload: StorageItem }
   | { type: 'NAVIGATE_UP' }
+  | { type: 'NAVIGATE_TO_FOLDER_STACK'; payload: FolderCrumb[] }
   | { type: 'REFRESH_DIRECTORY' }
+  | { type: 'RETRY_CURRENT_DIRECTORY' }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_LOADING_MORE'; payload: boolean }
   | {
@@ -97,7 +99,46 @@ export function explorerReducer(
         folderHistory: popFolderHistory(state.folderHistory)
       };
     }
+    case 'NAVIGATE_TO_FOLDER_STACK': {
+      const newStack =
+        action.payload && action.payload.length > 0
+          ? action.payload
+          : INITIAL_FOLDER_HISTORY;
+      const targetFolderId = newStack[newStack.length - 1].id;
+      const currentFolderId =
+        state.folderHistory && state.folderHistory.length > 0
+          ? state.folderHistory[state.folderHistory.length - 1].id
+          : null;
+
+      // If user is already standing at the target directory, ignore repeated navigation to prevent redundant loading
+      if (targetFolderId === currentFolderId) {
+        return state;
+      }
+
+      return {
+        ...state,
+        selectedItemId: null,
+        isLoading: true,
+        isLoadingMore: false,
+        nextPageToken: null,
+        errorMessage: null,
+        items: [],
+        folderHistory: newStack
+      };
+    }
     case 'REFRESH_DIRECTORY':
+      return {
+        ...state,
+        folderHistory: [state.folderHistory[0] ?? { id: 'root', name: 'My Drive' }],
+        selectedItemId: null,
+        isLoading: true,
+        isLoadingMore: false,
+        nextPageToken: null,
+        errorMessage: null,
+        items: [],
+        refreshCounter: (state.refreshCounter ?? 0) + 1
+      };
+    case 'RETRY_CURRENT_DIRECTORY':
       return {
         ...state,
         selectedItemId: null,

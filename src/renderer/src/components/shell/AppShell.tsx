@@ -7,6 +7,7 @@ import { WorkspaceCanvas } from './WorkspaceCanvas';
 import { MenuBar } from './MenuBar';
 import { AboutModal } from './AboutModal';
 import { TelemetrySidebar } from './TelemetrySidebar';
+import { DriveExplorerProvider } from '../../context/DriveExplorerContext';
 
 interface AppShellProps {
   userProfile: UserProfile | null;
@@ -115,71 +116,73 @@ export const AppShell: React.FC<AppShellProps> = ({
       )}
 
       {/* Main Workspace Body: Left Rail + Center Canvas + Right Sidebar */}
-      <div className="flex flex-1 overflow-hidden relative">
-        {/* Zone 2: Left Navigation Rail */}
-        {renderNavigationRail ? (
-          renderNavigationRail({
-            activeNav: state.activeNav,
-            onSelectNav: (nav) => dispatch({ type: 'SET_ACTIVE_NAV', payload: nav }),
-            language,
-            theme,
-            isTreeExpanded: state.isTreeExpanded,
-            onToggleTree: () => dispatch({ type: 'TOGGLE_TREE' })
-          })
-        ) : (
-          <NavigationRail
+      <DriveExplorerProvider onRefreshQuota={onRefreshQuota}>
+        <div className="flex flex-1 overflow-hidden relative">
+          {/* Zone 2: Left Navigation Rail */}
+          {renderNavigationRail ? (
+            renderNavigationRail({
+              activeNav: state.activeNav,
+              onSelectNav: (nav) => dispatch({ type: 'SET_ACTIVE_NAV', payload: nav }),
+              language,
+              theme,
+              isTreeExpanded: state.isTreeExpanded,
+              onToggleTree: () => dispatch({ type: 'TOGGLE_TREE' })
+            })
+          ) : (
+            <NavigationRail
+              activeNav={state.activeNav}
+              onSelectNav={(nav) => dispatch({ type: 'SET_ACTIVE_NAV', payload: nav })}
+              language={language}
+              theme={theme}
+              isTreeExpanded={state.isTreeExpanded}
+              onToggleTree={() => dispatch({ type: 'TOGGLE_TREE' })}
+            />
+          )}
+
+          {/* Directory Tree Navigation Panel (Spec 007 US-1) */}
+          <DirectoryTreePanel
+            isExpanded={state.isTreeExpanded}
+            theme={theme}
+            language={language}
+          />
+
+          {/* Zone 3: Central Workspace Canvas */}
+          <WorkspaceCanvas
             activeNav={state.activeNav}
+            language={language}
+            theme={theme}
             onSelectNav={(nav) => dispatch({ type: 'SET_ACTIVE_NAV', payload: nav })}
-            language={language}
-            theme={theme}
-            isTreeExpanded={state.isTreeExpanded}
-            onToggleTree={() => dispatch({ type: 'TOGGLE_TREE' })}
           />
-        )}
 
-        {/* Directory Tree Navigation Panel (Spec 007 US-1) */}
-        <DirectoryTreePanel
-          isExpanded={state.isTreeExpanded}
-          theme={theme}
-          language={language}
-        />
-
-        {/* Zone 3: Central Workspace Canvas */}
-        <WorkspaceCanvas
-          activeNav={state.activeNav}
-          language={language}
-          theme={theme}
-          onSelectNav={(nav) => dispatch({ type: 'SET_ACTIVE_NAV', payload: nav })}
-        />
-
-        {/* Zone 4: Right Telemetry Sidebar */}
-        {renderTelemetrySidebar ? (
-          renderTelemetrySidebar({
-            userEmail,
-            storageQuota,
-            isLoadingQuota,
-            quotaError,
-            isExpanded: state.isSidebarExpanded,
-            onToggle: () => dispatch({ type: 'TOGGLE_SIDEBAR' }),
-            onRefreshQuota,
-            language,
-            theme
-          })
-        ) : (
-          <TelemetrySidebar
-            userEmail={userEmail}
-            storageQuota={storageQuota}
-            isLoadingQuota={isLoadingQuota}
-            quotaError={quotaError}
-            isExpanded={state.isSidebarExpanded}
-            onToggle={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
-            onRefreshQuota={onRefreshQuota}
-            onDisconnect={onDisconnect}
-            language={language}
-            theme={theme}
-          />
-        )}
-      </div>
+          {/* Zone 4: Right Telemetry Sidebar */}
+          {renderTelemetrySidebar ? (
+            renderTelemetrySidebar({
+              userEmail,
+              storageQuota,
+              isLoadingQuota,
+              quotaError,
+              isExpanded: state.isSidebarExpanded,
+              onToggle: () => dispatch({ type: 'TOGGLE_SIDEBAR' }),
+              onRefreshQuota,
+              language,
+              theme
+            })
+          ) : (
+            <TelemetrySidebar
+              userEmail={userEmail}
+              storageQuota={storageQuota}
+              isLoadingQuota={isLoadingQuota}
+              quotaError={quotaError}
+              isExpanded={state.isSidebarExpanded}
+              onToggle={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
+              onRefreshQuota={onRefreshQuota}
+              onDisconnect={onDisconnect}
+              language={language}
+              theme={theme}
+            />
+          )}
+        </div>
+      </DriveExplorerProvider>
 
       {/* About Modal (FR-6 / Help) */}
       <AboutModal

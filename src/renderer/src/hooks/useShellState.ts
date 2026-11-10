@@ -7,6 +7,7 @@ import {
   type NavItem,
   type AboutMetadata,
   initialShellState,
+  createInitialShellState,
   shellReducer,
   shouldAutoCollapseSidebar,
   shouldAutoCollapseTree,
@@ -25,6 +26,7 @@ import {
 export type { ActiveNavTab, ActiveMenu, ShellState, ShellAction, NavItem, AboutMetadata };
 export {
   initialShellState,
+  createInitialShellState,
   shellReducer,
   shouldAutoCollapseSidebar,
   shouldAutoCollapseTree,
@@ -44,7 +46,11 @@ export {
  * Hook providing shell state, handlers, and click-outside/escape listeners.
  */
 export function useShellState() {
-  const [state, dispatch] = useReducer(shellReducer, initialShellState);
+  const [state, dispatch] = useReducer(
+    shellReducer,
+    typeof window !== 'undefined' ? window.innerWidth : undefined,
+    createInitialShellState
+  );
   const menuBarRef = useRef<HTMLDivElement>(null);
 
   // Global escape key listener to dismiss open menus

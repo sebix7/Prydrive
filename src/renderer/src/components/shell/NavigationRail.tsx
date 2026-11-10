@@ -61,7 +61,8 @@ export const NavigationRail: React.FC<NavigationRailProps> = ({
           title={treeToggleTooltip}
           aria-label={treeToggleTooltip}
           aria-expanded={isTreeExpanded}
-          className="absolute top-1/2 -translate-y-1/2 -right-3.5 z-30 w-7 h-7 rounded-full border border-[#C9C6BD] dark:border-[#2C323D] bg-[#FFFFFF] dark:bg-[#181C23] text-[#111315] dark:text-[#F3F4F6] shadow-md flex items-center justify-center transition-all duration-200 hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] hover:border-[#1B44E8] dark:hover:border-[#3B66FF] hover:text-[#1B44E8] dark:hover:text-[#3B66FF] focus:outline-none focus-visible:ring-1 focus-visible:ring-[#1B44E8] dark:focus-visible:ring-[#3B66FF] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ right: isTreeExpanded ? '-254px' : '-14px' }}
+          className="absolute top-1/2 -translate-y-1/2 z-30 w-7 h-7 rounded-[4px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#FFFFFF] dark:bg-[#181C23] text-[#111315] dark:text-[#F3F4F6] shadow-md flex items-center justify-center transition-all duration-200 ease-in-out hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] hover:border-[#1B44E8] dark:hover:border-[#3B66FF] hover:text-[#1B44E8] dark:hover:text-[#3B66FF] focus:outline-none focus-visible:ring-1 focus-visible:ring-[#1B44E8] dark:focus-visible:ring-[#3B66FF] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {isTreeExpanded ? (
             <ChevronLeft className="w-3.5 h-3.5 transition-transform duration-150" />

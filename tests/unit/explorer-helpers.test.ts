@@ -309,8 +309,21 @@ describe('Explorer Pure Helpers — Compact List Presentation (US-1 / T1)', () =
       expect(refreshedState.isLoading).toBe(true);
       expect(refreshedState.selectedItemId).toBeNull();
       expect(refreshedState.items).toEqual([]);
-      expect(refreshedState.folderHistory).toEqual(populatedSubfolderState.folderHistory);
+      expect(refreshedState.folderHistory).toEqual([populatedSubfolderState.folderHistory[0]]);
+      expect(refreshedState.folderHistory[0].id).toBe('root');
       expect(refreshedState.refreshCounter).toBe(
+        (populatedSubfolderState.refreshCounter ?? 0) + 1
+      );
+
+      const retriedState = explorerReducer(populatedSubfolderState, {
+        type: 'RETRY_CURRENT_DIRECTORY'
+      });
+
+      expect(retriedState.isLoading).toBe(true);
+      expect(retriedState.selectedItemId).toBeNull();
+      expect(retriedState.items).toEqual([]);
+      expect(retriedState.folderHistory).toEqual(populatedSubfolderState.folderHistory);
+      expect(retriedState.refreshCounter).toBe(
         (populatedSubfolderState.refreshCounter ?? 0) + 1
       );
     });

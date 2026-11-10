@@ -82,7 +82,7 @@ Prydrive/
 ├── .env.example                  # Environment variables template (Client ID / Secret)
 ├── .gitignore                    # Strict rules to ignore secrets and build artifacts
 ├── AGENTS.md                     # This architecture and guidelines document
-├── MEMORY.md                     # Persistent cross-session memory (~50 lines)
+├── MEMORY.md                     # Persistent cross-session memory (~75 lines)
 ├── docs/                         # Governance and architectural documentation
 │   └── constitution.md           # Non-negotiable project principles (SDD)
 ├── specs/                        # Feature specifications
@@ -190,6 +190,11 @@ $$\text{Constitution} \rightarrow \text{Spec} \rightarrow \text{Clarification} \
 2. **Strict Implementation Cycle**: Test first (failing/red) $\rightarrow$ minimal code $\rightarrow$ suite passing (green) $\rightarrow$ mark task as completed in `tasks.md` and enumerate 1 or more test scenarios for that particular task. Each task delivers the complete vertical slice of exactly one User Story (`US-x`), respecting declared task dependencies.
 3. **Change Control (`sdd-change`)**: Any new requirement updates the spec first, then the plan and tasks, and finally the codebase.
 
+### Direct Interaction Protocol (When No Skill or Slash Command is Invoked)
+When the user sends a message without invoking any skill or slash command (such as `/sdd`, `/sdd-implement`, `/git-*`, etc.):
+- **User Instructions or Orders**: When the user writes an indication, directive, or order to modify functionality, styling, or behavior, the agent **is allowed to modify the code** directly to fulfill the user's request.
+- **User Questions or Inquiries**: When the user asks a question, makes an inquiry, or requests clarification (e.g., "how does this work?", "does clicking this also update that?"), the agent **must NOT modify the code**. The agent is strictly permitted to answer and explain textually without altering any files in the codebase.
+
 ### Available Agent Skills (`.agents/skills/`)
 | Skill | Typical Invocation | Purpose |
 | :--- | :--- | :--- |
@@ -224,7 +229,7 @@ The project operates with two clearly defined memory layers:
 
 ### A. Agent Operating Memory (`MEMORY.md`)
 - **Purpose**: Key context persistence between development sessions for AI agents and human developers.
-- **Length Constraint**: **Maximum ~50 lines**. Obsolete information must be pruned or summarized continuously.
+- **Length Constraint**: **Maximum ~75 lines**. Obsolete information must be pruned or summarized continuously.
 - **Strict Structure**:
   - `## Current Status`: Concise summary of active phase, completed milestones, and immediate goals.
   - `## Decisions (and why)`: Log of critical technical or architectural choices and their rationale.
@@ -289,7 +294,7 @@ The project operates with two clearly defined memory layers:
 
 Any AI agent modifying or extending this repository must strictly adhere to the following non-negotiable rules:
 
-1. **Keep `MEMORY.md` updated**: Upon completing any task or milestone, update `MEMORY.md` respecting the ~50 line limit.
+1. **Keep `MEMORY.md` updated**: Upon completing any task or milestone, update `MEMORY.md` respecting the ~75 line limit.
 2. **Follow the SDD workflow**: Do not skip stages (Constitution $\rightarrow$ Spec $\rightarrow$ Plan $\rightarrow$ Tasks $\rightarrow$ Implementation). The spec rules: if something is not in the spec, it is not implemented. When in doubt, clarify first.
 3. **Do not break Electron isolation**: Never enable `nodeIntegration: true` or import Node.js modules (`fs`, `child_process`, `googleapis`) directly from React components (`src/renderer`). All communication must go through the typed IPC bridge in `src/preload/`.
 4. **Mandatory Token Encryption**: OAuth tokens must strictly be encrypted via `safeStorage` in the *Main* process. Never store them in plain text.
@@ -297,3 +302,6 @@ Any AI agent modifying or extending this repository must strictly adhere to the 
 6. **Strict Typing**: Every new IPC channel and data structure must be typed in `src/shared/`. Do not use `@ts-ignore` without explicit documented justification.
 7. **English-only code and comments**: Variable, function, class, and type names, as well as commit messages and code comments, must always be written in English.
 8. **Preserve documentation**: Keep `AGENTS.md` and `docs/constitution.md` updated when architecture or governance rules change.
+9. **Prompts without skills or commands (Orders vs Questions)**:
+   - When the user writes an instruction or direct order, the agent is allowed to modify the code.
+   - When the user asks a question or makes an inquiry, the agent must NOT modify the code and must exclusively provide a textual answer/explanation.

@@ -21,8 +21,8 @@ function getAppIcon(): string | undefined {
 function createWindow(): void {
   const appIcon = getAppIcon();
   mainWindow = new BrowserWindow({
-    width: 1024,
-    height: 720,
+    width: 1200,
+    height: 760,
     minWidth: 720,
     minHeight: 500,
     show: false,

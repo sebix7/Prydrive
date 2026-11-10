@@ -8,7 +8,7 @@
   - Depends on: T1
   - Done when: `src/shared/types.ts` defines `TreeNode`, `TreeStateMap`, and extends `ListDirectoryParams` with `foldersOnly?: boolean`; `src/main/core/google-client.ts` and `src/main/ipc/storage-ipc.ts` filter Drive queries by folder MIME type; `src/shared/tree-helpers.ts` implements `createInitialTree`, `addChildrenToTree`, `expandTreeNode`, and `collapseTreeNode` (navigating to parent on `[-]`); and `TreeNodeItem.tsx` + `TreeExpanderBox.tsx` render 32px rows with dotted guidelines, boxed `[+]` and `[-]` expanders, and no expander box on leaf folders. Verified via automated unit tests in `tests/unit/tree-helpers.test.ts` and `tests/unit/directory-tree.test.ts`.
 
-- [ ] **T3. Implement bidirectional parallel synchronization between directory tree nodes and central file explorer table navigation.** US-3 (FR-8, FR-9, NFR-3, EC-3)
+- [x] **T3. Implement bidirectional parallel synchronization between directory tree nodes and central file explorer table navigation.** US-3 (FR-8, FR-9, NFR-3, EC-3)
   - Depends on: T2
   - Done when: `useDirectoryTree.ts` coordinates tree state with `useDriveExplorer`; clicking a folder node in the tree navigates the central table to that directory and applies the 3px left Klein Blue Active Directory Indicator; and navigating in the central table (folder double-click, breadcrumbs, or `..` virtual parent row) calls `syncTreeWithFolderStack` to automatically expand ancestor branches and highlight the active folder node in the tree. Verified via automated integration tests in `tests/integration/tree-navigation-flow.test.ts`.
 

@@ -18,7 +18,7 @@ describe('Directory Tree Components & IPC Query Filtering (Spec 007 US-2 / T2)',
   });
 
   describe('TreeNodeItem Component (FR-7, FR-12, FR-13)', () => {
-    it('should verify TreeNodeItem.tsx enforces 32px row height, title tooltip, and omits expander on leaf nodes', () => {
+    it('should verify TreeNodeItem.tsx enforces 32px row height, title tooltip, root dot indicator, scrollIntoView nearest, and omits expander on leaf nodes', () => {
       const source = readFileSync(
         resolve(__dirname, '../../src/renderer/src/components/tree/TreeNodeItem.tsx'),
         'utf-8'
@@ -28,6 +28,10 @@ describe('Directory Tree Components & IPC Query Filtering (Spec 007 US-2 / T2)',
       expect(source).toContain('truncate');
       expect(source).toContain('isLeaf');
       expect(source).toContain('tree-leaf-line');
+      expect(source).toContain('tree-root-dot-box');
+      expect(source).toContain('·');
+      expect(source).toContain('scrollIntoView');
+      expect(source).toContain("block: 'nearest'");
       expect(source).toContain('tree-node-item');
     });
   });

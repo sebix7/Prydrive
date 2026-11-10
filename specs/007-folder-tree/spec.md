@@ -24,14 +24,14 @@ Prydrive allows users to browse Google Drive contents through a central file exp
 
 ## Functional Requirements
 - **FR-1:** THE SYSTEM SHALL provide a collapsible **Directory Tree Panel** positioned between the left navigation rail and the central workspace canvas, defaulting to **collapsed (0px width)** upon application launch.
-- **FR-2:** THE SYSTEM SHALL render a **Rail Divider Toggle** button (28px × 28px, circular, with a 1px structural border and chevron iconography) anchored on the right border of the 64px navigation rail; WHEN the user clicks the toggle while the directory tree is collapsed, THE SYSTEM SHALL expand the directory tree panel to 240px; WHEN the user clicks the toggle while the directory tree is expanded, THE SYSTEM SHALL collapse the panel to 0px.
+- **FR-2:** THE SYSTEM SHALL render a **Rail Divider Toggle** button (28px × 28px, circular, with a 1px structural border and chevron iconography). WHEN the directory tree is collapsed, the button sits on the right border of the 64px rail showing chevron-right (`>`); WHEN the directory tree is expanded, the button fluidly glides along with the tree's right boundary (positioned at `right: -254px`, sitting between the tree panel and the central table) displaying chevron-left (`<`). Clicking the button toggles between expanded (240px) and collapsed (0px).
 - **FR-3:** WHILE the directory tree panel is expanded, THE SYSTEM SHALL render an upper **Technical Index Strip** (32px height, secondary surface background, 1px bottom border rule) displaying `DRIVE // TREE` on the left and `MY_DRIVE` on the right in uppercase monospace typography in both English and Spanish locales.
-- **FR-4:** THE SYSTEM SHALL render the root of the directory tree representing the user's **"My Drive"** (`Mi unidad` in Spanish / `My Drive` in English) displaying a cloud/drive root icon, an expander box, and the localized root label.
-- **FR-5:** WHEN the user clicks the `[+]` expander box of a folder node in the directory tree, THE SYSTEM SHALL fetch and display only the immediate child folders of that node asynchronously (lazy loading), render dotted guidelines to child folders, and transition the expander box to `[-]`.
-- **FR-6:** WHEN the user clicks the `[-]` expander box of an expanded folder node in the directory tree, THE SYSTEM SHALL collapse that node's subfolder branch, transition the expander box to `[+]`, and navigate the central file explorer table to display the contents of the parent folder.
+- **FR-4:** THE SYSTEM SHALL render the root of the directory tree representing the user's **"My Drive"** (`Mi unidad` in Spanish / `My Drive` in English) permanently expanded by default, displaying a cloud/drive root icon, a fixed non-collapsible `[·]` boxed indicator, and the localized root label.
+- **FR-5:** WHEN the application loads or the user opens the directory tree panel, THE SYSTEM SHALL automatically fetch and display the immediate child folders of "My Drive". For any nested child folder node, WHEN the user clicks its `[+]` expander box, THE SYSTEM SHALL fetch and display only the immediate child folders of that node asynchronously (lazy loading), render dotted guidelines to child folders, and transition the expander box to `[-]`.
+- **FR-6:** WHEN the user clicks the `[-]` expander box of an expanded nested folder node in the directory tree, THE SYSTEM SHALL collapse that node's subfolder branch and transition the expander box to `[+]` without changing the active directory or navigating the central table. The root "My Drive" node is non-collapsible and permanently expanded.
 - **FR-7:** IF a folder contains zero subfolders upon expansion or discovery, THEN THE SYSTEM SHALL render no `[+]` or `[-]` box on that node, connecting the node directly to the tree with dotted guidelines without rendering empty folder message labels.
 - **FR-8:** WHEN the user clicks the name or icon of a folder node in the directory tree, THE SYSTEM SHALL navigate the central file explorer table directly to that folder and mark that tree node with the **Active Directory Indicator**.
-- **FR-9:** WHEN the user navigates into a folder or ascends to a parent folder from within the central file explorer table, THE SYSTEM SHALL reflect that traversal path in the directory tree by automatically expanding any ancestor branches and highlighting the current folder with the **Active Directory Indicator**.
+- **FR-9:** WHEN the user navigates into a folder or ascends to a parent folder from within the central file explorer table, THE SYSTEM SHALL reflect that traversal path in the directory tree by automatically expanding any ancestor branches, highlighting the current folder with the **Active Directory Indicator**, and scrolling the directory tree (`block: 'nearest'`) ONLY IF the active folder is currently outside the visible viewport.
 - **FR-10:** THE SYSTEM SHALL cache previously fetched subfolder lists in memory; WHEN the user clicks the manual `Refresh` (`Actualizar`) button in the bottom status bar, THE SYSTEM SHALL invalidate the entire directory tree cache and re-fetch the active folder structure from the storage provider.
 - **FR-11:** WHILE the active theme is `light`, THE SYSTEM SHALL style the directory tree panel using the Swiss Archive secondary surface (`#F2F0EA`), 1px borders (`#C9C6BD`), hover background (`#ECEAE3`), selected active surface (`#DDE7FA`), and primary Klein Blue accent (`#1B44E8`).
 - **FR-12:** WHILE the active theme is `dark`, THE SYSTEM SHALL style the directory tree panel using the Swiss Archive secondary surface (`#15181E`), 1px borders (`#2C323D`), hover background (`#1E232C`), selected active surface (`#1C2D52`), and luminous Klein Blue accent (`#3B66FF`).
@@ -49,7 +49,7 @@ Prydrive allows users to browse Google Drive contents through a central file exp
 - **EC-3:** Navigating to root via breadcrumbs or parent nav row $\rightarrow$ The tree smoothly deselects subfolders and marks "My Drive" root as active.
 - **EC-4:** Network error when expanding a folder branch $\rightarrow$ The system displays a discreet retry icon on the branch without collapsing the tree or crashing the view.
 - **EC-5:** Toggling between Light and Dark modes while the tree has multiple expanded branches $\rightarrow$ All tree surfaces, text inks, `[+]`/`[-]` boxes, and active indicator bars update instantaneously without resetting expanded branch states.
-- **EC-6:** Clicking `[-]` on the root "My Drive" node $\rightarrow$ Collapses the root branch and keeps the central file table displaying "My Drive" contents.
+- **EC-6:** Root "My Drive" node cannot be collapsed $\rightarrow$ Displays fixed `[·]` box; clicking root navigates/keeps table displaying "My Drive" contents without collapsing.
 
 ## Out of Scope
 - Drag and drop file/folder movement between the central table and the directory tree branches.
@@ -60,8 +60,8 @@ Prydrive allows users to browse Google Drive contents through a central file exp
 ## Completion Criteria
 - Collapsible 240px Directory Tree Panel positioned between the navigation rail and central table, defaulting to collapsed (0px).
 - Symmetrical 28px × 28px circular toggle button on the rail divider with chevron iconography and responsive auto-collapse safety.
-- Root node showing "My Drive" (`Mi unidad` / `My Drive`) with lazy-loaded subfolders on `[+]` click and dotted guidelines.
-- Collapsing an expanded branch via `[-]` navigates the central table to the parent folder.
+- Root node showing "My Drive" (`Mi unidad` / `My Drive`) permanently expanded with a fixed non-collapsible `[·]` boxed indicator and immediate subfolders loaded on mount.
+- Collapsing an expanded nested branch via `[-]` collapses the subfolder branch in the tree without altering the active folder in the central table.
 - Leaf folders with zero subfolders display no `[+]` or `[-]` box and connect cleanly via dotted guidelines.
 - Two-way traversal synchronization: clicking a tree folder updates the table; navigating inside the table auto-expands ancestor branches and highlights the folder in the tree.
 - Single-line 32px rows with ellipsis, persistent title tooltips, and 3px left Klein Blue selection bar.
@@ -122,3 +122,27 @@ Prydrive allows users to browse Google Drive contents through a central file exp
     - *Question*: How should tree queries be structured to adhere to Constitution Principle 2?
     - *Agreement*: Executed strictly via typed IPC calls in the Main process through `StorageProvider`, maintaining process isolation and provider agnosticism.
     - *Why*: Preserves architecture decoupling and security rules.
+  - **Decision 13 (Root [·] Fixed Indicator & Default Root Expansion in `FR-4`, `FR-5`, `FR-6`):**
+    - *Question*: Should "My Drive" be collapsible and start collapsed?
+    - *Agreement*: "My Drive" root is permanently expanded by default and cannot be collapsed. It displays a fixed boxed dot `[·]` instead of `[+]` or `[-]`, and its immediate subfolders are automatically loaded on application load.
+    - *Why*: Eliminates loading lockup from attempting to navigate to a non-existent parent of root, and immediately presents the user's top-level folder hierarchy upon entry.
+  - **Decision 14 (Clicking [-] Collapses Branch Exclusively in `FR-6`):**
+    - *Question*: Should clicking `[-]` on an expanded branch navigate the central table to the parent folder?
+    - *Agreement*: No. Clicking `[-]` exclusively collapses the branch in the tree without altering the active directory or navigation stack of the central table.
+    - *Why*: Prevents disruptive navigation jumps when the user only wants to tidy or close branches in the tree view.
+  - **Decision 15 (Auto-Scroll to Active Tree Node on Nearest Viewport in `FR-9`):**
+    - *Question*: When ascending ("...") or navigating into a folder that is outside the visible area in the tree panel, should the tree scroll to it?
+    - *Agreement*: Yes. Apply DOM `scrollIntoView({ block: 'nearest', inline: 'nearest' })` on the active node so that it scrolls automatically ONLY if the active folder is currently out of view.
+    - *Why*: Eliminates lost focus in tall hierarchies while avoiding unnecessary scroll repositioning when the node is already in view.
+  - **Decision 16 (Dynamic Gliding Toggle Button to Tree's Right Divider in `FR-2`):**
+    - *Question*: When the tree panel expands, should the circular toggle stay on the 64px rail or move to the right border of the tree panel?
+    - *Agreement*: The circular toggle button glides dynamically with the panel's right edge (`right: -254px` when expanded, `-14px` when collapsed) using smooth CSS transitions (`duration-200 ease-in-out`).
+    - *Why*: Directly aligns with user requirement and provides an intuitive, visible collapse control on the boundary between the tree panel and central table.
+  - **Decision 17 (Default Expanded Tree on Application Load with Conflict Prevention):**
+    - *Question*: Should the directory tree panel start expanded when opening the application?
+    - *Agreement*: Yes, `isTreeExpanded` defaults to `true` upon application startup, provided that the window width satisfies the responsive layout threshold (i.e. does not conflict with the right telemetry sidebar by maintaining at least 480px central canvas width). If the window is too narrow to accommodate both panels (windowWidth < 1044px when right sidebar is expanded, or < 784px when collapsed), the tree panel starts collapsed.
+    - *Why*: Provides immediate visual hierarchy and effortless browsing on application launch while guarding layout integrity on compact displays.
+  - **Decision 18 (Status Bar Refresh Resets Navigation to My Drive, Compresses Tree & Refreshes Quota in `FR-10`):**
+    - *Question*: What exact actions should occur when the user clicks the "Actualizar" (Refresh) button in the bottom status bar?
+    - *Agreement*: Clicking "Actualizar" resets the central table navigation history back to root ("My Drive" / "Mi unidad"), clears any selection, purges the tree branch cache, collapses all subfolders, and re-fetches the central table directory, root's immediate subfolders, and the Google Drive storage quota metrics (re-querying `getQuota()` to refresh the right telemetry sidebar and quota bar).
+    - *Why*: Acts as a full refresh and consolidation mechanism, bringing the user back to the home directory with a clean, collapsed folder tree and synchronized storage telemetry.

@@ -32,11 +32,30 @@ export type ShellAction =
 export const initialShellState: ShellState = {
   activeNav: 'google-drive',
   isSidebarExpanded: true,
-  isTreeExpanded: false,
+  isTreeExpanded: true,
   openMenu: null,
   isAboutModalOpen: false,
   isDisconnectModalOpen: false
 };
+
+/**
+ * Creates the initial shell state, conditionally resolving sidebar and tree
+ * expansion according to the responsive window width threshold to prevent layout conflicts.
+ */
+export function createInitialShellState(windowWidth?: number): ShellState {
+  if (windowWidth === undefined) {
+    return { ...initialShellState };
+  }
+
+  const isSidebarExpanded = !shouldAutoCollapseSidebar(windowWidth);
+  const isTreeExpanded = !shouldAutoCollapseTree(windowWidth, isSidebarExpanded);
+
+  return {
+    ...initialShellState,
+    isSidebarExpanded,
+    isTreeExpanded
+  };
+}
 
 /**
  * Pure state reducer governing all shell layout transitions and modals.

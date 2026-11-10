@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 import {
   initialExplorerState,
   explorerReducer,
@@ -153,5 +155,19 @@ describe('Drive Explorer State, Selection & Unified Rail Access (US-3 / T3)', ()
   it('should display the unified Google Drive file explorer for both Prydrive and Google Drive navigation rail buttons (FR-4)', () => {
     expect(resolveWorkspaceView('prydrive')).toBe('google-drive');
     expect(resolveWorkspaceView('google-drive')).toBe('google-drive');
+  });
+
+  it('should verify AppShell passes onRefreshQuota to DriveExplorerProvider and useDriveExplorer invokes it on refresh', () => {
+    const appShellSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/components/shell/AppShell.tsx'),
+      'utf-8'
+    );
+    expect(appShellSource).toContain('<DriveExplorerProvider onRefreshQuota={onRefreshQuota}>');
+
+    const hookSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/hooks/useDriveExplorer.ts'),
+      'utf-8'
+    );
+    expect(hookSource).toContain('options.onRefreshQuota()');
   });
 });

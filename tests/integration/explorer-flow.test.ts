@@ -435,10 +435,14 @@ describe('Explorer Directory Listing IPC Flow (US-1 / T1)', () => {
     ]);
 
     // Retry action clears error and re-fetches same subfolder
-    state = explorerReducer(state, { type: 'REFRESH_DIRECTORY' });
+    state = explorerReducer(state, { type: 'RETRY_CURRENT_DIRECTORY' });
     expect(state.errorMessage).toBeNull();
     expect(state.isLoading).toBe(true);
     expect(state.folderHistory).toHaveLength(2);
+
+    // Refresh action from status bar returns back to root My Drive
+    const refreshedToRoot = explorerReducer(state, { type: 'REFRESH_DIRECTORY' });
+    expect(refreshedToRoot.folderHistory).toEqual([{ id: 'root', name: 'My Drive' }]);
 
     const retryResult = (await handler!(
       {},

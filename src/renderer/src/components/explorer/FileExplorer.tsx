@@ -2,7 +2,7 @@ import React from 'react';
 import { Loader2, FolderOpen, AlertCircle, RotateCw } from 'lucide-react';
 import type { LanguageCode, ThemeMode } from '../../../../shared/types';
 import { getTranslation } from '../../../../shared/i18n/translations';
-import { useDriveExplorer } from '../../hooks/useDriveExplorer';
+import { useDriveExplorerContext } from '../../context/DriveExplorerContext';
 import { FileTableRow } from './FileTableRow';
 import { ParentNavRow } from './ParentNavRow';
 import { ExplorerStatusBar } from './ExplorerStatusBar';
@@ -17,6 +17,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   theme = 'dark'
 }) => {
   const {
+    currentFolder,
     atRoot,
     items,
     selectedItemId,
@@ -28,10 +29,19 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     openItem,
     navigateUp,
     refreshDirectory,
+    retryCurrentDirectory,
     handleScroll
-  } = useDriveExplorer();
+  } = useDriveExplorerContext();
 
   const isDark = theme === 'dark';
+  const tableBodyRef = React.useRef<HTMLDivElement>(null);
+
+  // Reset table scroll position to top when changing folders (including returning to root on refresh)
+  React.useEffect(() => {
+    if (tableBodyRef.current) {
+      tableBodyRef.current.scrollTop = 0;
+    }
+  }, [currentFolder.id]);
 
   return (
     <div
@@ -40,6 +50,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     >
       {/* Scrollable File and Folder List with Sticky Header for 100% Column Alignment */}
       <div
+        ref={tableBodyRef}
         role="table"
         data-testid="explorer-table-body"
         onScroll={handleScroll}
@@ -101,7 +112,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
               <button
                 type="button"
                 data-testid="explorer-retry-button"
-                onClick={refreshDirectory}
+                onClick={retryCurrentDirectory}
                 className="mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] bg-[#1B44E8] dark:bg-[#3B66FF] hover:bg-[#1231B5] dark:hover:bg-[#5A7FFF] text-white font-display text-xs font-semibold shadow-xs transition-colors active:scale-[0.99]"
               >
                 <RotateCw className="w-3.5 h-3.5" />

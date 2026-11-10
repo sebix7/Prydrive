@@ -25,7 +25,11 @@ export {
   shouldTriggerScrollPagination
 };
 
-export function useDriveExplorer() {
+export interface UseDriveExplorerOptions {
+  onRefreshQuota?: () => void;
+}
+
+export function useDriveExplorer(options?: UseDriveExplorerOptions) {
   const [state, dispatch] = useReducer(explorerReducer, initialExplorerState);
 
   const currentFolder = getCurrentFolder(state.folderHistory);
@@ -150,8 +154,19 @@ export function useDriveExplorer() {
     dispatch({ type: 'NAVIGATE_UP' });
   }, []);
 
+  const navigateToFolderStack = useCallback((stack: FolderCrumb[]) => {
+    dispatch({ type: 'NAVIGATE_TO_FOLDER_STACK', payload: stack });
+  }, []);
+
   const refreshDirectory = useCallback(() => {
     dispatch({ type: 'REFRESH_DIRECTORY' });
+    if (options?.onRefreshQuota) {
+      options.onRefreshQuota();
+    }
+  }, [options?.onRefreshQuota]);
+
+  const retryCurrentDirectory = useCallback(() => {
+    dispatch({ type: 'RETRY_CURRENT_DIRECTORY' });
   }, []);
 
   return {
@@ -164,11 +179,14 @@ export function useDriveExplorer() {
     isLoadingMore: state.isLoadingMore,
     nextPageToken: state.nextPageToken,
     errorMessage: state.errorMessage,
+    refreshCounter: state.refreshCounter,
     metrics,
     selectItem,
     openItem,
     navigateUp,
+    navigateToFolderStack,
     refreshDirectory,
+    retryCurrentDirectory,
     loadMoreItems,
     handleScroll
   };

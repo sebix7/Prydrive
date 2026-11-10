@@ -36,14 +36,14 @@ describe('Tree Helpers & Pure Algorithms (Spec 007 US-2 / T2)', () => {
   };
 
   describe('createInitialTree (FR-4)', () => {
-    it('should initialize single root node with depth 0 and default My Drive label', () => {
+    it('should initialize single root node with depth 0 and default My Drive label permanently expanded', () => {
       const tree = createInitialTree();
       expect(tree['root']).toBeDefined();
       expect(tree['root'].id).toBe('root');
       expect(tree['root'].name).toBe('My Drive');
       expect(tree['root'].depth).toBe(0);
       expect(tree['root'].parentId).toBeNull();
-      expect(tree['root'].isExpanded).toBe(false);
+      expect(tree['root'].isExpanded).toBe(true);
       expect(tree['root'].isLeaf).toBe(false);
       expect(tree['root'].hasLoadedChildren).toBe(false);
       expect(tree['root'].childrenIds).toEqual([]);
@@ -106,10 +106,10 @@ describe('Tree Helpers & Pure Algorithms (Spec 007 US-2 / T2)', () => {
       expect(result.navigateToParentId).toBe('root');
     });
 
-    it('should return root id when collapsing the root node', () => {
+    it('should keep root permanently expanded and return root id when collapsing the root node (Decision 13)', () => {
       const initial = createInitialTree();
       const result = collapseTreeNode(initial, 'root');
-      expect(result.tree['root'].isExpanded).toBe(false);
+      expect(result.tree['root'].isExpanded).toBe(true);
       expect(result.navigateToParentId).toBe('root');
     });
   });

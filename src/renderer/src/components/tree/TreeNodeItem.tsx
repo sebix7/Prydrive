@@ -22,9 +22,18 @@ export const TreeNodeItem: React.FC<TreeNodeItemProps> = ({
 }) => {
   const isRoot = node.id === 'root';
   const indentationPadding = node.depth * 16 + 8;
+  const itemRef = React.useRef<HTMLDivElement>(null);
+
+  // Auto-scroll active tree node into view ONLY if it is currently outside the visible viewport (FR-9, Decision 15)
+  React.useEffect(() => {
+    if (isActive && itemRef.current && typeof itemRef.current.scrollIntoView === 'function') {
+      itemRef.current.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+  }, [isActive]);
 
   return (
     <div
+      ref={itemRef}
       data-testid="tree-node-item"
       data-node-id={node.id}
       data-active={isActive}
@@ -59,10 +68,18 @@ export const TreeNodeItem: React.FC<TreeNodeItemProps> = ({
         />
       )}
 
-      {/* Boxed Expander ([+] / [-]) or Clean Leaf Line (FR-5, FR-6, FR-7) */}
+      {/* Boxed Expander ([+] / [-]), Root Fixed Dot ([·]), or Clean Leaf Line (FR-4, FR-5, FR-6, FR-7) */}
       <div className="w-5 flex items-center justify-center shrink-0 mr-1">
         {node.isLoading ? (
           <Loader2 className="w-3 h-3 animate-spin text-[#1B44E8] dark:text-[#3B66FF]" />
+        ) : isRoot ? (
+          <span
+            data-testid="tree-root-dot-box"
+            className="w-3 h-3 rounded-[2px] border border-[#7C8087] dark:border-[#6B7280] bg-[#FFFFFF] dark:bg-[#181C23] text-[#7C8087] dark:text-[#9CA3AF] flex items-center justify-center font-mono text-[9px] font-bold leading-none select-none shrink-0"
+            aria-hidden="true"
+          >
+            ·
+          </span>
         ) : !node.isLeaf ? (
           <TreeExpanderBox
             isExpanded={node.isExpanded}

@@ -10,7 +10,7 @@ export function createInitialTree(rootLabel: string = 'My Drive'): TreeStateMap 
       name: rootLabel,
       parentId: null,
       depth: 0,
-      isExpanded: false,
+      isExpanded: true,
       isLoading: false,
       hasLoadedChildren: false,
       isLeaf: false,
@@ -100,7 +100,7 @@ export function collapseTreeNode(
   nodeId: string
 ): { tree: TreeStateMap; navigateToParentId: string } {
   const node = tree[nodeId];
-  if (!node) {
+  if (!node || nodeId === 'root') {
     return { tree, navigateToParentId: 'root' };
   }
 
@@ -151,7 +151,7 @@ export function syncTreeWithFolderStack(
         name: crumb.name,
         parentId,
         depth: i,
-        isExpanded: crumb.id !== currentFolderId,
+        isExpanded: true,
         isLoading: false,
         hasLoadedChildren: false,
         isLeaf: false,
@@ -167,7 +167,7 @@ export function syncTreeWithFolderStack(
         }
       }
     } else {
-      if (crumb.id !== currentFolderId) {
+      if (!updated[crumb.id].isLeaf) {
         updated[crumb.id] = {
           ...updated[crumb.id],
           isExpanded: true
@@ -178,3 +178,63 @@ export function syncTreeWithFolderStack(
 
   return updated;
 }
+
+/**
+ * Reconstructs the full ancestor breadcrumb folder stack from any tree node (FR-8, FR-9).
+ * Enables 1-click navigation in the central table from the directory tree.
+ */
+export function buildFolderHistoryFromTree(
+  tree: TreeStateMap,
+  targetFolderId: string
+): FolderCrumb[] {
+  const crumbs: FolderCrumb[] = [];
+  let currId: string | null = targetFolderId;
+  const visited = new Set<string>();
+
+  while (currId && !visited.has(currId)) {
+    visited.add(currId);
+    const node: TreeNode | undefined = tree[currId];
+    if (!node) {
+      crumbs.unshift({ id: currId, name: currId });
+      break;
+    }
+    crumbs.unshift({ id: node.id, name: node.name });
+    currId = node.parentId;
+  }
+
+  // Ensure root is always first crumb in the breadcrumb path
+  if (crumbs.length === 0 || crumbs[0].id !== 'root') {
+    const rootName = tree['root']?.name || 'My Drive';
+    crumbs.unshift({ id: 'root', name: rootName });
+  }
+
+  return crumbs;
+}
+
+/**
+ * Returns a flattened array of visible tree nodes in pre-order traversal (FR-5, FR-6).
+ * Only traverses into children when parent node isExpanded is true.
+ */
+export function getVisibleTreeNodes(
+  tree: TreeStateMap,
+  rootId: string = 'root'
+): TreeNode[] {
+  const visible: TreeNode[] = [];
+
+  function traverse(nodeId: string) {
+    const node: TreeNode | undefined = tree[nodeId];
+    if (!node) return;
+
+    visible.push(node);
+
+    if (node.isExpanded && node.childrenIds && node.childrenIds.length > 0) {
+      for (const childId of node.childrenIds) {
+        traverse(childId);
+      }
+    }
+  }
+
+  traverse(rootId);
+  return visible;
+}
+

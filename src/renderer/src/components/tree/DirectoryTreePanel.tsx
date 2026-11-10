@@ -1,6 +1,8 @@
 import React from 'react';
 import type { ThemeMode, LanguageCode } from '../../../../shared/types';
 import { getTreePanelClasses } from '../../../../shared/shell-state';
+import { TreeNodeItem } from './TreeNodeItem';
+import { useDirectoryTree } from '../../hooks/useDirectoryTree';
 
 export interface DirectoryTreePanelProps {
   isExpanded: boolean;
@@ -10,15 +12,19 @@ export interface DirectoryTreePanelProps {
 }
 
 /**
- * Collapsible Directory Tree Navigation Panel (Spec 007 US-1, US-4).
+ * Collapsible Directory Tree Navigation Panel (Spec 007 US-1, US-3, US-4).
  * Positioned between the navigation rail and central table.
  */
 export const DirectoryTreePanel: React.FC<DirectoryTreePanelProps> = ({
   isExpanded,
   theme = 'dark',
+  language = 'en',
   children
 }) => {
   const classes = getTreePanelClasses(isExpanded, theme);
+  const rootLabel = language === 'es' ? 'Mi unidad' : 'My Drive';
+  const { visibleNodes, activeFolderId, handleSelectNode, handleToggleExpander } =
+    useDirectoryTree({ rootLabel });
 
   return (
     <aside
@@ -38,8 +44,24 @@ export const DirectoryTreePanel: React.FC<DirectoryTreePanelProps> = ({
         </div>
 
         {/* Tree Content Area */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden p-2">
-          {children}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden py-1">
+          {children || (
+            <div
+              data-testid="tree-nodes-list"
+              role="tree"
+              className="flex flex-col min-w-0"
+            >
+              {visibleNodes.map((node) => (
+                <TreeNodeItem
+                  key={node.id}
+                  node={node}
+                  isActive={activeFolderId === node.id}
+                  onSelectNode={handleSelectNode}
+                  onToggleExpander={handleToggleExpander}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </aside>
