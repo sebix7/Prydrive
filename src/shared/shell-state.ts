@@ -98,6 +98,14 @@ export function getStaticDriveUnitBadge(language: LanguageCode = 'en'): string {
 }
 
 /**
+ * Returns the monospace unit identifier for the right side of the directory tree technical strip (FR-3, US-4).
+ * Returns 'MY_DRIVE' across languages to maintain uppercase monospace technical index consistency.
+ */
+export function getTreeTechnicalStripIdentifier(language: LanguageCode = 'en'): string {
+  return 'MY_DRIVE';
+}
+
+/**
  * Determines whether the compact 30x30 icon-only Disconnect SVG button is shown
  * in the top header bar to the right of the EN|ES selector (FR-16, EC-6).
  * True strictly when the right telemetry sidebar is collapsed.

@@ -1,6 +1,9 @@
 import React from 'react';
 import type { ThemeMode, LanguageCode } from '../../../../shared/types';
-import { getTreePanelClasses } from '../../../../shared/shell-state';
+import {
+  getTreePanelClasses,
+  getTreeTechnicalStripIdentifier
+} from '../../../../shared/shell-state';
 import { TreeNodeItem } from './TreeNodeItem';
 import { useDirectoryTree } from '../../hooks/useDirectoryTree';
 
@@ -40,7 +43,7 @@ export const DirectoryTreePanel: React.FC<DirectoryTreePanelProps> = ({
           className="h-8 px-3 bg-[#F2F0EA] dark:bg-[#15181E] border-b border-[#C9C6BD] dark:border-[#2C323D] flex items-center justify-between font-mono text-[10.5px] text-[#7C8087] dark:text-[#6B7280] tracking-wider select-none shrink-0"
         >
           <span>DRIVE // TREE</span>
-          <span>MY_DRIVE</span>
+          <span>{getTreeTechnicalStripIdentifier(language)}</span>
         </div>
 
         {/* Tree Content Area */}

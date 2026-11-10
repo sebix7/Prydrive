@@ -1,5 +1,5 @@
 import React from 'react';
-import { Folder, HardDrive, Loader2 } from 'lucide-react';
+import { Folder, HardDrive, Loader2, RotateCw } from 'lucide-react';
 import type { TreeNode } from '../../../../shared/types';
 import { TreeExpanderBox } from './TreeExpanderBox';
 
@@ -68,10 +68,23 @@ export const TreeNodeItem: React.FC<TreeNodeItemProps> = ({
         />
       )}
 
-      {/* Boxed Expander ([+] / [-]), Root Fixed Dot ([·]), or Clean Leaf Line (FR-4, FR-5, FR-6, FR-7) */}
+      {/* Boxed Expander ([+] / [-]), Root Fixed Dot ([·]), Discreet Error Retry, or Clean Leaf Line (FR-4, FR-5, FR-6, FR-7, EC-4) */}
       <div className="w-5 flex items-center justify-center shrink-0 mr-1">
         {node.isLoading ? (
           <Loader2 className="w-3 h-3 animate-spin text-[#1B44E8] dark:text-[#3B66FF]" />
+        ) : node.error ? (
+          <button
+            type="button"
+            data-testid="tree-retry-branch"
+            title={node.error}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleExpander(node.id);
+            }}
+            className="w-4 h-4 rounded-[2px] flex items-center justify-center text-amber-500 hover:text-amber-600 transition-colors"
+          >
+            <RotateCw className="w-3 h-3" />
+          </button>
         ) : isRoot ? (
           <span
             data-testid="tree-root-dot-box"
