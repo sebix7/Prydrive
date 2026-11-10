@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.6.2](https://github.com/sebix7/Prydrive/compare/v0.6.1...v0.6.2) (2026-11-10)
+
+
+### Bug Fixes
+
+* **branding:** unify brand mark badge and enforce white cutout contrast ([346bb11](https://github.com/sebix7/Prydrive/commit/346bb11ada8084675c7f2d3d659d22793a207da9))
+
+
+### Documentation
+
+* **memory:** record v0.6.1 branding release ([44786ba](https://github.com/sebix7/Prydrive/commit/44786ba4a9ca376a90c40a1680861542ae51eac1))
+
 ## [0.6.1](https://github.com/sebix7/Prydrive/compare/v0.6.0...v0.6.1) (2026-11-10)
 
 
