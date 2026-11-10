@@ -1,0 +1,17 @@
+# Tasks: Spec 007 — Directory Tree Navigation Panel
+
+- [x] **T1. Implement collapsible Directory Tree Panel shell state, 28px symmetric rail divider toggle, responsive auto-collapse safety, and transition layout classes.** US-1 (FR-1, FR-2, FR-14, NFR-2)
+  - Depends on: None
+  - Done when: `src/shared/shell-state.ts` defines `isTreeExpanded` (default `false`), `TOGGLE_TREE`, and `SET_TREE_EXPANDED` reducers, `shouldAutoCollapseTree(windowWidth, isSidebarExpanded)`, and `getTreePanelClasses(isExpanded, theme)`; `NavigationRail.tsx` renders the 28px circular `RailDividerToggle` on its right border with chevron iconography (`>` / `<`); and `DirectoryTreePanel.tsx` is mounted between the rail and central table with fluid `duration-200` CSS transitions. Verified via automated unit tests in `tests/unit/tree-shell-state.test.ts`.
+
+- [ ] **T2. Implement Main Process folder-only query filtering, on-demand lazy tree loading, boxed `[+]` / `[-]` expanders, dotted guidelines, and leaf folder detection.** US-2 (FR-4, FR-5, FR-6, FR-7, NFR-1, EC-1, EC-6)
+  - Depends on: T1
+  - Done when: `src/shared/types.ts` defines `TreeNode`, `TreeStateMap`, and extends `ListDirectoryParams` with `foldersOnly?: boolean`; `src/main/core/google-client.ts` and `src/main/ipc/storage-ipc.ts` filter Drive queries by folder MIME type; `src/shared/tree-helpers.ts` implements `createInitialTree`, `addChildrenToTree`, `expandTreeNode`, and `collapseTreeNode` (navigating to parent on `[-]`); and `TreeNodeItem.tsx` + `TreeExpanderBox.tsx` render 32px rows with dotted guidelines, boxed `[+]` and `[-]` expanders, and no expander box on leaf folders. Verified via automated unit tests in `tests/unit/tree-helpers.test.ts` and `tests/unit/directory-tree.test.ts`.
+
+- [ ] **T3. Implement bidirectional parallel synchronization between directory tree nodes and central file explorer table navigation.** US-3 (FR-8, FR-9, NFR-3, EC-3)
+  - Depends on: T2
+  - Done when: `useDirectoryTree.ts` coordinates tree state with `useDriveExplorer`; clicking a folder node in the tree navigates the central table to that directory and applies the 3px left Klein Blue Active Directory Indicator; and navigating in the central table (folder double-click, breadcrumbs, or `..` virtual parent row) calls `syncTreeWithFolderStack` to automatically expand ancestor branches and highlight the active folder node in the tree. Verified via automated integration tests in `tests/integration/tree-navigation-flow.test.ts`.
+
+- [ ] **T4. Implement Swiss Archive tree aesthetics, `DRIVE // TREE` · `MY_DRIVE` Technical Index Strip, single-line ellipsis with persistent tooltips, and status bar Refresh cache invalidation.** US-4 (FR-3, FR-10, FR-11, FR-12, FR-13, EC-2, EC-4, EC-5)
+  - Depends on: T1, T2
+  - Done when: `DirectoryTreePanel.tsx` renders the 32px Technical Index Strip (`DRIVE // TREE` · `MY_DRIVE` in monospace) in both English and Spanish; all tree nodes apply Swiss Archive secondary surfaces, 1px structural rules, single-line text truncation with `overflow-hidden text-ellipsis` and persistent `title` hover tooltips; clicking the bottom status bar `Refresh` button invokes `invalidateTreeCache` to refresh remote tree structures; and tree node state preserves expanded branches across Light and Dark theme toggles. Verified via automated unit tests in `tests/unit/directory-tree.test.ts` and `tests/unit/tree-helpers.test.ts`.

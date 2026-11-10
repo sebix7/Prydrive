@@ -2,6 +2,7 @@ import React from 'react';
 import type { UserProfile, StorageQuota, ThemeMode } from '../../../../shared/types';
 import { useShellState } from '../../hooks/useShellState';
 import { NavigationRail } from './NavigationRail';
+import { DirectoryTreePanel } from '../tree/DirectoryTreePanel';
 import { WorkspaceCanvas } from './WorkspaceCanvas';
 import { MenuBar } from './MenuBar';
 import { AboutModal } from './AboutModal';
@@ -36,6 +37,8 @@ interface AppShellProps {
     onSelectNav: (nav: 'prydrive' | 'google-drive') => void;
     language: 'en' | 'es';
     theme?: ThemeMode;
+    isTreeExpanded?: boolean;
+    onToggleTree?: () => void;
   }) => React.ReactNode;
   renderTelemetrySidebar?: (props: {
     userEmail: string;
@@ -119,7 +122,9 @@ export const AppShell: React.FC<AppShellProps> = ({
             activeNav: state.activeNav,
             onSelectNav: (nav) => dispatch({ type: 'SET_ACTIVE_NAV', payload: nav }),
             language,
-            theme
+            theme,
+            isTreeExpanded: state.isTreeExpanded,
+            onToggleTree: () => dispatch({ type: 'TOGGLE_TREE' })
           })
         ) : (
           <NavigationRail
@@ -127,8 +132,17 @@ export const AppShell: React.FC<AppShellProps> = ({
             onSelectNav={(nav) => dispatch({ type: 'SET_ACTIVE_NAV', payload: nav })}
             language={language}
             theme={theme}
+            isTreeExpanded={state.isTreeExpanded}
+            onToggleTree={() => dispatch({ type: 'TOGGLE_TREE' })}
           />
         )}
+
+        {/* Directory Tree Navigation Panel (Spec 007 US-1) */}
+        <DirectoryTreePanel
+          isExpanded={state.isTreeExpanded}
+          theme={theme}
+          language={language}
+        />
 
         {/* Zone 3: Central Workspace Canvas */}
         <WorkspaceCanvas

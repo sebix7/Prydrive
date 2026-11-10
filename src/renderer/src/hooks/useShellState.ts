@@ -9,6 +9,8 @@ import {
   initialShellState,
   shellReducer,
   shouldAutoCollapseSidebar,
+  shouldAutoCollapseTree,
+  getTreePanelClasses,
   truncateEmail,
   NAV_ITEMS,
   resolveWorkspaceView,
@@ -25,6 +27,8 @@ export {
   initialShellState,
   shellReducer,
   shouldAutoCollapseSidebar,
+  shouldAutoCollapseTree,
+  getTreePanelClasses,
   truncateEmail,
   NAV_ITEMS,
   resolveWorkspaceView,
@@ -72,16 +76,22 @@ export function useShellState() {
   // Responsive resize constraint listener
   useEffect(() => {
     function handleResize() {
-      if (typeof window !== 'undefined' && shouldAutoCollapseSidebar(window.innerWidth)) {
-        if (state.isSidebarExpanded) {
+      if (typeof window !== 'undefined') {
+        if (shouldAutoCollapseSidebar(window.innerWidth) && state.isSidebarExpanded) {
           dispatch({ type: 'SET_SIDEBAR_EXPANDED', payload: false });
+        }
+        if (
+          shouldAutoCollapseTree(window.innerWidth, state.isSidebarExpanded) &&
+          state.isTreeExpanded
+        ) {
+          dispatch({ type: 'SET_TREE_EXPANDED', payload: false });
         }
       }
     }
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [state.isSidebarExpanded]);
+  }, [state.isSidebarExpanded, state.isTreeExpanded]);
 
   return {
     state,

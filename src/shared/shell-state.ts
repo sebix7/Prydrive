@@ -10,6 +10,7 @@ export type OptionsSubmenu = 'language' | 'theme' | null;
 export interface ShellState {
   activeNav: ActiveNavTab;
   isSidebarExpanded: boolean;
+  isTreeExpanded: boolean;
   openMenu: ActiveMenu;
   isAboutModalOpen: boolean;
   isDisconnectModalOpen: boolean;
@@ -19,6 +20,8 @@ export type ShellAction =
   | { type: 'SET_ACTIVE_NAV'; payload: ActiveNavTab }
   | { type: 'TOGGLE_SIDEBAR' }
   | { type: 'SET_SIDEBAR_EXPANDED'; payload: boolean }
+  | { type: 'TOGGLE_TREE' }
+  | { type: 'SET_TREE_EXPANDED'; payload: boolean }
   | { type: 'OPEN_MENU'; payload: ActiveMenu }
   | { type: 'CLOSE_MENUS' }
   | { type: 'OPEN_ABOUT_MODAL' }
@@ -29,6 +32,7 @@ export type ShellAction =
 export const initialShellState: ShellState = {
   activeNav: 'google-drive',
   isSidebarExpanded: true,
+  isTreeExpanded: false,
   openMenu: null,
   isAboutModalOpen: false,
   isDisconnectModalOpen: false
@@ -45,6 +49,10 @@ export function shellReducer(state: ShellState, action: ShellAction): ShellState
       return { ...state, isSidebarExpanded: !state.isSidebarExpanded, openMenu: null };
     case 'SET_SIDEBAR_EXPANDED':
       return { ...state, isSidebarExpanded: action.payload };
+    case 'TOGGLE_TREE':
+      return { ...state, isTreeExpanded: !state.isTreeExpanded };
+    case 'SET_TREE_EXPANDED':
+      return { ...state, isTreeExpanded: action.payload };
     case 'OPEN_MENU':
       return { ...state, openMenu: action.payload };
     case 'CLOSE_MENUS':
@@ -89,6 +97,21 @@ export function shouldAutoCollapseSidebar(windowWidth: number): boolean {
 }
 
 /**
+ * Pure calculation to determine if the tree panel must auto-collapse (FR-14).
+ * If right sidebar is expanded: 64 (rail) + 240 (tree) + 260 (sidebar) + 480 (canvas) = 1044px.
+ * If right sidebar is collapsed: 64 (rail) + 240 (tree) + 0 (sidebar) + 480 (canvas) = 784px.
+ */
+export function shouldAutoCollapseTree(
+  windowWidth: number,
+  isSidebarExpanded: boolean = true
+): boolean {
+  const minWidth = isSidebarExpanded
+    ? 64 + 240 + 260 + 480
+    : 64 + 240 + 480;
+  return windowWidth < minWidth;
+}
+
+/**
  * Pure utility to truncate long emails with ellipsis while preserving domain readability.
  */
 export function truncateEmail(email: string, maxChars: number = 24): string {
@@ -121,6 +144,27 @@ export function getSidebarClasses(
     container: isExpanded
       ? `w-[260px] border-l ${borderClass} transition-all duration-200 ease-in-out`
       : 'w-0 border-l-0 overflow-visible transition-all duration-200 ease-in-out',
+    inner: isExpanded
+      ? 'opacity-100 transition-opacity duration-150 delay-75'
+      : 'opacity-0 pointer-events-none'
+  };
+}
+
+/**
+ * Resolves directory tree panel CSS width, border, and transition classes across themes (FR-1, FR-10, FR-11).
+ */
+export function getTreePanelClasses(
+  isExpanded: boolean,
+  theme: ThemeMode = 'dark'
+): {
+  container: string;
+  inner: string;
+} {
+  const borderClass = theme === 'dark' ? 'border-[#2C323D]' : 'border-[#C9C6BD]';
+  return {
+    container: isExpanded
+      ? `w-[240px] border-r ${borderClass} transition-all duration-200 ease-in-out`
+      : 'w-0 border-r-0 overflow-hidden transition-all duration-200 ease-in-out',
     inner: isExpanded
       ? 'opacity-100 transition-opacity duration-150 delay-75'
       : 'opacity-0 pointer-events-none'

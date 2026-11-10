@@ -1,6 +1,6 @@
 # MEMORY.md
 
-Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete info.
+Project memory across sessions. Maximum ~75 lines: summarize or prune obsolete info.
 
 ## Current Status
 - General architecture and standards consolidated in `AGENTS.md`.
@@ -15,6 +15,7 @@ Project memory across sessions. Maximum ~50 lines: summarize or prune obsolete i
 - `specs/004-drive-explorer/` completed, validated (`FULFILLED`), and released in `v0.3.0`.
 - `specs/005-theme-mode/` completed, validated (`FULFILLED`), and released in `v0.4.0`.
 - `specs/006-swiss-archive-ui/` completed, validated (`FULFILLED`), and released in `v0.5.0`.
+- `specs/007-folder-tree/` in progress: T1 completed (US-1). Next task: `/sdd-implement 007-folder-tree T2`.
 
 ## Decisions (and why)
 - **Tailwind content scan of shared code**: `tailwind.config.js` includes `./src/shared/**` so utility classes in shared state reducers (e.g. `.w-0`, `.min-w-0`) are compiled into CSS.
