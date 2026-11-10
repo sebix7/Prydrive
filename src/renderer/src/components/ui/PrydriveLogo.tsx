@@ -45,8 +45,8 @@ export const PrydriveLogo: React.FC<PrydriveLogoProps> = ({
         className={!theme ? 'fill-[#1B44E8] dark:fill-[#3B66FF]' : undefined}
         fillRule="evenodd"
       />
-      {/* Cutout element for accessibility / visual contract */}
-      <circle cx="13" cy="10.5" r="2" fill={cutoutColor} data-testid="prydrive-logo-cutout" />
+      {/* Inner circular cutout of "P" is always white across both light and dark themes */}
+      <circle cx="13" cy="10.5" r="2" fill="#FFFFFF" data-testid="prydrive-logo-cutout" />
     </svg>
   );
 };

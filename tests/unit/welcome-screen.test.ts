@@ -78,7 +78,7 @@ describe('Swiss Archive Pre-Authentication & Offline Views (Spec 006 US-2 / T2)'
       expect(welcomeSource).toContain('onOpenAbout');
       expect(welcomeSource).toContain('rounded-[6px]');
       expect(welcomeSource).toContain('rounded-[4px]');
-      expect(welcomeSource).toContain('PrydriveWordmark');
+      expect(welcomeSource).toContain('PrydriveLogo');
       expect(welcomeSource).toContain('theme={theme}');
     });
 

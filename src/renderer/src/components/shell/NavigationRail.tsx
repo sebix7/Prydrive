@@ -89,7 +89,7 @@ export const NavigationRail: React.FC<NavigationRailProps> = ({
         >
           <PrydriveLogoIcon
             className="w-5 h-5 transition-transform duration-150 group-active:scale-95"
-            cutoutColor={prydriveCutoutColor}
+            cutoutColor="#FFFFFF"
             theme={theme}
           />
         </button>

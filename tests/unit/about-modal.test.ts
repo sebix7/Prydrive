@@ -63,8 +63,8 @@ describe('Swiss Archive Modal Dialogs (Spec 006 US-5, FR-17, EC-4, EC-7)', () =>
       expect(aboutSource).toContain('dark:bg-[#3B66FF]');
     });
 
-    it('should render geometric two-tone PrydriveWordmark brand header', () => {
-      expect(aboutSource).toContain('PrydriveWordmark');
+    it('should render unified white card PrydriveLogo brand icon badge', () => {
+      expect(aboutSource).toContain('PrydriveLogo');
       expect(aboutSource).toContain('about-modal-title');
       expect(aboutSource).toContain('theme={theme}');
     });

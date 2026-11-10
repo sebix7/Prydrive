@@ -10,7 +10,7 @@ import {
 import { APP_VERSION } from '../../../../shared/shell-state';
 import { LanguageToggle } from '../ui/LanguageToggle';
 import { ThemeToggle } from '../ui/ThemeToggle';
-import { PrydriveWordmark } from '../ui/PrydriveWordmark';
+import { PrydriveLogo } from '../ui/PrydriveLogo';
 
 interface WelcomeScreenProps {
   onSignIn: () => Promise<void>;
@@ -91,11 +91,10 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         </div>
 
         <div className="p-8 flex flex-col items-center text-center">
-          <div className="mb-5 flex items-center justify-center">
-            <PrydriveWordmark
-              className="h-8 w-auto"
+          <div className="w-14 h-14 mb-5 flex items-center justify-center">
+            <PrydriveLogo
+              className="w-14 h-14 shadow-xs"
               theme={theme}
-              aria-label="Prydrive"
             />
           </div>
 
