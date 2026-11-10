@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.6.1](https://github.com/sebix7/Prydrive/compare/v0.6.0...v0.6.1) (2026-11-10)
+
+
+### Features
+
+* **branding:** implement two-tone brand wordmark and invert favicon styling ([9a24d01](https://github.com/sebix7/Prydrive/commit/9a24d011a5da9a2418ab82d70367ca1ac88d1f49))
+
+
+### Documentation
+
+* **memory:** record spec 007 validation closure and v0.6.0 release ([d3f82ba](https://github.com/sebix7/Prydrive/commit/d3f82ba7f0f8750967b0d2c5a28b88fb65625fbc))
+
 ## [0.6.0](https://github.com/sebix7/Prydrive/compare/v0.5.0...v0.6.0) (2026-11-10)
 
 
