@@ -78,6 +78,8 @@ describe('Swiss Archive Pre-Authentication & Offline Views (Spec 006 US-2 / T2)'
       expect(welcomeSource).toContain('onOpenAbout');
       expect(welcomeSource).toContain('rounded-[6px]');
       expect(welcomeSource).toContain('rounded-[4px]');
+      expect(welcomeSource).toContain('PrydriveWordmark');
+      expect(welcomeSource).toContain('theme={theme}');
     });
 
     it('should verify App.tsx renders swiss-dot-matrix canvas, offline technical strip, and global AboutModal for pre-auth', () => {

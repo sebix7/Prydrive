@@ -24,6 +24,7 @@ describe('Prydrive Favicon & App Icon Assets', () => {
     expect(svg).toContain('viewBox="0 0 24 24"');
     expect(svg).toContain('#1B44E8');
     expect(svg).toContain('#3B66FF');
+    expect(svg).toContain('fill="#FFFFFF"');
     expect(svg).toContain('prefers-color-scheme: dark');
     expect(svg).toContain('fill-rule="evenodd"');
   });

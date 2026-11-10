@@ -3,7 +3,7 @@ import { ExternalLink, Copy, Check } from 'lucide-react';
 import type { LanguageCode, ThemeMode } from '../../../../shared/types';
 import { ABOUT_METADATA, formatMailtoUrl } from '../../../../shared/shell-state';
 import { getTechnicalIndexStrip } from '../../../../shared/theme';
-import { PrydriveLogo } from '../ui/PrydriveLogo';
+import { PrydriveWordmark } from '../ui/PrydriveWordmark';
 import { getTranslation } from '../../../../shared/i18n/translations';
 
 export interface AboutModalProps {
@@ -96,21 +96,17 @@ export const AboutModal: React.FC<AboutModalProps> = ({
         </div>
 
         <div className="p-6 flex flex-col items-center text-center">
-          {/* Brand Icon Badge */}
-          <div className="w-14 h-14 rounded-[6px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#F2F0EA] dark:bg-[#15181E] text-[#1B44E8] dark:text-[#3B66FF] flex items-center justify-center mb-3.5 shadow-xs">
-            <PrydriveLogo
-              className="w-8 h-8"
-              cutoutColor={theme === 'dark' ? '#15181E' : '#F2F0EA'}
+          {/* Brand Wordmark replacing the "P" mark */}
+          <h3 id="about-modal-title" className="mt-1 mb-2.5 flex items-center justify-center">
+            <PrydriveWordmark
+              className="h-7 w-auto"
+              theme={theme}
+              aria-label={ABOUT_METADATA.appName}
             />
-          </div>
-
-          {/* Title and Version */}
-          <h3
-            id="about-modal-title"
-            className="font-display text-xl font-bold tracking-tight mb-1 text-[#111315] dark:text-[#F3F4F6]"
-          >
-            {ABOUT_METADATA.appName}
+            <span className="sr-only">{ABOUT_METADATA.appName}</span>
           </h3>
+
+          {/* Version */}
           <span className="inline-flex items-center px-2 py-0.5 rounded-[3px] text-[11px] font-mono font-medium border border-[#C9C6BD] dark:border-[#2C323D] bg-[#F2F0EA] dark:bg-[#15181E] text-[#111315] dark:text-[#F3F4F6] mb-3">
             {ABOUT_METADATA.version}
           </span>

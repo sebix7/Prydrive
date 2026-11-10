@@ -62,6 +62,12 @@ describe('Swiss Archive Modal Dialogs (Spec 006 US-5, FR-17, EC-4, EC-7)', () =>
       expect(aboutSource).toContain('bg-[#1B44E8]');
       expect(aboutSource).toContain('dark:bg-[#3B66FF]');
     });
+
+    it('should render geometric two-tone PrydriveWordmark brand header', () => {
+      expect(aboutSource).toContain('PrydriveWordmark');
+      expect(aboutSource).toContain('about-modal-title');
+      expect(aboutSource).toContain('theme={theme}');
+    });
   });
 
   describe('AwaitingAuthModal.tsx Swiss Archive Implementation (FR-17)', () => {

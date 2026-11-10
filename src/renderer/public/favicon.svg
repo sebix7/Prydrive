@@ -1,17 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
   <style>
     :root {
-      --prydrive-bg: #1B44E8;
+      --prydrive-letter: #1B44E8;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --prydrive-bg: #3B66FF;
+        --prydrive-letter: #3B66FF;
       }
     }
   </style>
-  <rect width="24" height="24" rx="5.5" fill="#1B44E8" style="fill: var(--prydrive-bg, #1B44E8)" />
+  <rect width="24" height="24" rx="5.5" fill="#FFFFFF" />
   <path
-    fill="#FFFFFF"
+    fill="#1B44E8"
+    style="fill: var(--prydrive-letter, #1B44E8)"
     fill-rule="evenodd"
     d="M7 6H13.5C15.9853 6 18 8.01472 18 10.5C18 12.9853 15.9853 15 13.5 15H10V18.5H7V6ZM13 8.5A2 2 0 1 0 13 12.5A2 2 0 1 0 13 8.5Z"
   />
