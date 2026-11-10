@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.6.0](https://github.com/sebix7/Prydrive/compare/v0.5.0...v0.6.0) (2026-11-10)
+
+
+### Features
+
+* **tree:** implement bidirectional tree sync, auto-expand, and reset refresh ([144bca6](https://github.com/sebix7/Prydrive/commit/144bca6ca005b25c00e67b84051898382651b17d))
+* **tree:** implement collapsible directory tree panel state and rail divider toggle ([454abb1](https://github.com/sebix7/Prydrive/commit/454abb1b391f8696aef6de4c370f79bdfba4a1ee))
+* **tree:** implement folder-only query filtering, lazy tree helpers, and boxed expanders ([06c596b](https://github.com/sebix7/Prydrive/commit/06c596b628ce1dfa316e7be108d7023ed57e92fc))
+* **tree:** implement swiss archive tree strip, tooltips, and retry state ([1fb2ba1](https://github.com/sebix7/Prydrive/commit/1fb2ba157edb803bd2ac95ed14259fea1395559f))
+
+
+### Documentation
+
+* **memory:** record spec 006 validation closure and v0.5.0 release ([3e51583](https://github.com/sebix7/Prydrive/commit/3e51583ebc2df702465ded9afb533050d607f1ac))
+
 ## [0.5.0](https://github.com/sebix7/Prydrive/compare/v0.4.0...v0.5.0) (2026-11-09)
 
 
