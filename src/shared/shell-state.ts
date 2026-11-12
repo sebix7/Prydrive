@@ -380,4 +380,15 @@ export function isWelcomeCompactHeight(windowHeight?: number): boolean {
   return windowHeight < WELCOME_COMPACT_HEIGHT_THRESHOLD;
 }
 
+/**
+ * Suppresses all clicks, keyboard activations, and bubbling for disabled elements (Spec 008 FR-6, EC-1).
+ */
+export function suppressDisabledEvent(
+  event: { preventDefault: () => void; stopPropagation?: () => void }
+): void {
+  event.preventDefault();
+  event.stopPropagation?.();
+}
+
+
 

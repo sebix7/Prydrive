@@ -14,7 +14,8 @@ import {
   APP_VERSION,
   UPCOMING_PROVIDERS,
   type UpcomingProviderDefinition,
-  isWelcomeCompactHeight
+  isWelcomeCompactHeight,
+  suppressDisabledEvent
 } from '../../../../shared/shell-state';
 import { LanguageToggle } from '../ui/LanguageToggle';
 import { ThemeToggle } from '../ui/ThemeToggle';
@@ -180,11 +181,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                       aria-disabled="true"
                       aria-label={tooltip}
                       className={getUpcomingProviderButtonClasses(theme, 'compact')}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                      onKeyDown={(e) => e.preventDefault()}
+                      onClick={suppressDisabledEvent}
+                      onKeyDown={suppressDisabledEvent}
                       data-testid={`connect-btn-${provider.id}`}
                     >
                       <span className="w-6 h-6 rounded-[3px] bg-white border border-black/10 flex items-center justify-center shrink-0 shadow-xs">
@@ -233,11 +231,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                       aria-disabled="true"
                       aria-label={`${label} (${badge})`}
                       className={getUpcomingProviderButtonClasses(theme, 'full')}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                      onKeyDown={(e) => e.preventDefault()}
+                      onClick={suppressDisabledEvent}
+                      onKeyDown={suppressDisabledEvent}
                       data-testid={`connect-btn-${provider.id}`}
                     >
                       <span className="w-6 h-6 rounded-[3px] bg-white border border-black/10 flex items-center justify-center shrink-0 shadow-xs">

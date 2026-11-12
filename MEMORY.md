@@ -17,7 +17,7 @@ Project memory across sessions. Maximum ~75 lines: summarize or prune obsolete i
 - `specs/006-swiss-archive-ui/` completed, validated (`FULFILLED`), and released in `v0.5.0`.
 - `specs/007-folder-tree/` completed, validated (`FULFILLED`), and released in `v0.6.0`.
 - Brand identity normalized to unified white-tile icon (no nested boxes) in `v0.6.2`.
-- `specs/008-cloud-providers-showcase/` in progress: T1-T2 completed (US-1: Google Drive primary action; US-2: adaptive showcase - vertical list in fullscreen, compact 2×2 grid in low-res).
+- `specs/008-cloud-providers-showcase/` in progress: T1-T3 completed (US-1: Google Drive primary action; US-2: adaptive showcase; US-3: guardrails & tooltips).
 
 ## Decisions (and why)
 - **Tailwind content scan of shared code**: `tailwind.config.js` includes `./src/shared/**` so utility classes in shared state reducers (e.g. `.w-0`, `.min-w-0`) are compiled into CSS.

@@ -5,7 +5,8 @@ import { getTranslation } from '../../src/shared/i18n/translations';
 import {
   UPCOMING_PROVIDERS,
   WELCOME_COMPACT_HEIGHT_THRESHOLD,
-  isWelcomeCompactHeight
+  isWelcomeCompactHeight,
+  suppressDisabledEvent
 } from '../../src/shared/shell-state';
 import {
   getGoogleDriveConnectButtonClasses,
@@ -131,6 +132,74 @@ describe('Cloud Providers Showcase (Spec 008 US-2 / T2 / FR-3, FR-4, FR-5, FR-10
       expect(providerIndex).toBeGreaterThan(-1);
       expect(noticeIndex).toBeGreaterThan(-1);
       expect(noticeIndex).toBeGreaterThan(providerIndex);
+    });
+  });
+
+  describe('Non-Interactive Guardrails, Tooltips & Event Suppression (Spec 008 US-3 / T3 / FR-6, FR-7, FR-8, EC-1)', () => {
+    it('should provide localized tooltips for all upcoming cloud providers (FR-7)', () => {
+      expect(getTranslation('en', 'provider_tooltip_onedrive')).toBe(
+        'OneDrive integration coming soon'
+      );
+      expect(getTranslation('es', 'provider_tooltip_onedrive')).toBe(
+        'Integración con OneDrive próximamente'
+      );
+
+      expect(getTranslation('en', 'provider_tooltip_mega')).toBe(
+        'MEGA integration coming soon'
+      );
+      expect(getTranslation('es', 'provider_tooltip_mega')).toBe(
+        'Integración con MEGA próximamente'
+      );
+
+      expect(getTranslation('en', 'provider_tooltip_mediafire')).toBe(
+        'MediaFire integration coming soon'
+      );
+      expect(getTranslation('es', 'provider_tooltip_mediafire')).toBe(
+        'Integración con MediaFire próximamente'
+      );
+    });
+
+    it('should invoke preventDefault and stopPropagation in suppressDisabledEvent helper (FR-6, EC-1)', () => {
+      let prevented = false;
+      let stopped = false;
+      const fakeEvent = {
+        preventDefault: () => {
+          prevented = true;
+        },
+        stopPropagation: () => {
+          stopped = true;
+        }
+      };
+
+      suppressDisabledEvent(fakeEvent);
+      expect(prevented).toBe(true);
+      expect(stopped).toBe(true);
+    });
+
+    it('should permanently enforce non-interactive styling and opacity-40 on upcoming buttons (FR-6, FR-11, FR-12)', () => {
+      const darkClasses = getUpcomingProviderButtonClasses('dark', 'full');
+      expect(darkClasses).toContain('cursor-not-allowed');
+      expect(darkClasses).toContain('select-none');
+      expect(darkClasses).toContain('opacity-40');
+      expect(darkClasses).toContain('bg-[#15181E]');
+
+      const lightClasses = getUpcomingProviderButtonClasses('light', 'compact');
+      expect(lightClasses).toContain('cursor-not-allowed');
+      expect(lightClasses).toContain('select-none');
+      expect(lightClasses).toContain('opacity-40');
+      expect(lightClasses).toContain('bg-[#F2F0EA]');
+    });
+
+    it('should enforce aria-disabled, tabIndex=-1, and tooltip titles in WelcomeScreen.tsx source (FR-6, FR-7, NFR-2)', () => {
+      const welcomeSource = readFileSync(
+        resolve(__dirname, '../../src/renderer/src/components/auth/WelcomeScreen.tsx'),
+        'utf-8'
+      );
+      expect(welcomeSource).toContain('aria-disabled="true"');
+      expect(welcomeSource).toContain('tabIndex={-1}');
+      expect(welcomeSource).toContain('title={tooltip}');
+      expect(welcomeSource).toContain('suppressDisabledEvent');
+      expect(welcomeSource).toContain('disabled={isButtonDisabled}');
     });
   });
 });
