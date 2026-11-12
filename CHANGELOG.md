@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.7.0](https://github.com/sebix7/Prydrive/compare/v0.6.2...v0.7.0) (2026-11-12)
+
+
+### Features
+
+* **auth:** add adaptive upcoming cloud providers showcase ([57ef14a](https://github.com/sebix7/Prydrive/commit/57ef14a9e1173203b6cb49a574fa9de59b2f1e28))
+* **auth:** add google drive brand connection button and agnostic subtitle ([65fd3a2](https://github.com/sebix7/Prydrive/commit/65fd3a2680db338c917b1e6c7cc2bf905644e64c))
+* **auth:** implement non-interactive guardrails and tooltips for upcoming providers ([23dcb3f](https://github.com/sebix7/Prydrive/commit/23dcb3f1d0aabd5108361cd76d665c2e28af1be7))
+
+
+### Documentation
+
+* **memory:** record v0.6.2 branding release ([d6b2c4d](https://github.com/sebix7/Prydrive/commit/d6b2c4d78863a48388e9a4de70ca0ce1d2c22991))
+
 ## [0.6.2](https://github.com/sebix7/Prydrive/compare/v0.6.1...v0.6.2) (2026-11-10)
 
 
