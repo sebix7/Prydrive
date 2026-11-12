@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { getTranslation } from '../../src/shared/i18n/translations';
 import {
   getTechnicalIndexStrip,
   getGoogleSignInButtonClasses,
@@ -92,6 +93,30 @@ describe('Swiss Archive Pre-Authentication & Offline Views (Spec 006 US-2 / T2)'
       expect(appSource).toContain('isAboutModalOpen');
       expect(appSource).toContain('AboutModal');
       expect(appSource).toContain('SWISS_CONTROL_LAYOUT.topRightClusterClass');
+    });
+  });
+
+  describe('Google Drive Branded Connection Button & Cloud-Agnostic Subtitle (Spec 008 US-1 / T1 / FR-1, FR-2, FR-9)', () => {
+    it('should provide localized labels for connect_google_drive and updated cloud-agnostic welcome_subtitle', () => {
+      expect(getTranslation('en', 'connect_google_drive')).toBe('Connect to Google Drive');
+      expect(getTranslation('es', 'connect_google_drive')).toBe('Conectarse a Google Drive');
+      expect(getTranslation('en', 'welcome_subtitle')).toBe(
+        'Connect to your cloud storage to manage your files directly from your desktop.'
+      );
+      expect(getTranslation('es', 'welcome_subtitle')).toBe(
+        'Conéctate a tu almacenamiento en la nube para gestionar tus archivos directamente desde tu escritorio.'
+      );
+    });
+
+    it('should render GoogleDriveLogo inside standardized 24x24 white badge with subtle border', () => {
+      const welcomeSource = readFileSync(
+        resolve(__dirname, '../../src/renderer/src/components/auth/WelcomeScreen.tsx'),
+        'utf-8'
+      );
+      expect(welcomeSource).toContain('GoogleDriveLogo');
+      expect(welcomeSource).toContain("getTranslation(language, 'connect_google_drive')");
+      expect(welcomeSource).toContain('w-6 h-6 rounded-[3px] bg-white border border-black/10');
+      expect(welcomeSource).not.toContain("getTranslation(language, 'sign_in_google')");
     });
   });
 });

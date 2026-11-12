@@ -1,0 +1,17 @@
+# Tasks: Spec 008 — Multi-Provider Login Showcase and Google Drive Brand Connection
+
+- [x] **T1. Implement primary Google Drive branded connection button, cloud-agnostic subtitle, and OAuth trigger integration.** US-1 (FR-1, FR-2, FR-9, NFR-1, NFR-3)
+  - Depends on: None
+  - Done when: `src/shared/i18n/translations.ts` defines `connect_google_drive` (`"Connect to Google Drive"` / `"Conectarse a Google Drive"`) and updates `welcome_subtitle` to cloud-storage agnostic copy in both English and Spanish; `WelcomeScreen.tsx` replaces the generic Google "G" button with the official Google Drive logo inside a standardized 24×24 (`w-6 h-6`, `rounded-[3px]`, `border-black/10`) white tile; clicking the button invokes `onSignIn`; and regression tests in `tests/unit/welcome-screen.test.ts` pass verifying the new label, logo container, and authentication trigger.
+
+- [ ] **T2. Implement upcoming provider SVG logos, registry metadata, single vertical showcase stack, and roadmap badges.** US-2 (FR-3, FR-4, FR-5, FR-10, NFR-1, NFR-2)
+  - Depends on: T1
+  - Done when: `src/renderer/src/components/ui/OneDriveLogo.tsx`, `MegaLogo.tsx`, and `MediaFireLogo.tsx` are created with crisp vector SVGs; `src/shared/shell-state.ts` defines the `UPCOMING_PROVIDERS` registry with deterministic ordering (`onedrive` -> `mega` -> `mediafire`); `WelcomeScreen.tsx` renders all 4 providers in a single vertical stack with uniform spacing; each upcoming button displays its 24×24 brand icon tile, localized label (`connect_onedrive`, `connect_mega`, `connect_mediafire`), and trailing roadmap pill badge (`"Próximamente"` / `"Coming soon"`) alongside a muted `ArrowRight` icon; and the browser notice is anchored below the complete stack. Verified via automated unit tests in `tests/unit/cloud-providers-showcase.test.ts`.
+
+- [ ] **T3. Implement non-interactive guardrails, accessible tooltips, and click/keyboard event suppression for upcoming providers.** US-3 (FR-6, FR-7, FR-8, NFR-2, EC-1)
+  - Depends on: T2
+  - Done when: Upcoming provider buttons are rendered with `aria-disabled="true"`, `tabIndex={-1}`, and non-interactive `cursor-not-allowed` styling while wrapping or preserving pointer events for tooltip delivery; hovering reveals localized tooltips (`"Integración con [Service] próximamente"` / `"[Service] integration coming soon"`); clicking or pressing Enter/Space on any upcoming provider produces zero side effects and never invokes `onSignIn`; and the primary Google Drive button disables synchronously during active authentication alongside disabled secondary providers. Verified via automated unit tests in `tests/unit/cloud-providers-showcase.test.ts`.
+
+- [ ] **T4. Implement Swiss Archive Light/Dark theme resolvers, 100% bilingual dictionary parity, and full quality suite verification.** US-4 (FR-11, FR-12, NFR-1, NFR-2, NFR-3, EC-2, EC-3, EC-4)
+  - Depends on: T2, T3
+  - Done when: `src/shared/theme.ts` provides pure class resolvers `getGoogleDriveConnectButtonClasses`, `getUpcomingProviderButtonClasses`, and `getRoadmapBadgeClasses` ensuring WCAG AA contrast across Light (`#F2F0EA` / `#C9C6BD`) and Dark (`#15181E` / `#2C323D`) surfaces; `src/shared/i18n/translations.ts` satisfies 100% key parity between English and Spanish verified by `tests/unit/translations.test.ts`; responsive card centering and spacing are preserved without clipping; and the complete test suite (`pnpm test`) and type check (`pnpm run typecheck`) pass with zero errors.

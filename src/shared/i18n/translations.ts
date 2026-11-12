@@ -4,7 +4,8 @@ export const translations = {
   en: {
     // Welcome Screen
     welcome_title: 'Welcome to Prydrive',
-    welcome_subtitle: 'Fast, visual, and native desktop management for your Google Drive files.',
+    welcome_subtitle: 'Connect to your cloud storage to manage your files directly from your desktop.',
+    connect_google_drive: 'Connect to Google Drive',
     sign_in_google: 'Sign in with Google',
     browser_notice: 'Authentication is safely handled in your default system browser.',
 
@@ -116,7 +117,8 @@ export const translations = {
   es: {
     // Welcome Screen
     welcome_title: 'Bienvenido a Prydrive',
-    welcome_subtitle: 'Gestión de archivos rápida, visual y nativa para Google Drive.',
+    welcome_subtitle: 'Conéctate a tu almacenamiento en la nube para gestionar tus archivos directamente desde tu escritorio.',
+    connect_google_drive: 'Conectarse a Google Drive',
     sign_in_google: 'Iniciar sesión con Google',
     browser_notice: 'La autenticación se realiza de forma segura en tu navegador predeterminado.',
 
