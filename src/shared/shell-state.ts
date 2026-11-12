@@ -332,3 +332,52 @@ export function resolveOptionsSubmenu(
   }
   return current === target ? null : target;
 }
+
+export interface UpcomingProviderDefinition {
+  readonly id: 'onedrive' | 'mega' | 'mediafire';
+  readonly name: string;
+  readonly labelKey: 'connect_onedrive' | 'connect_mega' | 'connect_mediafire';
+  readonly tooltipKey: 'provider_tooltip_onedrive' | 'provider_tooltip_mega' | 'provider_tooltip_mediafire';
+  readonly badgeKey: 'provider_coming_soon';
+}
+
+export const UPCOMING_PROVIDERS: readonly UpcomingProviderDefinition[] = [
+  {
+    id: 'onedrive',
+    name: 'OneDrive',
+    labelKey: 'connect_onedrive',
+    tooltipKey: 'provider_tooltip_onedrive',
+    badgeKey: 'provider_coming_soon'
+  },
+  {
+    id: 'mega',
+    name: 'MEGA',
+    labelKey: 'connect_mega',
+    tooltipKey: 'provider_tooltip_mega',
+    badgeKey: 'provider_coming_soon'
+  },
+  {
+    id: 'mediafire',
+    name: 'MediaFire',
+    labelKey: 'connect_mediafire',
+    tooltipKey: 'provider_tooltip_mediafire',
+    badgeKey: 'provider_coming_soon'
+  }
+] as const;
+
+/**
+ * Standard viewport height threshold below which the welcome card adapts to compact 2x2 grid mode.
+ */
+export const WELCOME_COMPACT_HEIGHT_THRESHOLD = 620;
+
+/**
+ * Pure evaluator checking if a viewport height qualifies for compact welcome layout (Spec 008 FR-3, FR-4, FR-5).
+ */
+export function isWelcomeCompactHeight(windowHeight?: number): boolean {
+  if (typeof windowHeight !== 'number' || isNaN(windowHeight)) {
+    return false;
+  }
+  return windowHeight < WELCOME_COMPACT_HEIGHT_THRESHOLD;
+}
+
+

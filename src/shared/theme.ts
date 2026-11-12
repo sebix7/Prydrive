@@ -26,16 +26,59 @@ export function getGoogleSignInButtonClasses(
   theme: ThemeMode = 'dark',
   disabled: boolean = false
 ): string {
+  return getGoogleDriveConnectButtonClasses(theme, disabled);
+}
+
+export type ProviderButtonLayout = 'full' | 'compact';
+
+/**
+ * Resolves classes for the primary active Google Drive connection button (FR-1, FR-2, FR-11, FR-12).
+ */
+export function getGoogleDriveConnectButtonClasses(
+  theme: ThemeMode = 'dark',
+  disabled: boolean = false,
+  layout: ProviderButtonLayout = 'full'
+): string {
+  const widthAndGap = layout === 'compact' ? 'gap-5' : 'w-full gap-3';
   const base =
-    'group w-full flex items-center justify-center gap-3 px-5 py-3 text-sm font-semibold rounded-[4px] border font-display transition-all duration-150';
+    `group flex items-center justify-between ${widthAndGap} px-4 py-2 text-xs font-semibold rounded-[4px] border font-display transition-all duration-150`;
   if (disabled) {
     return theme === 'dark'
       ? `${base} bg-[#15181E] text-[#6B7280] border-[#2C323D] opacity-60 cursor-not-allowed`
       : `${base} bg-[#F2F0EA] text-[#7C8087] border-[#C9C6BD] opacity-60 cursor-not-allowed`;
   }
   return theme === 'dark'
-    ? `${base} bg-[#15181E] text-[#F3F4F6] border-[#2C323D] hover:bg-[#3B66FF] hover:border-[#3B66FF] hover:text-white active:scale-[0.99]`
-    : `${base} bg-[#F2F0EA] text-[#111315] border-[#C9C6BD] hover:bg-[#1B44E8] hover:border-[#1B44E8] hover:text-white active:scale-[0.99]`;
+    ? `${base} bg-[#15181E] text-[#F3F4F6] border-[#2C323D] hover:bg-[#3B66FF] hover:border-[#3B66FF] hover:text-white active:scale-[0.99] cursor-pointer shadow-xs`
+    : `${base} bg-[#F2F0EA] text-[#111315] border-[#C9C6BD] hover:bg-[#1B44E8] hover:border-[#1B44E8] hover:text-white active:scale-[0.99] cursor-pointer shadow-xs`;
+}
+
+/**
+ * Resolves classes for secondary upcoming cloud provider buttons (FR-3, FR-6, FR-11, FR-12).
+ * Permanently styled as disabled with muted secondary Swiss Archive surfaces and non-interactive cursor.
+ */
+export function getUpcomingProviderButtonClasses(
+  theme: ThemeMode = 'dark',
+  layout: ProviderButtonLayout = 'full'
+): string {
+  const widthAndGap = layout === 'compact' ? 'gap-5' : 'w-full gap-3';
+  const base =
+    `flex items-center justify-between ${widthAndGap} px-4 py-2 text-xs font-medium rounded-[4px] border font-display cursor-not-allowed select-none opacity-40`;
+  return theme === 'dark'
+    ? `${base} bg-[#15181E] text-[#9CA3AF] border-[#2C323D]`
+    : `${base} bg-[#F2F0EA] text-[#6B7280] border-[#C9C6BD]`;
+}
+
+/**
+ * Resolves classes for the compact "Próximamente" / "Coming soon" roadmap badge (FR-5, FR-11, FR-12).
+ */
+export function getRoadmapBadgeClasses(
+  theme: ThemeMode = 'dark'
+): string {
+  const base =
+    'px-1.5 py-0.5 rounded-[3px] border font-mono text-[9.5px] uppercase font-semibold tracking-wider shrink-0 transition-colors';
+  return theme === 'dark'
+    ? `${base} bg-[#1E232C] border-[#2C323D] text-[#9CA3AF]`
+    : `${base} bg-[#ECEAE3] border-[#C9C6BD] text-[#4A4E54]`;
 }
 
 export interface MinimalStorage {

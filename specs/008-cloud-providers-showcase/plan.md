@@ -106,7 +106,7 @@ export function getGoogleDriveConnectButtonClasses(
   disabled: boolean = false
 ): string {
   const base =
-    'group w-full flex items-center justify-between gap-3 px-4 py-2.5 text-xs font-semibold rounded-[4px] border font-display transition-all duration-150';
+    'group flex items-center justify-between gap-5 px-4 py-2 text-xs font-semibold rounded-[4px] border font-display transition-all duration-150';
   if (disabled) {
     return theme === 'dark'
       ? `${base} bg-[#15181E] text-[#6B7280] border-[#2C323D] opacity-60 cursor-not-allowed`
@@ -122,10 +122,12 @@ export function getGoogleDriveConnectButtonClasses(
  * Permanently styled as disabled with muted secondary Swiss Archive surfaces and non-interactive cursor.
  */
 export function getUpcomingProviderButtonClasses(
-  theme: ThemeMode = 'dark'
+  theme: ThemeMode = 'dark',
+  layout: ProviderButtonLayout = 'full'
 ): string {
+  const widthAndGap = layout === 'compact' ? 'gap-5' : 'w-full gap-3';
   const base =
-    'w-full flex items-center justify-between gap-3 px-4 py-2.5 text-xs font-medium rounded-[4px] border font-display cursor-not-allowed select-none opacity-75';
+    `flex items-center justify-between ${widthAndGap} px-4 py-2 text-xs font-medium rounded-[4px] border font-display cursor-not-allowed select-none opacity-40`;
   return theme === 'dark'
     ? `${base} bg-[#15181E] text-[#9CA3AF] border-[#2C323D]`
     : `${base} bg-[#F2F0EA] text-[#6B7280] border-[#C9C6BD]`;
@@ -153,8 +155,8 @@ export function getRoadmapBadgeClasses(
 
 ```text
 FUNCTION renderProviderShowcase(theme, language, isConnecting, onSignIn):
-  // 1. Render container with single vertical block
-  CREATE container WITH className="w-full flex flex-col gap-2.5"
+  // 1. Render container with compact 2x2 grid (without w-full for intrinsic centering)
+  CREATE container WITH className="grid grid-cols-2 gap-2"
 
   // 2. Primary Google Drive Action
   RENDER button:
@@ -163,26 +165,34 @@ FUNCTION renderProviderShowcase(theme, language, isConnecting, onSignIn):
       className=getGoogleDriveConnectButtonClasses(theme, isConnecting)
       disabled=isConnecting
       onClick=onSignIn
+      title=getTranslation(language, 'connect_google_drive')
+      aria-label=getTranslation(language, 'connect_google_drive')
       data-testid="connect-btn-google-drive"
     CHILDREN:
       - Icon Badge: 24x24 white rounded box containing <GoogleDriveLogo className="w-4 h-4" />
-      - Label: SPAN with font-display font-semibold, text=getTranslation(language, 'connect_google_drive')
-      - Trailing Arrow: <ArrowRight className="w-4 h-4 ml-auto text-current transition-colors" />
+      - Trailing Arrow: <ArrowRight className="w-4 h-4 ml-auto text-current transition-colors shrink-0" />
 
   // 3. Upcoming Provider Showcase (OneDrive, MEGA, MediaFire)
   FOR EACH provider IN UPCOMING_PROVIDERS:
     LET tooltipText = getTranslation(language, provider.tooltipKey)
-    LET badgeText = getTranslation(language, provider.badgeKey)
-    LET labelText = getTranslation(language, provider.labelKey)
 
-    RENDER wrapper WITH title=tooltipText, className="w-full relative" (guarantees hover event capture):
+    RENDER wrapper WITH title=tooltipText, className="relative" (guarantees hover event capture):
       RENDER non-interactive button:
         PROPERTIES:
           type="button"
           tabIndex=-1
           aria-disabled="true"
-          aria-label=labelText + " (" + badgeText + ")"
+          aria-label=tooltipText
           className=getUpcomingProviderButtonClasses(theme)
+          onClick=(event) -> PREVENT DEFAULT and STOP PROPAGATION
+          onKeyDown=(event) -> PREVENT DEFAULT
+          data-testid="connect-btn-" + provider.id
+        CHILDREN:
+          - Icon Badge: 24x24 white rounded box containing provider-specific SVG icon (<OneDriveLogo />, <MegaLogo />, or <MediaFireLogo />)
+          - Trailing Arrow: <ArrowRight className="w-4 h-4 ml-auto opacity-40 shrink-0 text-current" />
+
+  RETURN container
+```
           onClick=(event) -> PREVENT DEFAULT and STOP PROPAGATION
           onKeyDown=(event) -> PREVENT DEFAULT
           data-testid="connect-btn-" + provider.id
@@ -204,9 +214,10 @@ FUNCTION renderProviderShowcase(theme, language, isConnecting, onSignIn):
 
 ### 4.1 Visual Hierarchy & Component Mockup
 
+#### A. Standard View (Viewport Height >= 620px): Full-Width Vertical List
 ```text
 +-------------------------------------------------------------+
-|                      [ P ] (56x56 Logo)                     |
+|                      [ P ] (48x48 Logo)                     |
 |                                                             |
 |                    Bienvenido a Prydrive                    |
 |                                                             |
@@ -214,14 +225,35 @@ FUNCTION renderProviderShowcase(theme, language, isConnecting, onSignIn):
 |     gestionar tus archivos directamente desde tu escritorio.|
 |                                                             |
 | +---------------------------------------------------------+ |
-| | [GDrive]  Conectarse a Google Drive                 ->  | | (Active Klein Blue hover)
+| | [GDrive]    Conectarse a Google Drive                -> | |
 | +---------------------------------------------------------+ |
-| | [OneDrive] Conectarse a OneDrive     [PRÓXIMAMENTE] ->  | | (Disabled muted surface)
+| | [OneDrive]  Conectarse a OneDrive     [PRÓXIMAMENTE] -> | |
 | +---------------------------------------------------------+ |
-| | [MEGA]     Conectarse a MEGA         [PRÓXIMAMENTE] ->  | | (Disabled muted surface)
+| | [MEGA]      Conectarse a MEGA         [PRÓXIMAMENTE] -> | |
 | +---------------------------------------------------------+ |
-| | [MediaFire] Conectarse a MediaFire   [PRÓXIMAMENTE] ->  | | (Disabled muted surface)
+| | [MediaFire] Conectarse a MediaFire   [PRÓXIMAMENTE] -> | |
 | +---------------------------------------------------------+ |
+|                                                             |
+|  La autenticación se realiza de forma segura en tu          |
+|  navegador predeterminado.                                  |
++-------------------------------------------------------------+
+```
+
+#### B. Compact View (Viewport Height < 620px): Centered 2×2 Grid
+```text
++-------------------------------------------------------------+
+|                      [ P ] (48x48 Logo)                     |
+|                                                             |
+|                    Bienvenido a Prydrive                    |
+|                                                             |
+|       Conéctate a tu almacenamiento en la nube para         |
+|     gestionar tus archivos directamente desde tu escritorio.|
+|                                                             |
+|         +-------------------+ +-------------------+         |
+|         | [GDrive]       -> | | [OneDrive]     -> |         |
+|         +-------------------+ +-------------------+         |
+|         | [MEGA]         -> | | [MediaFire]    -> |         |
+|         +-------------------+ +-------------------+         |
 |                                                             |
 |  La autenticación se realiza de forma segura en tu          |
 |  navegador predeterminado.                                  |
