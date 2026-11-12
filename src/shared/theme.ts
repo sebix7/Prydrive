@@ -81,6 +81,27 @@ export function getRoadmapBadgeClasses(
     : `${base} bg-[#ECEAE3] border-[#C9C6BD] text-[#4A4E54]`;
 }
 
+/**
+ * Resolves classes for the header panel toggle buttons supporting pressed and neutral states (Spec 009 FR-2, FR-6, NFR-1).
+ */
+export function getHeaderPanelToggleButtonClasses(
+  isPressed: boolean,
+  theme: ThemeMode = 'dark'
+): string {
+  const base =
+    'inline-flex items-center justify-center w-[30px] h-[30px] rounded-[4px] border transition-all duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#1B44E8] dark:focus-visible:ring-[#3B66FF] active:scale-95 select-none shrink-0';
+
+  if (isPressed) {
+    return theme === 'dark'
+      ? `${base} bg-[#1C2D52] border-[#3B66FF] text-[#3B66FF] shadow-xs`
+      : `${base} bg-[#DDE7FA] border-[#1B44E8] text-[#1B44E8] shadow-xs`;
+  }
+
+  return theme === 'dark'
+    ? `${base} bg-[#181C23] border-[#2C323D] text-[#F3F4F6] hover:bg-[#1E232C] hover:border-[#3B66FF] hover:text-[#3B66FF]`
+    : `${base} bg-[#FFFFFF] border-[#C9C6BD] text-[#111315] hover:bg-[#ECEAE3] hover:border-[#1B44E8] hover:text-[#1B44E8]`;
+}
+
 export interface MinimalStorage {
   getItem?: (key: string) => string | null;
   setItem?: (key: string, value: string) => void;

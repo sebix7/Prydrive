@@ -1,11 +1,11 @@
 import React from 'react';
-import { LogOut, Info } from 'lucide-react';
+import { LogOut, Info, FolderTree, PanelRight, PanelLeft } from 'lucide-react';
 import type { LanguageCode, ThemeMode } from '../../../../shared/types';
 import type { ActiveMenu } from '../../../../shared/shell-state';
 import {
-  getStaticDriveUnitBadge,
   shouldShowTopBarDisconnect
 } from '../../../../shared/shell-state';
+import { getHeaderPanelToggleButtonClasses } from '../../../../shared/theme';
 import { getTranslation } from '../../../../shared/i18n/translations';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { LanguageToggle } from '../ui/LanguageToggle';
@@ -26,6 +26,11 @@ export interface MenuBarProps {
   onToggleTheme?: () => void;
   onCloseWindow?: () => void;
   isSidebarExpanded?: boolean;
+  isTreeExpanded?: boolean;
+  onToggleTree?: () => void;
+  isCompactWidth?: boolean;
+  isRailExpanded?: boolean;
+  onToggleRail?: () => void;
 }
 
 /**
@@ -41,7 +46,13 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   theme = 'dark',
   onSetTheme,
   onToggleTheme,
-  isSidebarExpanded = true
+  isSidebarExpanded = true,
+  isTreeExpanded = false,
+  onToggleTree,
+  onToggleSidebar,
+  isCompactWidth = false,
+  isRailExpanded = true,
+  onToggleRail
 }) => {
   const handleToggleTheme = () => {
     if (onToggleTheme) {
@@ -58,14 +69,52 @@ export const MenuBar: React.FC<MenuBarProps> = ({
       data-testid="shell-menu-bar"
       className="h-10 px-3 flex items-center justify-between border-b border-[#C9C6BD] dark:border-[#2C323D] bg-[#F2F0EA] dark:bg-[#15181E] text-xs font-mono select-none flex-shrink-0 z-30"
     >
-      {/* Left side: Static drive unit badge (FR-9, FR-10, EC-3) */}
-      <div className="flex items-center gap-2">
-        <span
-          data-testid="drive-unit-badge"
-          className="font-mono text-[11px] text-[#7C8087] dark:text-[#6B7280] tracking-wide select-none"
-        >
-          {getStaticDriveUnitBadge(language)}
-        </span>
+      {/* Left side: Panel Toggle Cluster (Spec 009 FR-1, FR-2, FR-3, FR-4, FR-6) */}
+      <div className="flex items-center gap-1.5" data-testid="header-panel-toggle-cluster">
+        {/* Navigation Rail Toggle (only in compact mode) (FR-4) */}
+        {isCompactWidth && onToggleRail && (
+          <button
+            type="button"
+            data-testid="header-toggle-rail-btn"
+            onClick={onToggleRail}
+            aria-pressed={isRailExpanded}
+            aria-label={getTranslation(language, isRailExpanded ? 'panel_toggle_rail_hide' : 'panel_toggle_rail_show')}
+            title={getTranslation(language, isRailExpanded ? 'panel_toggle_rail_hide' : 'panel_toggle_rail_show')}
+            className={getHeaderPanelToggleButtonClasses(Boolean(isRailExpanded), theme)}
+          >
+            <PanelLeft className="w-3.5 h-3.5" />
+          </button>
+        )}
+
+        {/* Directory Tree Toggle Button (FR-3, FR-4) */}
+        {onToggleTree && (
+          <button
+            type="button"
+            data-testid="header-toggle-tree-btn"
+            onClick={onToggleTree}
+            aria-pressed={isTreeExpanded}
+            aria-label={getTranslation(language, isTreeExpanded ? 'panel_toggle_tree_hide' : 'panel_toggle_tree_show')}
+            title={getTranslation(language, isTreeExpanded ? 'panel_toggle_tree_hide' : 'panel_toggle_tree_show')}
+            className={getHeaderPanelToggleButtonClasses(Boolean(isTreeExpanded), theme)}
+          >
+            <FolderTree className="w-3.5 h-3.5" />
+          </button>
+        )}
+
+        {/* Right Sidebar Toggle Button (FR-3, FR-4) */}
+        {onToggleSidebar && (
+          <button
+            type="button"
+            data-testid="header-toggle-sidebar-btn"
+            onClick={onToggleSidebar}
+            aria-pressed={isSidebarExpanded}
+            aria-label={getTranslation(language, isSidebarExpanded ? 'panel_toggle_sidebar_hide' : 'panel_toggle_sidebar_show')}
+            title={getTranslation(language, isSidebarExpanded ? 'panel_toggle_sidebar_hide' : 'panel_toggle_sidebar_show')}
+            className={getHeaderPanelToggleButtonClasses(Boolean(isSidebarExpanded), theme)}
+          >
+            <PanelRight className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
 
       {/* Right side: Unified control cluster (FR-7, FR-16, EC-6) */}

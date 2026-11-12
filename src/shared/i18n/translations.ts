@@ -73,6 +73,14 @@ export const translations = {
     nav_prydrive_tooltip: 'Prydrive Workspace',
     nav_google_drive_tooltip: 'Google Drive',
 
+    // Shell - Panel Toggle Controls (Spec 009)
+    panel_toggle_rail_hide: 'Hide navigation rail',
+    panel_toggle_rail_show: 'Show navigation rail',
+    panel_toggle_tree_hide: 'Hide directory tree',
+    panel_toggle_tree_show: 'Show directory tree',
+    panel_toggle_sidebar_hide: 'Hide sidebar',
+    panel_toggle_sidebar_show: 'Show sidebar',
+
     // Shell - Central Workspace Canvas
     canvas_prydrive_title: 'Prydrive Workspace',
     canvas_drive_title: 'Google Drive Connected',
@@ -192,6 +200,14 @@ export const translations = {
     // Shell - Navigation Rail
     nav_prydrive_tooltip: 'Espacio de trabajo Prydrive',
     nav_google_drive_tooltip: 'Google Drive',
+
+    // Shell - Panel Toggle Controls (Spec 009)
+    panel_toggle_rail_hide: 'Ocultar barra de navegación',
+    panel_toggle_rail_show: 'Mostrar barra de navegación',
+    panel_toggle_tree_hide: 'Ocultar árbol de carpetas',
+    panel_toggle_tree_show: 'Mostrar árbol de carpetas',
+    panel_toggle_sidebar_hide: 'Ocultar panel lateral',
+    panel_toggle_sidebar_show: 'Mostrar panel lateral',
 
     // Shell - Central Workspace Canvas
     canvas_prydrive_title: 'Espacio de Trabajo Prydrive',

@@ -112,6 +112,8 @@ export const AppShell: React.FC<AppShellProps> = ({
           theme={theme}
           onSetTheme={onSetTheme}
           isSidebarExpanded={state.isSidebarExpanded}
+          isTreeExpanded={state.isTreeExpanded}
+          onToggleTree={() => dispatch({ type: 'TOGGLE_TREE' })}
         />
       )}
 

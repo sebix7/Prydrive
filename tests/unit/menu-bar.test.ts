@@ -35,13 +35,15 @@ describe('Swiss Archive Menu Bar & Desktop Shell (Spec 006 US-3 / T3)', () => {
     expect(closedDisconnect.isDisconnectModalOpen).toBe(false);
   });
 
-  describe('MenuBar.tsx Swiss Archive Implementation (FR-7, FR-9, FR-10, FR-16)', () => {
-    it('should eliminate legacy Options and Help dropdowns and render static drive badge and unified controls', () => {
+  describe('MenuBar.tsx Swiss Archive Implementation (FR-7, FR-9, FR-10, FR-16, Spec 009 FR-1)', () => {
+    it('should eliminate legacy Options and Help dropdowns and render panel toggle cluster and unified controls', () => {
       const menuBarSource = readFileSync(
         resolve(__dirname, '../../src/renderer/src/components/shell/MenuBar.tsx'),
         'utf-8'
       );
-      expect(menuBarSource).toContain('getStaticDriveUnitBadge');
+      expect(menuBarSource).toContain('header-panel-toggle-cluster');
+      expect(menuBarSource).toContain('header-toggle-tree-btn');
+      expect(menuBarSource).toContain('header-toggle-sidebar-btn');
       expect(menuBarSource).toContain('shouldShowTopBarDisconnect');
       expect(menuBarSource).toContain('ThemeToggle');
       expect(menuBarSource).toContain('LanguageToggle');
