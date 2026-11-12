@@ -258,4 +258,51 @@ describe('Bilingual Localization Dictionary (US-6 / T6 / FR-15)', () => {
       expect(getTranslation('es', 'theme_switch_to_light')).toBe('Cambiar a modo claro');
     });
   });
+
+  describe('Cloud Providers Showcase Localization Parity (Spec 008 US-4 / T4 / FR-1, FR-4, FR-5, FR-7, FR-9)', () => {
+    const requiredShowcaseKeys: TranslationKey[] = [
+      'welcome_subtitle',
+      'connect_google_drive',
+      'connect_onedrive',
+      'connect_mega',
+      'connect_mediafire',
+      'provider_coming_soon',
+      'provider_tooltip_onedrive',
+      'provider_tooltip_mega',
+      'provider_tooltip_mediafire'
+    ];
+
+    it('should have all showcase keys defined and non-empty in both English and Spanish', () => {
+      requiredShowcaseKeys.forEach((key) => {
+        expect(translations.en[key]).toBeDefined();
+        expect(translations.es[key]).toBeDefined();
+        expect(translations.en[key].trim().length).toBeGreaterThan(0);
+        expect(translations.es[key].trim().length).toBeGreaterThan(0);
+      });
+    });
+
+    it('should translate cloud-agnostic subtitle and all provider labels with 100% dictionary parity', () => {
+      expect(getTranslation('en', 'welcome_subtitle')).toBe(
+        'Connect to your cloud storage to manage your files directly from your desktop.'
+      );
+      expect(getTranslation('es', 'welcome_subtitle')).toBe(
+        'Conéctate a tu almacenamiento en la nube para gestionar tus archivos directamente desde tu escritorio.'
+      );
+
+      expect(getTranslation('en', 'connect_google_drive')).toBe('Connect to Google Drive');
+      expect(getTranslation('es', 'connect_google_drive')).toBe('Conectarse a Google Drive');
+
+      expect(getTranslation('en', 'connect_onedrive')).toBe('Connect to OneDrive');
+      expect(getTranslation('es', 'connect_onedrive')).toBe('Conectarse a OneDrive');
+
+      expect(getTranslation('en', 'connect_mega')).toBe('Connect to MEGA');
+      expect(getTranslation('es', 'connect_mega')).toBe('Conectarse a MEGA');
+
+      expect(getTranslation('en', 'connect_mediafire')).toBe('Connect to MediaFire');
+      expect(getTranslation('es', 'connect_mediafire')).toBe('Conectarse a MediaFire');
+
+      expect(getTranslation('en', 'provider_coming_soon')).toBe('Coming soon');
+      expect(getTranslation('es', 'provider_coming_soon')).toBe('Próximamente');
+    });
+  });
 });

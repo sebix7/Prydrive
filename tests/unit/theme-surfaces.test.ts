@@ -4,7 +4,10 @@ import { resolve } from 'node:path';
 import {
   getThemeSurfaceClasses,
   getTechnicalIndexStrip,
-  SWISS_ARCHIVE_FONTS
+  SWISS_ARCHIVE_FONTS,
+  getGoogleDriveConnectButtonClasses,
+  getUpcomingProviderButtonClasses,
+  getRoadmapBadgeClasses
 } from '../../src/shared/theme';
 import {
   getNavButtonStyles,
@@ -154,6 +157,56 @@ describe('Theme Surfaces, Interactive Contrast & Brand Iconography (Spec 005 US-
       expect(inactiveDark).toBe('#15181E');
       expect(inactiveLight).toBe('#F2F0EA');
       expect(inactiveDark).not.toBe(inactiveLight);
+    });
+  });
+
+  describe('Cloud Provider Showcase Theme Resolvers (Spec 008 US-4 / T4 / FR-11, FR-12, NFR-1, NFR-2)', () => {
+    it('should resolve primary button classes with Klein Blue hover transitions in Light Mode (FR-11)', () => {
+      const lightActive = getGoogleDriveConnectButtonClasses('light', false, 'full');
+      expect(lightActive).toContain('bg-[#F2F0EA]');
+      expect(lightActive).toContain('border-[#C9C6BD]');
+      expect(lightActive).toContain('text-[#111315]');
+      expect(lightActive).toContain('hover:bg-[#1B44E8]');
+      expect(lightActive).toContain('hover:border-[#1B44E8]');
+      expect(lightActive).toContain('hover:text-white');
+    });
+
+    it('should resolve primary button classes with Luminous Klein Blue hover transitions in Dark Mode (FR-12)', () => {
+      const darkActive = getGoogleDriveConnectButtonClasses('dark', false, 'full');
+      expect(darkActive).toContain('bg-[#15181E]');
+      expect(darkActive).toContain('border-[#2C323D]');
+      expect(darkActive).toContain('text-[#F3F4F6]');
+      expect(darkActive).toContain('hover:bg-[#3B66FF]');
+      expect(darkActive).toContain('hover:border-[#3B66FF]');
+      expect(darkActive).toContain('hover:text-white');
+    });
+
+    it('should resolve secondary upcoming button classes with Swiss Archive surfaces and opacity-40 (FR-11, FR-12)', () => {
+      const lightSecondary = getUpcomingProviderButtonClasses('light', 'compact');
+      expect(lightSecondary).toContain('bg-[#F2F0EA]');
+      expect(lightSecondary).toContain('border-[#C9C6BD]');
+      expect(lightSecondary).toContain('text-[#6B7280]');
+      expect(lightSecondary).toContain('opacity-40');
+      expect(lightSecondary).toContain('cursor-not-allowed');
+
+      const darkSecondary = getUpcomingProviderButtonClasses('dark', 'compact');
+      expect(darkSecondary).toContain('bg-[#15181E]');
+      expect(darkSecondary).toContain('border-[#2C323D]');
+      expect(darkSecondary).toContain('text-[#9CA3AF]');
+      expect(darkSecondary).toContain('opacity-40');
+      expect(darkSecondary).toContain('cursor-not-allowed');
+    });
+
+    it('should resolve roadmap badge classes with Swiss Archive contrast in Light and Dark modes (FR-5, FR-11, FR-12)', () => {
+      const lightBadge = getRoadmapBadgeClasses('light');
+      expect(lightBadge).toContain('bg-[#ECEAE3]');
+      expect(lightBadge).toContain('border-[#C9C6BD]');
+      expect(lightBadge).toContain('text-[#4A4E54]');
+
+      const darkBadge = getRoadmapBadgeClasses('dark');
+      expect(darkBadge).toContain('bg-[#1E232C]');
+      expect(darkBadge).toContain('border-[#2C323D]');
+      expect(darkBadge).toContain('text-[#9CA3AF]');
     });
   });
 });
