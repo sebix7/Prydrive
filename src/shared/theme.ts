@@ -102,6 +102,23 @@ export function getHeaderPanelToggleButtonClasses(
     : `${base} bg-[#FFFFFF] border-[#C9C6BD] text-[#111315] hover:bg-[#ECEAE3] hover:border-[#1B44E8] hover:text-[#1B44E8]`;
 }
 
+/**
+ * Resolves classes for the navigation rail supporting smooth collapsible transitions to w-0 (Spec 009 FR-7).
+ */
+export function getNavigationRailClasses(
+  isExpanded: boolean = true,
+  theme: ThemeMode = 'dark'
+): string {
+  const base =
+    'relative border-r bg-[#F2F0EA] dark:bg-[#15181E] border-[#C9C6BD] dark:border-[#2C323D] flex flex-col items-center py-3 gap-2.5 z-20 shrink-0 h-full select-none transition-all duration-200';
+
+  if (!isExpanded) {
+    return `${base} w-0 p-0 m-0 border-r-0 overflow-hidden opacity-0 pointer-events-none`;
+  }
+
+  return `${base} w-16 opacity-100`;
+}
+
 export interface MinimalStorage {
   getItem?: (key: string) => string | null;
   setItem?: (key: string, value: string) => void;

@@ -12,8 +12,8 @@
 | `src/renderer/src/components/shell/NavigationRail.tsx` | UI Component / Navigation Rail | Implements `w-0` collapsible container transition and conditionally hides `RailDividerToggle` when `isCompactWidth` is true. |
 | `src/renderer/src/components/shell/AppShell.tsx` | Layout Shell / Wiring | Passes responsive panel state and toggle callbacks down to `MenuBar`, `NavigationRail`, `DirectoryTreePanel`, and `TelemetrySidebar`. |
 | `src/renderer/src/components/tree/DirectoryTreePanel.tsx` | UI Component / Tree Panel | Adopts overlay positioning (`absolute left-0 z-20 h-full shadow-md`) when expanded in compact resolution. |
-| `src/renderer/src/components/shell/TelemetrySidebar.tsx` | UI Component / Sidebar | Adopts overlay positioning (`absolute right-0 z-20 h-full shadow-md`) when expanded in compact resolution. |
-| `src/renderer/src/components/explorer/StatusBar.tsx` | UI Component / Status Bar | Conditionally hides the bottom sidebar toggle button when `isCompactWidth` is true. |
+| `src/renderer/src/components/shell/TelemetrySidebar.tsx` | UI Component / Sidebar | Adopts overlay positioning (`absolute right-0 z-20 h-full shadow-md`) and conditionally hides its floating circular toggle button (`sidebar-toggle-btn`) when in compact resolution (`isCompactWidth`). |
+| `src/renderer/src/components/explorer/ExplorerStatusBar.tsx` | UI Component / Status Bar | Remains permanently visible and persistent at all resolutions, preserving manual Refresh, folder/file metrics, and size telemetry. |
 | `tests/unit/panel-toggle-controls.test.ts` | Automated Tests / Unit Suite | Comprehensive Vitest suite testing pure threshold evaluators, state reducers with mutual exclusion, responsive transitions, and theme class resolvers. |
 | `tests/unit/menu-bar.test.ts` | Automated Tests / Unit Suite | Updates MenuBar unit tests to verify presence of panel toggle buttons in place of the static unit badge. |
 | `tests/unit/translations.test.ts` | Automated Tests / Unit Suite | Verifies 100% bilingual dictionary key parity for all 6 new panel toggle tooltip keys. |
@@ -372,7 +372,7 @@ FUNCTION renderAppShellWorkspace(state, isCompactWidth):
 | **US-1 (Top Header Panel Toggle Cluster)** | FR-1, FR-2, FR-3, FR-5, FR-6 | NFR-1, NFR-2 | `MenuBar.tsx`, `theme.ts`, `shell-state.ts`, `panel-toggle-controls.test.ts`, `menu-bar.test.ts` |
 | **US-2 (Low-Resolution Adaptive Navigation Rail Toggle)** | FR-4, FR-7, FR-8, FR-11 | NFR-1, NFR-3 | `shell-state.ts`, `theme.ts`, `NavigationRail.tsx`, `MenuBar.tsx`, `panel-toggle-controls.test.ts` |
 | **US-3 (Low-Resolution Mutually Exclusive Overlays)** | FR-9, FR-10 | NFR-1, NFR-2, NFR-3 | `shell-state.ts`, `AppShell.tsx`, `DirectoryTreePanel.tsx`, `TelemetrySidebar.tsx`, `panel-overlay-flow.test.ts` |
-| **US-4 (Bidirectional Synchronization and Accessible Feedback)** | FR-11, FR-12, FR-13 | NFR-2, NFR-3 | `translations.ts`, `useShellState.ts`, `StatusBar.tsx`, `NavigationRail.tsx`, `translations.test.ts`, `panel-toggle-controls.test.ts` |
+| **US-4 (Bidirectional Synchronization and Accessible Feedback)** | FR-11, FR-12, FR-13, FR-14 | NFR-2, NFR-3 | `translations.ts`, `useShellState.ts`, `TelemetrySidebar.tsx`, `NavigationRail.tsx`, `ExplorerStatusBar.tsx`, `translations.test.ts`, `panel-toggle-controls.test.ts` |
 
 ### 7.2 Story Dependencies (for `tasks.md`)
 
@@ -392,4 +392,4 @@ graph TD
 - **T1 (US-1):** Foundational slice. Replaces static text badge in `MenuBar.tsx` with 2 buttons (`FolderTree`, `PanelRight`) and pressed-state theme styling. *Depends on: None*.
 - **T2 (US-2):** Adaptive rail slice. Adds `isRailExpanded`, `PanelLeft` button in compact resolution ($< 784px$), and auto-collapse/restore logic on window resize. *Depends on: T1*.
 - **T3 (US-3):** Overlay coordination slice. Implements mutual exclusion between panels in compact resolution and overlay positioning over the central workspace canvas. *Depends on: T2*.
-- **T4 (US-4):** Synchronization & quality slice. Synchronizes pressed state with rail and status bar toggles, hides secondary floating controls in compact mode, adds 100% bilingual tooltip keys, and completes integration testing. *Depends on: T2, T3*.
+- **T4 (US-4):** Synchronization & quality slice. Synchronizes pressed state with rail and sidebar toggles, hides secondary floating controls (rail divider and sidebar buttons) in compact mode while preserving the bottom ExplorerStatusBar permanently visible, adds 100% bilingual tooltip keys, and completes integration testing. *Depends on: T2, T3*.

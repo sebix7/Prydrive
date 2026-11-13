@@ -20,7 +20,9 @@ import {
   ABOUT_METADATA,
   toggleMenuHeader,
   APP_VERSION,
-  RAW_VERSION
+  RAW_VERSION,
+  isCompactPanelWidth,
+  resolveResponsivePanelCollapse
 } from '../../../shared/shell-state';
 
 export type { ActiveNavTab, ActiveMenu, ShellState, ShellAction, NavItem, AboutMetadata };
@@ -52,6 +54,9 @@ export function useShellState() {
     createInitialShellState
   );
   const menuBarRef = useRef<HTMLDivElement>(null);
+  const prevWidthRef = useRef<number>(
+    typeof window !== 'undefined' ? window.innerWidth : 1200
+  );
 
   // Global escape key listener to dismiss open menus
   useEffect(() => {
@@ -83,25 +88,46 @@ export function useShellState() {
   useEffect(() => {
     function handleResize() {
       if (typeof window !== 'undefined') {
-        if (shouldAutoCollapseSidebar(window.innerWidth) && state.isSidebarExpanded) {
-          dispatch({ type: 'SET_SIDEBAR_EXPANDED', payload: false });
-        }
-        if (
-          shouldAutoCollapseTree(window.innerWidth, state.isSidebarExpanded) &&
-          state.isTreeExpanded
-        ) {
+        const currentWidth = window.innerWidth;
+        const wasCompact = isCompactPanelWidth(prevWidthRef.current);
+        const isNowCompact = isCompactPanelWidth(currentWidth);
+
+        // Crossing into compact resolution (< 784px): auto-collapse all 3 lateral bars (FR-7)
+        if (!wasCompact && isNowCompact) {
+          dispatch({ type: 'SET_RAIL_EXPANDED', payload: false });
           dispatch({ type: 'SET_TREE_EXPANDED', payload: false });
+          dispatch({ type: 'SET_SIDEBAR_EXPANDED', payload: false });
+        } else if (wasCompact && !isNowCompact) {
+          // Crossing back into standard resolution (>= 784px): auto-restore rail (FR-8)
+          dispatch({ type: 'SET_RAIL_EXPANDED', payload: true });
+        } else if (!isNowCompact) {
+          // Standard resolution auto-collapse rules
+          if (shouldAutoCollapseSidebar(currentWidth) && state.isSidebarExpanded) {
+            dispatch({ type: 'SET_SIDEBAR_EXPANDED', payload: false });
+          }
+          if (
+            shouldAutoCollapseTree(currentWidth, state.isSidebarExpanded) &&
+            state.isTreeExpanded
+          ) {
+            dispatch({ type: 'SET_TREE_EXPANDED', payload: false });
+          }
         }
+        prevWidthRef.current = currentWidth;
       }
     }
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [state.isSidebarExpanded, state.isTreeExpanded]);
+  }, [state.isSidebarExpanded, state.isTreeExpanded, state.isRailExpanded]);
+
+  const isCompactWidth = isCompactPanelWidth(
+    typeof window !== 'undefined' ? window.innerWidth : undefined
+  );
 
   return {
     state,
     dispatch,
-    menuBarRef
+    menuBarRef,
+    isCompactWidth
   };
 }

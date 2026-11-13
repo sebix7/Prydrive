@@ -6,6 +6,7 @@ import {
   getNavButtonStyles,
   getPrydriveLogoCutoutColor
 } from '../../../../shared/shell-state';
+import { getNavigationRailClasses } from '../../../../shared/theme';
 import { getTranslation } from '../../../../shared/i18n/translations';
 import { GoogleDriveLogo } from '../ui/GoogleDriveLogo';
 import { PrydriveLogo as PrydriveLogoIcon } from '../ui/PrydriveLogo';
@@ -18,6 +19,8 @@ export interface NavigationRailProps {
   isTreeExpanded?: boolean;
   onToggleTree?: () => void;
   isTreeDisabled?: boolean;
+  isRailExpanded?: boolean;
+  isCompactWidth?: boolean;
 }
 
 
@@ -32,7 +35,9 @@ export const NavigationRail: React.FC<NavigationRailProps> = ({
   theme = 'dark',
   isTreeExpanded = false,
   onToggleTree,
-  isTreeDisabled = false
+  isTreeDisabled = false,
+  isRailExpanded = true,
+  isCompactWidth = false
 }) => {
   const isPrydriveActive = activeNav === 'prydrive';
   const isGoogleDriveActive = activeNav === 'google-drive';
@@ -48,11 +53,11 @@ export const NavigationRail: React.FC<NavigationRailProps> = ({
   return (
     <aside
       data-testid="shell-nav-rail-zone"
-      className="relative w-16 border-r border-[#C9C6BD] dark:border-[#2C323D] bg-[#F2F0EA] dark:bg-[#15181E] flex flex-col items-center py-3 gap-2.5 z-20 shrink-0 h-full select-none transition-colors"
+      className={getNavigationRailClasses(isRailExpanded, theme)}
       aria-label="Application navigation"
     >
-      {/* Symmetrical Floating Circular Divider Toggle Button (FR-2) */}
-      {onToggleTree && (
+      {/* Symmetrical Floating Circular Divider Toggle Button (FR-2, hidden in compact mode per Spec 009 FR-11) */}
+      {onToggleTree && !isCompactWidth && (
         <button
           type="button"
           data-testid="tree-rail-toggle"

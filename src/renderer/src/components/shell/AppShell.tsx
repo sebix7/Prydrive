@@ -69,7 +69,7 @@ export const AppShell: React.FC<AppShellProps> = ({
   renderNavigationRail,
   renderTelemetrySidebar
 }) => {
-  const { state, dispatch, menuBarRef } = useShellState();
+  const { state, dispatch, menuBarRef, isCompactWidth } = useShellState();
   const userEmail = userProfile?.email || 'user@example.com';
   const isDark = theme === 'dark';
 
@@ -114,6 +114,9 @@ export const AppShell: React.FC<AppShellProps> = ({
           isSidebarExpanded={state.isSidebarExpanded}
           isTreeExpanded={state.isTreeExpanded}
           onToggleTree={() => dispatch({ type: 'TOGGLE_TREE' })}
+          isCompactWidth={isCompactWidth}
+          isRailExpanded={state.isRailExpanded}
+          onToggleRail={() => dispatch({ type: 'TOGGLE_RAIL' })}
         />
       )}
 
@@ -138,6 +141,8 @@ export const AppShell: React.FC<AppShellProps> = ({
               theme={theme}
               isTreeExpanded={state.isTreeExpanded}
               onToggleTree={() => dispatch({ type: 'TOGGLE_TREE' })}
+              isRailExpanded={state.isRailExpanded}
+              isCompactWidth={isCompactWidth}
             />
           )}
 

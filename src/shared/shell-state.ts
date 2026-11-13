@@ -11,6 +11,7 @@ export interface ShellState {
   activeNav: ActiveNavTab;
   isSidebarExpanded: boolean;
   isTreeExpanded: boolean;
+  isRailExpanded: boolean;
   openMenu: ActiveMenu;
   isAboutModalOpen: boolean;
   isDisconnectModalOpen: boolean;
@@ -22,6 +23,8 @@ export type ShellAction =
   | { type: 'SET_SIDEBAR_EXPANDED'; payload: boolean }
   | { type: 'TOGGLE_TREE' }
   | { type: 'SET_TREE_EXPANDED'; payload: boolean }
+  | { type: 'TOGGLE_RAIL' }
+  | { type: 'SET_RAIL_EXPANDED'; payload: boolean }
   | { type: 'OPEN_MENU'; payload: ActiveMenu }
   | { type: 'CLOSE_MENUS' }
   | { type: 'OPEN_ABOUT_MODAL' }
@@ -33,13 +36,14 @@ export const initialShellState: ShellState = {
   activeNav: 'google-drive',
   isSidebarExpanded: true,
   isTreeExpanded: true,
+  isRailExpanded: true,
   openMenu: null,
   isAboutModalOpen: false,
   isDisconnectModalOpen: false
 };
 
 /**
- * Creates the initial shell state, conditionally resolving sidebar and tree
+ * Creates the initial shell state, conditionally resolving sidebar, tree, and rail
  * expansion according to the responsive window width threshold to prevent layout conflicts.
  */
 export function createInitialShellState(windowWidth?: number): ShellState {
@@ -47,11 +51,14 @@ export function createInitialShellState(windowWidth?: number): ShellState {
     return { ...initialShellState };
   }
 
-  const isSidebarExpanded = !shouldAutoCollapseSidebar(windowWidth);
-  const isTreeExpanded = !shouldAutoCollapseTree(windowWidth, isSidebarExpanded);
+  const isCompact = isCompactPanelWidth(windowWidth);
+  const isRailExpanded = !isCompact;
+  const isSidebarExpanded = !isCompact && !shouldAutoCollapseSidebar(windowWidth);
+  const isTreeExpanded = !isCompact && !shouldAutoCollapseTree(windowWidth, isSidebarExpanded);
 
   return {
     ...initialShellState,
+    isRailExpanded,
     isSidebarExpanded,
     isTreeExpanded
   };
@@ -72,6 +79,10 @@ export function shellReducer(state: ShellState, action: ShellAction): ShellState
       return { ...state, isTreeExpanded: !state.isTreeExpanded };
     case 'SET_TREE_EXPANDED':
       return { ...state, isTreeExpanded: action.payload };
+    case 'TOGGLE_RAIL':
+      return { ...state, isRailExpanded: !state.isRailExpanded };
+    case 'SET_RAIL_EXPANDED':
+      return { ...state, isRailExpanded: action.payload };
     case 'OPEN_MENU':
       return { ...state, openMenu: action.payload };
     case 'CLOSE_MENUS':
@@ -389,6 +400,55 @@ export function suppressDisabledEvent(
   event.preventDefault();
   event.stopPropagation?.();
 }
+
+/**
+ * Viewport width threshold below which lateral panels cannot simultaneously expand
+ * alongside the central 480px canvas without visual crowding (Spec 009 FR-3, FR-4).
+ */
+export const PANEL_COMPACT_WIDTH_THRESHOLD = 784;
+
+/**
+ * Pure evaluator checking if window width is in compact resolution mode (Spec 009 FR-4).
+ */
+export function isCompactPanelWidth(windowWidth?: number): boolean {
+  if (typeof windowWidth !== 'number' || isNaN(windowWidth)) {
+    return false;
+  }
+  return windowWidth < PANEL_COMPACT_WIDTH_THRESHOLD;
+}
+
+/**
+ * Pure responsive transition resolver handling crossing the 784px threshold (Spec 009 FR-7, FR-8, EC-6, EC-7).
+ */
+export function resolveResponsivePanelCollapse(
+  state: ShellState,
+  prevWidth: number,
+  newWidth: number
+): ShellState {
+  const wasCompact = isCompactPanelWidth(prevWidth);
+  const isNowCompact = isCompactPanelWidth(newWidth);
+
+  // Crossing into compact resolution (< 784px): auto-collapse all 3 lateral bars (FR-7, EC-6)
+  if (!wasCompact && isNowCompact) {
+    return {
+      ...state,
+      isRailExpanded: false,
+      isTreeExpanded: false,
+      isSidebarExpanded: false
+    };
+  }
+
+  // Crossing back into standard resolution (>= 784px): auto-restore navigation rail (FR-8, EC-7)
+  if (wasCompact && !isNowCompact) {
+    return {
+      ...state,
+      isRailExpanded: true
+    };
+  }
+
+  return state;
+}
+
 
 
 
