@@ -18,7 +18,7 @@ Project memory across sessions. Maximum ~75 lines: summarize or prune obsolete i
 - `specs/007-folder-tree/` completed, validated (`FULFILLED`), and released in `v0.6.0`.
 - Brand identity normalized to unified white-tile icon (no nested boxes) in `v0.6.2`.
 - `specs/008-cloud-providers-showcase/` completed, validated (`FULFILLED`), and released in `v0.7.0`.
-- `specs/009-panel-toggle-controls/` fully implemented (T1-T4 completed: US-1 through US-4).
+- `specs/009-panel-toggle-controls/` completed, validated (`FULFILLED`), and released in `v0.8.0`.
 
 ## Decisions (and why)
 - **Tailwind content scan of shared code**: `tailwind.config.js` includes `./src/shared/**` so utility classes in shared state reducers (e.g. `.w-0`, `.min-w-0`) are compiled into CSS.
