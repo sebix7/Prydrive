@@ -21,6 +21,7 @@ export interface NavigationRailProps {
   isTreeDisabled?: boolean;
   isRailExpanded?: boolean;
   isCompactWidth?: boolean;
+  isOverlay?: boolean;
 }
 
 
@@ -37,7 +38,8 @@ export const NavigationRail: React.FC<NavigationRailProps> = ({
   onToggleTree,
   isTreeDisabled = false,
   isRailExpanded = true,
-  isCompactWidth = false
+  isCompactWidth = false,
+  isOverlay = false
 }) => {
   const isPrydriveActive = activeNav === 'prydrive';
   const isGoogleDriveActive = activeNav === 'google-drive';
@@ -53,7 +55,7 @@ export const NavigationRail: React.FC<NavigationRailProps> = ({
   return (
     <aside
       data-testid="shell-nav-rail-zone"
-      className={getNavigationRailClasses(isRailExpanded, theme)}
+      className={getNavigationRailClasses(isRailExpanded, theme, isOverlay)}
       aria-label="Application navigation"
     >
       {/* Symmetrical Floating Circular Divider Toggle Button (FR-2, hidden in compact mode per Spec 009 FR-11) */}

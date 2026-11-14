@@ -3,6 +3,9 @@ import { TokenStorage } from '../../src/main/core/token-storage';
 import type { AuthSessionData } from '../../src/shared/types';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
+
+const testDir = path.join(os.tmpdir(), 'prydrive_token_storage_test');
 
 // Mock electron safeStorage and app
 vi.mock('electron', () => {
@@ -24,20 +27,24 @@ vi.mock('electron', () => {
       }
     },
     app: {
-      getPath: () => path.join(__dirname, '../../temp_test_userdata')
+      getPath: () => testDir
     }
   };
 });
 
 describe('TokenStorage (safeStorage Native Encryption)', () => {
-  const testDir = path.join(__dirname, '../../temp_test_userdata');
   let tokenStorage: TokenStorage;
 
   beforeEach(() => {
-    if (fs.existsSync(testDir)) {
-      fs.rmSync(testDir, { recursive: true, force: true });
+    if (!fs.existsSync(testDir)) {
+      fs.mkdirSync(testDir, { recursive: true });
+    } else {
+      for (const file of fs.readdirSync(testDir)) {
+        try {
+          fs.rmSync(path.join(testDir, file), { recursive: true, force: true });
+        } catch {}
+      }
     }
-    fs.mkdirSync(testDir, { recursive: true });
     tokenStorage = new TokenStorage(testDir);
   });
 

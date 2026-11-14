@@ -13,10 +13,13 @@ import {
 import type { IpcResult, ListDirectoryResult } from '../../src/shared/types';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as os from 'os';
 
 // Mock ipcMain
 type IpcHandler = (...args: unknown[]) => Promise<unknown>;
 const registeredHandlers = new Map<string, IpcHandler>();
+
+const testDir = path.join(os.tmpdir(), 'prydrive_explorer_flow_test');
 
 vi.mock('electron', () => {
   return {
@@ -35,23 +38,27 @@ vi.mock('electron', () => {
       }
     },
     app: {
-      getPath: () => path.join(__dirname, '../../temp_explorer_userdata')
+      getPath: () => testDir
     }
   };
 });
 
 describe('Explorer Directory Listing IPC Flow (US-1 / T1)', () => {
-  const testDir = path.join(__dirname, '../../temp_explorer_userdata');
   let tokenStorage: TokenStorage;
   let googleClient: GoogleAuthClient;
   let storageController: StorageIpcController;
 
   beforeEach(() => {
     registeredHandlers.clear();
-    if (fs.existsSync(testDir)) {
-      fs.rmSync(testDir, { recursive: true, force: true });
+    if (!fs.existsSync(testDir)) {
+      fs.mkdirSync(testDir, { recursive: true });
+    } else {
+      for (const file of fs.readdirSync(testDir)) {
+        try {
+          fs.rmSync(path.join(testDir, file), { recursive: true, force: true });
+        } catch {}
+      }
     }
-    fs.mkdirSync(testDir, { recursive: true });
 
     tokenStorage = new TokenStorage(testDir);
     googleClient = new GoogleAuthClient('mock_client_id', 'mock_client_secret');

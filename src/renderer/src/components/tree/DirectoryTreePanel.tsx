@@ -12,6 +12,7 @@ export interface DirectoryTreePanelProps {
   theme?: ThemeMode;
   language?: LanguageCode;
   children?: React.ReactNode;
+  isOverlay?: boolean;
 }
 
 /**
@@ -22,7 +23,8 @@ export const DirectoryTreePanel: React.FC<DirectoryTreePanelProps> = ({
   isExpanded,
   theme = 'dark',
   language = 'en',
-  children
+  children,
+  isOverlay = false
 }) => {
   const classes = getTreePanelClasses(isExpanded, theme);
   const rootLabel = language === 'es' ? 'Mi unidad' : 'My Drive';
@@ -34,7 +36,9 @@ export const DirectoryTreePanel: React.FC<DirectoryTreePanelProps> = ({
       data-testid="directory-tree-panel"
       aria-label="Directory tree"
       aria-hidden={!isExpanded}
-      className={`h-full bg-[#F2F0EA] dark:bg-[#15181E] flex flex-col shrink-0 select-none z-10 ${classes.container}`}
+      className={`h-full bg-[#F2F0EA] dark:bg-[#15181E] flex flex-col shrink-0 select-none z-20 ${classes.container} ${
+        isOverlay ? 'absolute left-0 top-0 bottom-0 shadow-md' : 'relative'
+      }`}
     >
       <div className={`flex flex-col h-full w-[240px] overflow-hidden ${classes.inner}`}>
         {/* Upper Technical Index Strip (FR-3) */}

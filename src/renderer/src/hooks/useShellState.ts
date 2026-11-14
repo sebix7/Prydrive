@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useRef } from 'react';
+import { useReducer, useEffect, useRef, useState } from 'react';
 import {
   type ActiveNavTab,
   type ActiveMenu,
@@ -58,6 +58,10 @@ export function useShellState() {
     typeof window !== 'undefined' ? window.innerWidth : 1200
   );
 
+  const [isCompactWidth, setIsCompactWidth] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? isCompactPanelWidth(window.innerWidth) : false
+  );
+
   // Global escape key listener to dismiss open menus
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -112,6 +116,7 @@ export function useShellState() {
             dispatch({ type: 'SET_TREE_EXPANDED', payload: false });
           }
         }
+        setIsCompactWidth(isNowCompact);
         prevWidthRef.current = currentWidth;
       }
     }
@@ -120,14 +125,32 @@ export function useShellState() {
     return () => window.removeEventListener('resize', handleResize);
   }, [state.isSidebarExpanded, state.isTreeExpanded, state.isRailExpanded]);
 
-  const isCompactWidth = isCompactPanelWidth(
-    typeof window !== 'undefined' ? window.innerWidth : undefined
-  );
+  const toggleRail = () =>
+    dispatch({
+      type: 'TOGGLE_RAIL',
+      isCompact: isCompactWidth,
+      windowWidth: typeof window !== 'undefined' ? window.innerWidth : undefined
+    });
+  const toggleTree = () =>
+    dispatch({
+      type: 'TOGGLE_TREE',
+      isCompact: isCompactWidth,
+      windowWidth: typeof window !== 'undefined' ? window.innerWidth : undefined
+    });
+  const toggleSidebar = () =>
+    dispatch({
+      type: 'TOGGLE_SIDEBAR',
+      isCompact: isCompactWidth,
+      windowWidth: typeof window !== 'undefined' ? window.innerWidth : undefined
+    });
 
   return {
     state,
     dispatch,
     menuBarRef,
-    isCompactWidth
+    isCompactWidth,
+    toggleRail,
+    toggleTree,
+    toggleSidebar
   };
 }

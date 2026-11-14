@@ -6,12 +6,15 @@ import { IPC_CHANNELS } from '../../src/shared/ipc-channels';
 import type { IpcResult, UserProfile } from '../../src/shared/types';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as os from 'os';
 import http from 'http';
 import dns from 'dns';
 
 // In-memory mock for ipcMain
 type IpcHandler = (...args: unknown[]) => Promise<unknown>;
 const registeredHandlers = new Map<string, IpcHandler>();
+
+const testDir = path.join(os.tmpdir(), 'prydrive_auth_flow_test');
 
 vi.mock('electron', () => {
   return {
@@ -32,13 +35,12 @@ vi.mock('electron', () => {
       }
     },
     app: {
-      getPath: () => path.join(__dirname, '../../temp_integration_userdata')
+      getPath: () => testDir
     }
   };
 });
 
 describe('Auth Flow Integration (US-1 / T1)', () => {
-  const testDir = path.join(__dirname, '../../temp_integration_userdata');
   let tokenStorage: TokenStorage;
   let googleClient: GoogleAuthClient;
   let authController: AuthIpcController;
@@ -47,10 +49,15 @@ describe('Auth Flow Integration (US-1 / T1)', () => {
   beforeEach(() => {
     registeredHandlers.clear();
     isNetworkOnline = true;
-    if (fs.existsSync(testDir)) {
-      fs.rmSync(testDir, { recursive: true, force: true });
+    if (!fs.existsSync(testDir)) {
+      fs.mkdirSync(testDir, { recursive: true });
+    } else {
+      for (const file of fs.readdirSync(testDir)) {
+        try {
+          fs.rmSync(path.join(testDir, file), { recursive: true, force: true });
+        } catch {}
+      }
     }
-    fs.mkdirSync(testDir, { recursive: true });
 
     tokenStorage = new TokenStorage(testDir);
     googleClient = new GoogleAuthClient('mock_client_id', 'mock_client_secret');

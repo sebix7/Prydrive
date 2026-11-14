@@ -69,7 +69,15 @@ export const AppShell: React.FC<AppShellProps> = ({
   renderNavigationRail,
   renderTelemetrySidebar
 }) => {
-  const { state, dispatch, menuBarRef, isCompactWidth } = useShellState();
+  const {
+    state,
+    dispatch,
+    menuBarRef,
+    isCompactWidth,
+    toggleRail,
+    toggleTree,
+    toggleSidebar
+  } = useShellState();
   const userEmail = userProfile?.email || 'user@example.com';
   const isDark = theme === 'dark';
 
@@ -87,7 +95,7 @@ export const AppShell: React.FC<AppShellProps> = ({
             language,
             userEmail,
             onDisconnectClick: onDisconnect,
-            onToggleSidebar: () => dispatch({ type: 'TOGGLE_SIDEBAR' }),
+            onToggleSidebar: toggleSidebar,
             onOpenAbout: () => dispatch({ type: 'OPEN_ABOUT_MODAL' }),
             onSetLanguage,
             theme,
@@ -106,17 +114,17 @@ export const AppShell: React.FC<AppShellProps> = ({
           onToggleMenu={(menu) => dispatch({ type: 'OPEN_MENU', payload: menu })}
           onCloseMenus={() => dispatch({ type: 'CLOSE_MENUS' })}
           onDisconnectClick={onDisconnect}
-          onToggleSidebar={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
+          onToggleSidebar={toggleSidebar}
           onOpenAbout={() => dispatch({ type: 'OPEN_ABOUT_MODAL' })}
           onSetLanguage={onSetLanguage}
           theme={theme}
           onSetTheme={onSetTheme}
           isSidebarExpanded={state.isSidebarExpanded}
           isTreeExpanded={state.isTreeExpanded}
-          onToggleTree={() => dispatch({ type: 'TOGGLE_TREE' })}
+          onToggleTree={toggleTree}
           isCompactWidth={isCompactWidth}
           isRailExpanded={state.isRailExpanded}
-          onToggleRail={() => dispatch({ type: 'TOGGLE_RAIL' })}
+          onToggleRail={toggleRail}
         />
       )}
 
@@ -131,7 +139,7 @@ export const AppShell: React.FC<AppShellProps> = ({
               language,
               theme,
               isTreeExpanded: state.isTreeExpanded,
-              onToggleTree: () => dispatch({ type: 'TOGGLE_TREE' })
+              onToggleTree: toggleTree
             })
           ) : (
             <NavigationRail
@@ -140,17 +148,19 @@ export const AppShell: React.FC<AppShellProps> = ({
               language={language}
               theme={theme}
               isTreeExpanded={state.isTreeExpanded}
-              onToggleTree={() => dispatch({ type: 'TOGGLE_TREE' })}
+              onToggleTree={toggleTree}
               isRailExpanded={state.isRailExpanded}
               isCompactWidth={isCompactWidth}
+              isOverlay={isCompactWidth}
             />
           )}
 
-          {/* Directory Tree Navigation Panel (Spec 007 US-1) */}
+          {/* Directory Tree Navigation Panel (Spec 007 US-1, Overlay in compact mode per Spec 009 FR-8) */}
           <DirectoryTreePanel
             isExpanded={state.isTreeExpanded}
             theme={theme}
             language={language}
+            isOverlay={isCompactWidth}
           />
 
           {/* Zone 3: Central Workspace Canvas */}
@@ -161,7 +171,7 @@ export const AppShell: React.FC<AppShellProps> = ({
             onSelectNav={(nav) => dispatch({ type: 'SET_ACTIVE_NAV', payload: nav })}
           />
 
-          {/* Zone 4: Right Telemetry Sidebar */}
+          {/* Zone 4: Right Telemetry Sidebar (Overlay in compact mode per Spec 009 FR-8, FR-11) */}
           {renderTelemetrySidebar ? (
             renderTelemetrySidebar({
               userEmail,
@@ -169,7 +179,7 @@ export const AppShell: React.FC<AppShellProps> = ({
               isLoadingQuota,
               quotaError,
               isExpanded: state.isSidebarExpanded,
-              onToggle: () => dispatch({ type: 'TOGGLE_SIDEBAR' }),
+              onToggle: toggleSidebar,
               onRefreshQuota,
               language,
               theme
@@ -181,11 +191,13 @@ export const AppShell: React.FC<AppShellProps> = ({
               isLoadingQuota={isLoadingQuota}
               quotaError={quotaError}
               isExpanded={state.isSidebarExpanded}
-              onToggle={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
+              onToggle={toggleSidebar}
               onRefreshQuota={onRefreshQuota}
               onDisconnect={onDisconnect}
               language={language}
               theme={theme}
+              isOverlay={isCompactWidth}
+              isCompactWidth={isCompactWidth}
             />
           )}
         </div>

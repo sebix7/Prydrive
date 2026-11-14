@@ -31,9 +31,10 @@ describe('OAuthServer (Loopback RFC 8252)', () => {
     // Make request simulating Google redirect
     const codePromise = server.waitForCode();
 
-    http.get(`http://127.0.0.1:${port}/?code=mock_auth_code_12345`, (res) => {
+    const req = http.get(`http://127.0.0.1:${port}/?code=mock_auth_code_12345`, (res) => {
       expect(res.statusCode).toBe(200);
     });
+    req.on('error', () => {});
 
     const receivedCode = await codePromise;
     expect(receivedCode).toBe('mock_auth_code_12345');
@@ -45,9 +46,10 @@ describe('OAuthServer (Loopback RFC 8252)', () => {
 
     const codePromise = server.waitForCode();
 
-    http.get(`http://127.0.0.1:${port}/?error=access_denied`, (res) => {
+    const req = http.get(`http://127.0.0.1:${port}/?error=access_denied`, (res) => {
       expect(res.statusCode).toBe(200);
     });
+    req.on('error', () => {});
 
     await expect(codePromise).rejects.toThrow('Authentication denied by user: access_denied');
   });

@@ -6,11 +6,11 @@ Prydrive features a multi-panel desktop shell comprising a left navigation rail 
 
 To optimize workspace flexibility and empower users to tailor their layout:
 1. Replace the static text badge in the top-left header with a standardized **Panel Visibility Toggle Cluster**.
-2. In standard resolution ($\ge 784px$), provide 2 buttons to toggle the **Directory Tree Panel** and the **Right Sidebar**, featuring clear "pressed" state feedback (`aria-pressed="true"`) when a panel is visible.
-3. In compact resolution ($< 784px$), automatically introduce a 3rd button for the **Left Navigation Rail**, automatically collapse all three lateral bars to 0px width (`w-0`) upon entering compact mode, and dedicate 100% of the window width to the central file explorer.
+2. In standard resolution ($\ge 804px$), provide 2 buttons to toggle the **Directory Tree Panel** and the **Right Sidebar**, featuring clear "pressed" state feedback (`aria-pressed="true"`) when a panel is visible.
+3. In compact resolution ($< 804px$), automatically introduce a 3rd button for the **Left Navigation Rail**, automatically collapse all three lateral bars to 0px width (`w-0`) upon entering compact mode, and dedicate 100% of the window width to the central file explorer.
 4. When working in compact resolution, allow the user to display any of the three bars (rail, tree, or sidebar) **one at a time under strict mutual exclusion**, closing any previously open bar so they never superimpose simultaneously.
 5. In compact resolution, hide redundant floating controls (the circular rail divider toggle and the bottom status bar button), establishing the top-left header cluster as the exclusive, centralized control point.
-6. When resizing back to standard resolution ($\ge 784px$), automatically restore the navigation rail to its standard 64px width.
+6. When resizing back to standard resolution ($\ge 804px$), automatically restore the navigation rail to its standard 64px width.
 7. Guarantee bidirectional synchronization between the header buttons and all panel visibility state mechanisms.
 
 ## Users
@@ -24,19 +24,20 @@ To optimize workspace flexibility and empower users to tailor their layout:
 
 ## Definitions
 - **Panel Visibility Toggle Cluster:** Group of compact interactive buttons in the top-left header bar governing the visibility of the application's structural panels.
-- **Standard Resolution:** Viewport width $\ge 784px$ where the central file explorer has sufficient clearance to coexist alongside expanded lateral panels in fluid desktop columns.
-- **Compact Resolution:** Viewport width $< 784px$ where simultaneous column expansion would compromise table legibility, triggering overlay mode, automatic panel collapse, and navigation rail collapse affordance.
-- **Overlay Mode:** Superimposing layout presentation in compact viewports where lateral panels float on top of the central workspace without altering the underlying file table width.
+- **Standard Resolution:** Viewport width $\ge 804px$ where the central file explorer has sufficient clearance to coexist alongside expanded lateral panels in fluid desktop columns.
+- **Intermediate Resolution:** Viewport width between 804px and 1043px where the left navigation rail is expanded, but the remaining width is insufficient for both the directory tree (240px) and the right sidebar (260px) to expand simultaneously alongside the 480px central table.
+- **Compact Resolution:** Viewport width $< 804px$ where simultaneous column expansion would compromise table legibility, triggering overlay mode, automatic panel collapse, and navigation rail collapse affordance.
+- **Overlay Mode:** Superimposing layout presentation in compact viewports where all three lateral panels (Navigation Rail, Directory Tree, Right Sidebar) float on top of the central workspace without altering or compressing the underlying file table width.
 - **Pressed State:** Visual and semantic indication (`aria-pressed="true"`) confirming that the associated panel is currently visible and expanded, styled with Swiss Archive selection tokens (`bg-[#DDE7FA] border-[#1B44E8] text-[#1B44E8]` in Light Mode; `bg-[#1C2D52] border-[#3B66FF] text-[#3B66FF]` in Dark Mode).
 - **Exclusive Control Center:** In compact resolution, both lateral floating divider buttons (the left rail divider toggle and the right sidebar toggle) are hidden, centralizing lateral panel controls strictly in the top-left header cluster, while the bottom status bar remains permanently visible and persistent across all resolutions.
 
 ## Functional Requirements
 - **FR-1:** THE SYSTEM SHALL replace the static monospace unit badge in the top-left area of the header bar with an interactive panel toggle cluster.
 - **FR-2:** THE SYSTEM SHALL render buttons in the top-left header cluster with standardized 30×30 px dimensions, subtle 4px corner rounding (`rounded-[4px]`), and 1px borders aligned with the Swiss Archive design system.
-- **FR-3:** WHILE the application window is at standard resolution (viewport width >= 784px), THE SYSTEM SHALL render two panel toggle buttons in the top-left cluster in the exact sequence:
+- **FR-3:** WHILE the application window is at standard resolution (viewport width >= 804px), THE SYSTEM SHALL render two panel toggle buttons in the top-left cluster in the exact sequence:
   1. **Directory Tree Toggle** (folder tree icon)
   2. **Right Sidebar Toggle** (right panel icon)
-- **FR-4:** WHILE the application window is at compact resolution (viewport width < 784px), THE SYSTEM SHALL render three panel toggle buttons in the top-left cluster in the exact sequence:
+- **FR-4:** WHILE the application window is at compact resolution (viewport width < 804px), THE SYSTEM SHALL render three panel toggle buttons in the top-left cluster in the exact sequence:
   1. **Navigation Rail Toggle** (left panel icon)
   2. **Directory Tree Toggle** (folder tree icon)
   3. **Right Sidebar Toggle** (right panel icon)
@@ -45,14 +46,20 @@ To optimize workspace flexibility and empower users to tailor their layout:
   - Light Mode: `bg-[#DDE7FA] border-[#1B44E8] text-[#1B44E8]`
   - Dark Mode: `bg-[#1C2D52] border-[#3B66FF] text-[#3B66FF]`  
   WHILE a panel is collapsed/hidden, THE SYSTEM SHALL render its toggle button in an inactive neutral state (`aria-pressed="false"`, `bg-[#FFFFFF] dark:bg-[#181C23] border-[#C9C6BD] dark:border-[#2C323D] text-[#111315] dark:text-[#F3F4F6]`).
-- **FR-7:** WHEN the application window crosses below the 784px width threshold into compact resolution, THE SYSTEM SHALL automatically collapse all three lateral bars (Navigation Rail, Directory Tree, Right Sidebar) to 0px width (`w-0`), allocating the full window width to the central file explorer.
-- **FR-8:** WHEN the application window crosses back to standard resolution (viewport width >= 784px), THE SYSTEM SHALL automatically re-expand the left navigation rail to its standard 64px width.
-- **FR-9:** WHILE in compact resolution (< 784px), WHEN the user opens any lateral panel (Navigation Rail, Directory Tree, or Right Sidebar), THE SYSTEM SHALL automatically close any other currently open lateral panel, enforcing strict mutual exclusion so that only one panel is open at a time.
-- **FR-10:** WHILE a panel is open in compact overlay mode, WHEN the user navigates or selects folders in the Directory Tree, THE SYSTEM SHALL keep the overlay open for continuous exploration. THE SYSTEM SHALL close the active overlay strictly when the user activates its corresponding header toggle button again.
-- **FR-11:** WHILE the application window is at compact resolution (< 784px), THE SYSTEM SHALL hide both lateral floating divider toggle buttons: the circular rail divider toggle on the left (`RailDividerToggle`) AND the floating sidebar toggle on the right (`sidebar-toggle-btn`), designating the top-left header cluster as the exclusive control center for lateral panel visibility.
-- **FR-12:** THE SYSTEM SHALL preserve the bottom explorer status bar (housing the manual Refresh action, folder/file metrics, and aggregate size telemetry) fully visible, accessible, and persistent across all window resolutions, including compact resolution.
-- **FR-13:** THE SYSTEM SHALL synchronize the pressed state of all header toggle buttons bidirectionally with all other panel toggle mechanisms (including rail floating toggles, bottom status bar buttons, and menu bar shortcuts) while in standard resolution.
-- **FR-14:** THE SYSTEM SHALL provide localized hover tooltips and accessible `aria-label` tags in both English and Spanish communicating the exact action and state of each button:
+- **FR-7:** WHEN the application window crosses below the 804px width threshold into compact resolution, THE SYSTEM SHALL automatically collapse all three lateral bars (Navigation Rail, Directory Tree, Right Sidebar) to 0px width (`w-0`), allocating the full window width to the central file explorer.
+- **FR-8:** WHILE the application window is at compact resolution (< 804px), WHEN the user toggles open or closed any of the three lateral panels (Navigation Rail, Directory Tree, or Right Sidebar), THE SYSTEM SHALL preserve absolute positioning ('absolute left-0 top-0 bottom-0' for rail and tree, 'absolute right-0 top-0 bottom-0' for sidebar) continuously across both expanded and collapsing states during transition animations, preventing any layout reflow or horizontal displacement of the underlying central workspace.
+- **FR-9:** WHEN the application window crosses back to standard resolution (viewport width >= 804px), THE SYSTEM SHALL automatically re-expand the left navigation rail to its standard 64px width and restore fluid column layout.
+- **FR-10:** WHILE the application window is at intermediate resolution (viewport width between 804px and 1043px), THE SYSTEM SHALL enforce bidirectional mutual exclusion between the Directory Tree and the Right Sidebar:
+  - WHEN the user toggles open the Directory Tree while the Right Sidebar is expanded, THE SYSTEM SHALL automatically collapse the Right Sidebar and expand the Directory Tree.
+  - WHEN the user toggles open the Right Sidebar while the Directory Tree is expanded, THE SYSTEM SHALL automatically collapse the Directory Tree and expand the Right Sidebar.
+  - THE SYSTEM SHALL maintain both the Directory Tree toggle and the Right Sidebar toggle fully enabled and interactive, never disabling either button.
+- **FR-11:** WHILE in compact resolution (< 804px), WHEN the user opens or expands any lateral panel (Navigation Rail, Directory Tree, or Right Sidebar), THE SYSTEM SHALL universally and immediately collapse all other currently open lateral panels, guaranteeing that strictly one panel is open at a time regardless of which button, trigger, or shortcut initiated the action.
+- **FR-12:** WHILE a panel is open in compact overlay mode, WHEN the user navigates or selects folders in the Directory Tree, THE SYSTEM SHALL keep the overlay open for continuous exploration. THE SYSTEM SHALL close the active overlay strictly when the user activates its corresponding header toggle button again.
+- **FR-13:** WHILE the application window is at compact resolution (< 804px), THE SYSTEM SHALL reactively unmount and hide both lateral floating divider toggle buttons: the circular rail divider toggle on the left (`RailDividerToggle`) AND the floating sidebar toggle on the right (`sidebar-toggle-btn`), designating the top-left header cluster as the exclusive control center for lateral panel visibility.
+- **FR-14:** WHILE the application window is at standard resolution (viewport width >= 804px), THE SYSTEM SHALL render the floating tree divider toggle on top of all lateral panels (z-index >= 30), preventing any overlap or clipping from the directory tree panel or central canvas, while keeping it strictly hidden in compact resolution.
+- **FR-15:** THE SYSTEM SHALL preserve the bottom explorer status bar (housing the manual Refresh action, folder/file metrics, and aggregate size telemetry) fully visible, accessible, and persistent across all window resolutions, including compact resolution.
+- **FR-16:** THE SYSTEM SHALL synchronize the pressed state of all header toggle buttons bidirectionally with all other panel toggle mechanisms (including rail floating toggles, bottom status bar buttons, and menu bar shortcuts) while in standard resolution.
+- **FR-17:** THE SYSTEM SHALL provide localized hover tooltips and accessible `aria-label` tags in both English and Spanish communicating the exact action and state of each button:
   - Navigation Rail: `Ocultar barra de navegación` / `Mostrar barra de navegación` (ES) — `Hide navigation rail` / `Show navigation rail` (EN)
   - Directory Tree: `Ocultar árbol de carpetas` / `Mostrar árbol de carpetas` (ES) — `Hide directory tree` / `Show directory tree` (EN)
   - Right Sidebar: `Ocultar panel lateral` / `Mostrar panel lateral` (ES) — `Hide sidebar` / `Show sidebar` (EN)
@@ -68,8 +75,14 @@ To optimize workspace flexibility and empower users to tailor their layout:
 - **EC-3:** Instantaneous theme toggle $\rightarrow$ Pressed and neutral button states transition immediately in both Light and Dark themes.
 - **EC-4:** Instantaneous language toggle $\rightarrow$ All tooltips and accessible labels update immediately between Spanish and English.
 - **EC-5:** Navigation within an overlay tree $\rightarrow$ Selecting a folder in the overlaid directory tree navigates the underlying central table while preserving user focus and keeping the overlay open.
-- **EC-6:** Auto-collapse upon entering compact resolution $\rightarrow$ Crossing below 784px automatically collapses all three bars (rail, tree, sidebar) to 0px width.
-- **EC-7:** Auto-restoration upon returning to standard resolution $\rightarrow$ Crossing back $\ge 784px$ automatically restores the left navigation rail to its standard 64px width.
+- **EC-6:** Auto-collapse upon entering compact resolution $\rightarrow$ Crossing below 804px automatically collapses all three bars (rail, tree, sidebar) to 0px width.
+- **EC-7:** Auto-restoration upon returning to standard resolution $\rightarrow$ Crossing back $\ge 804px$ automatically restores the left navigation rail to its standard 64px width.
+- **EC-8:** Strict 3-way mutual exclusion in compact mode $\rightarrow$ Opening the Right Sidebar when the Navigation Rail and/or Directory Tree is visible automatically collapses both the Navigation Rail and the Directory Tree, guaranteeing strictly one open panel at a time (< 804px).
+- **EC-9:** Navigation Rail overlay presentation in compact mode $\rightarrow$ Opening the Navigation Rail in compact resolution (< 804px) renders it as a 64px floating overlay on top of the left side of the file table without displacing the canvas width.
+- **EC-10:** Seamless overlay collapse without layout reflow $\rightarrow$ Closing any overlay (including the Navigation Rail) in compact mode transitions opacity and width to zero while continuously maintaining absolute positioning, preventing the file table from jumping or shifting horizontally.
+- **EC-11:** Reactive unmounting of floating buttons in compact mode $\rightarrow$ Dynamic window resize below 804px immediately unmounts both lateral floating divider buttons, preventing clipped or lingering buttons on the rail or sidebar borders.
+- **EC-12:** Floating tree divider toggle visibility in maximized/standard resolution $\rightarrow$ When the directory tree is expanded in standard resolution, the floating tree divider toggle renders cleanly on top of the tree panel and central canvas (z-index >= 30), preventing any background clipping or visual slicing.
+- **EC-13:** Bidirectional mutual exclusion in intermediate resolution (804px - 1043px) $\rightarrow$ Expanding the Directory Tree while the Right Sidebar is open automatically closes the Right Sidebar, and expanding the Right Sidebar while the Directory Tree is open automatically closes the Directory Tree, maintaining both toggle buttons fully enabled and interactive.
 
 ## Out of Scope
 - Drag-and-drop manual width resizing of the header toggle buttons.
@@ -79,11 +92,11 @@ To optimize workspace flexibility and empower users to tailor their layout:
 ## Completion Criteria
 - Top-left header text replaced with 2 buttons in standard resolution (`FolderTree`, `PanelRight`) and 3 buttons in compact resolution (`PanelLeft`, `FolderTree`, `PanelRight`).
 - Pressed state visual feedback (`bg-[#DDE7FA] border-[#1B44E8]` in Light; `bg-[#1C2D52] border-[#3B66FF]` in Dark) applied cleanly when panels are visible.
-- Entering compact resolution (< 784px) automatically closes all three bars (rail, tree, sidebar) to 0px.
-- Navigation rail restores to 64px upon returning to standard resolution ($\ge 784px$).
-- Mutually exclusive overlay mode functioning on narrow screens (opening one panel hides any other open panel).
+- Entering compact resolution (< 804px) automatically closes all three bars (rail, tree, sidebar) to 0px.
+- Navigation rail restores to 64px upon returning to standard resolution ($\ge 804px$).
+- Mutually exclusive overlay mode functioning on narrow screens (< 804px) (opening one panel hides any other open panel).
 - Directory tree overlay remains open during nested folder clicks until explicitly closed via header toggle.
-- Secondary floating toggles (both the left rail divider toggle and the right sidebar toggle) hidden in compact resolution.
+- Secondary floating toggles (both the left rail divider toggle and the right sidebar toggle) hidden in compact resolution (< 804px).
 - Bottom explorer status bar (with manual Refresh button, folder/file metrics, and size telemetry) remains permanently visible and persistent across all resolutions.
 - Bidirectional synchronization with existing status bar and rail toggle controls in standard mode.
 - 100% test suite passing with unit and integration tests.
@@ -106,3 +119,10 @@ To optimize workspace flexibility and empower users to tailor their layout:
 - **2026-11-12 (QA Audit Resolution 6 - Global Synchronization Consistency):** Confirmed bidirectional state consistency across all controls.
 - **2026-11-12 (Clarification — Hiding Right Sidebar Floating Button in Low Resolution):** Clarified and mandated that in compact resolution (< 784px), the right sidebar's floating edge toggle button (`sidebar-toggle-btn`) must disappear alongside the left rail's floating divider toggle, completely eliminating all floating buttons over the workspace canvas.
 - **2026-11-12 (Requirement Refinement — Preserving Bottom Explorer Status Bar in All Resolutions):** Clarified that the bottom explorer status bar (housing the manual Refresh button, file/folder counts, and aggregate size) must never be hidden in low resolution. It remains 100% persistent and visible across all resolutions. Only the lateral floating divider buttons (`RailDividerToggle` on the left and `sidebar-toggle-btn` on the right) are hidden in compact mode.
+- **2026-11-13 (Strict 3-Way Mutual Exclusion in Low Resolution):** Confirmed and reinforced that in compact resolution (< 784px), opening any of the three lateral panels (Navigation Rail, Directory Tree, or Right Sidebar) must universally and automatically force the other two panels closed, ensuring that strictly one panel is open at any time regardless of where the toggle action was initiated.
+- **2026-11-13 (Navigation Rail Overlay Presentation in Low Resolution):** Clarified and mandated that in compact resolution (< 784px), when the Navigation Rail is toggled open, it also renders as a floating overlay superimposing over the left edge of the central file table rather than displacing canvas width, maintaining 100% stable workspace table dimensions across all panel toggles in low resolution.
+- **2026-11-13 (Position Continuity During Overlay Collapse):** Resolved layout reflow jitter when closing the navigation rail in compact mode. Mandated that `getNavigationRailClasses` continuously maintains absolute positioning (`absolute left-0 top-0 bottom-0 shadow-md`) across both expanded and collapsed/transitioning states when in overlay mode, preventing the panel from momentarily reverting to flex-flow and displacing the file explorer table.
+- **2026-11-13 (Fix Floating Tree Divider Stacking Context in Standard Resolution):** Addressed visual clipping in maximized/standard resolution where `DirectoryTreePanel` was painting over the left half of the floating divider button (`tree-rail-toggle`) when moved to the tree boundary. Mandated that the floating divider maintains top-level z-index (`z-30`) above `DirectoryTreePanel` (`z-20`) in standard resolution, while strictly remaining hidden in low resolution.
+- **2026-11-13 (Reactive Unmounting of Floating Rail Toggle):** Addressed clipped lingering display of the floating circular rail divider toggle (`RailDividerToggle`) in low resolution. Mandated that `isCompactWidth` be tracked reactively via component state in `useShellState.ts`, guaranteeing that upon resizing below 784px, both lateral floating buttons (`RailDividerToggle` on the left and `sidebar-toggle-btn` on the right) are immediately and reliably unmounted.
+- **2026-11-13 (Bidirectional Mutual Exclusion in Intermediate Resolution 784px - 1043px):** Resolved the lockout where opening the right sidebar prevented subsequent expansion of the directory tree. Mandated that between 784px and 1043px, opening the tree automatically collapses the right sidebar (and vice versa), keeping both toggle buttons enabled and fully interactive in both directions.
+- **2026-11-13 (Threshold Calibration — Unifying Compact Resolution Threshold to 804px):** Shifted the compact resolution threshold from 784px to 804px. At `< 804px`, all 3 bars auto-collapse, the 3rd header button (`PanelLeft`) appears, and overlay mode with 3-way mutual exclusion takes effect. Intermediate resolution with bidirectional mutual exclusion applies between 804px and 1043px.

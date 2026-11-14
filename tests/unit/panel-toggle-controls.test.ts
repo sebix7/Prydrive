@@ -9,6 +9,7 @@ import {
   PANEL_COMPACT_WIDTH_THRESHOLD,
   isCompactPanelWidth,
   resolveResponsivePanelCollapse,
+  reducePanelToggleWithMutualExclusion,
   shellReducer,
   initialShellState,
   createInitialShellState
@@ -79,15 +80,16 @@ describe('Panel Visibility Toggle Controls (Spec 009 US-1 / T1 / FR-1, FR-2, FR-
     });
   });
 
-  describe('Adaptive Rail Toggle, 784px Threshold & Responsive Transitions (Spec 009 US-2 / T2 / FR-4, FR-7, FR-8, FR-11)', () => {
-    it('should define PANEL_COMPACT_WIDTH_THRESHOLD at 784px', () => {
-      expect(PANEL_COMPACT_WIDTH_THRESHOLD).toBe(784);
+  describe('Adaptive Rail Toggle, 804px Threshold & Responsive Transitions (Spec 009 US-2 / T2 / FR-4, FR-7, FR-8, FR-11)', () => {
+    it('should define PANEL_COMPACT_WIDTH_THRESHOLD at 804px', () => {
+      expect(PANEL_COMPACT_WIDTH_THRESHOLD).toBe(804);
     });
 
     it('should evaluate isCompactPanelWidth correctly across boundaries', () => {
       expect(isCompactPanelWidth(720)).toBe(true);
       expect(isCompactPanelWidth(783)).toBe(true);
-      expect(isCompactPanelWidth(784)).toBe(false);
+      expect(isCompactPanelWidth(803)).toBe(true);
+      expect(isCompactPanelWidth(804)).toBe(false);
       expect(isCompactPanelWidth(1024)).toBe(false);
       expect(isCompactPanelWidth(1200)).toBe(false);
       expect(isCompactPanelWidth(undefined)).toBe(false);
@@ -110,7 +112,7 @@ describe('Panel Visibility Toggle Controls (Spec 009 US-1 / T1 / FR-1, FR-2, FR-
       expect(setFalse.isRailExpanded).toBe(false);
     });
 
-    it('should auto-collapse all 3 lateral bars when crossing below 784px threshold (FR-7, EC-6)', () => {
+    it('should auto-collapse all 3 lateral bars when crossing below 804px threshold (FR-7, EC-6)', () => {
       const activeStandardState = {
         ...initialShellState,
         isRailExpanded: true,
@@ -128,7 +130,7 @@ describe('Panel Visibility Toggle Controls (Spec 009 US-1 / T1 / FR-1, FR-2, FR-
       expect(collapsedState.isSidebarExpanded).toBe(false);
     });
 
-    it('should auto-restore navigation rail when crossing back above 784px threshold (FR-8, EC-7)', () => {
+    it('should auto-restore navigation rail when crossing back above 804px threshold (FR-8, EC-7)', () => {
       const compactState = {
         ...initialShellState,
         isRailExpanded: false,
@@ -144,7 +146,7 @@ describe('Panel Visibility Toggle Controls (Spec 009 US-1 / T1 / FR-1, FR-2, FR-
       expect(restoredState.isRailExpanded).toBe(true);
     });
 
-    it('should initialize shell state with collapsed bars when starting below 784px', () => {
+    it('should initialize shell state with collapsed bars when starting below 804px', () => {
       const compactInitial = createInitialShellState(750);
       expect(compactInitial.isRailExpanded).toBe(false);
       expect(compactInitial.isTreeExpanded).toBe(false);
@@ -154,16 +156,33 @@ describe('Panel Visibility Toggle Controls (Spec 009 US-1 / T1 / FR-1, FR-2, FR-
       expect(standardInitial.isRailExpanded).toBe(true);
     });
 
-    it('should resolve getNavigationRailClasses for expanded and collapsed states (FR-7)', () => {
-      const expandedClasses = getNavigationRailClasses(true, 'dark');
+    it('should resolve getNavigationRailClasses for expanded, collapsed, and overlay states (FR-7, FR-8)', () => {
+      const expandedClasses = getNavigationRailClasses(true, 'dark', false);
       expect(expandedClasses).toContain('w-16');
       expect(expandedClasses).toContain('opacity-100');
+      expect(expandedClasses).toContain('relative');
+      expect(expandedClasses).toContain('z-30');
+
+      const overlayClasses = getNavigationRailClasses(true, 'dark', true);
+      expect(overlayClasses).toContain('w-16');
+      expect(overlayClasses).toContain('absolute');
+      expect(overlayClasses).toContain('left-0');
+      expect(overlayClasses).toContain('shadow-md');
 
       const collapsedClasses = getNavigationRailClasses(false, 'dark');
       expect(collapsedClasses).toContain('w-0');
       expect(collapsedClasses).toContain('overflow-hidden');
       expect(collapsedClasses).toContain('opacity-0');
       expect(collapsedClasses).toContain('pointer-events-none');
+
+      const collapsedOverlayClasses = getNavigationRailClasses(false, 'dark', true);
+      expect(collapsedOverlayClasses).toContain('w-0');
+      expect(collapsedOverlayClasses).toContain('overflow-hidden');
+      expect(collapsedOverlayClasses).toContain('opacity-0');
+      expect(collapsedOverlayClasses).toContain('pointer-events-none');
+      expect(collapsedOverlayClasses).toContain('absolute');
+      expect(collapsedOverlayClasses).toContain('left-0');
+      expect(collapsedOverlayClasses).toContain('shadow-md');
     });
 
     it('should verify NavigationRail.tsx integrates getNavigationRailClasses and hides rail divider toggle in compact mode (FR-11)', () => {
@@ -174,6 +193,23 @@ describe('Panel Visibility Toggle Controls (Spec 009 US-1 / T1 / FR-1, FR-2, FR-
       expect(railSource).toContain('getNavigationRailClasses');
       expect(railSource).toContain('isRailExpanded');
       expect(railSource).toContain('!isCompactWidth');
+    });
+
+    it('should coordinate mutual exclusion via reducePanelToggleWithMutualExclusion (FR-9)', () => {
+      const initial = {
+        ...initialShellState,
+        isRailExpanded: false,
+        isTreeExpanded: false,
+        isSidebarExpanded: false
+      };
+
+      const withTree = reducePanelToggleWithMutualExclusion(initial, 'tree', true);
+      expect(withTree.isTreeExpanded).toBe(true);
+      expect(withTree.isSidebarExpanded).toBe(false);
+
+      const withSidebar = reducePanelToggleWithMutualExclusion(withTree, 'sidebar', true);
+      expect(withSidebar.isSidebarExpanded).toBe(true);
+      expect(withSidebar.isTreeExpanded).toBe(false);
     });
   });
 });

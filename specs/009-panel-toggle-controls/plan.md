@@ -4,10 +4,10 @@
 
 | File Path | Layer / Responsibility | Description |
 | :--- | :--- | :--- |
-| `src/shared/shell-state.ts` | Shared Contracts / Pure Logic | Extends `ShellState` with `isRailExpanded: boolean`, adds `TOGGLE_RAIL`, `SET_RAIL_EXPANDED` action types, defines `PANEL_COMPACT_WIDTH_THRESHOLD = 784`, and implements pure state transition reducers: `isCompactPanelWidth`, `reducePanelToggleWithMutualExclusion`, and `resolveResponsivePanelCollapse`. |
+| `src/shared/shell-state.ts` | Shared Contracts / Pure Logic | Extends `ShellState` with `isRailExpanded: boolean`, adds `TOGGLE_RAIL`, `SET_RAIL_EXPANDED` action types, defines `PANEL_COMPACT_WIDTH_THRESHOLD = 804`, and implements pure state transition reducers: `isCompactPanelWidth`, `reducePanelToggleWithMutualExclusion`, and `resolveResponsivePanelCollapse`. |
 | `src/shared/theme.ts` | Shared Logic / Theme Surfaces | Adds pure class resolvers: `getHeaderPanelToggleButtonClasses` (handling pressed vs neutral states across Light `#DDE7FA` / Dark `#1C2D52`), `getNavigationRailClasses` (smooth collapse to `w-0`), and `getPanelOverlayClasses` (overlay positioning in compact mode). |
 | `src/shared/i18n/translations.ts` | Shared Logic / Localization | Adds bilingual dictionary keys for panel tooltips and accessible labels: `panel_toggle_rail_hide`, `panel_toggle_rail_show`, `panel_toggle_tree_hide`, `panel_toggle_tree_show`, `panel_toggle_sidebar_hide`, and `panel_toggle_sidebar_show`. |
-| `src/renderer/src/hooks/useShellState.ts` | State Hook / Event Listeners | Wire window width resize listener to dispatch responsive transitions across the 784px boundary, exposing `isCompactWidth`, `isRailExpanded`, and centralized panel toggle handlers. |
+| `src/renderer/src/hooks/useShellState.ts` | State Hook / Event Listeners | Wire window width resize listener to dispatch responsive transitions across the 804px boundary, exposing `isCompactWidth`, `isRailExpanded`, and centralized panel toggle handlers. |
 | `src/renderer/src/components/shell/MenuBar.tsx` | UI Component / Header Bar | Replaces the static `UNIDAD: //MY_DRIVE` badge with the interactive `PanelToggleCluster`, rendering 2 buttons in standard resolution and 3 buttons in compact resolution with pressed-state attributes (`aria-pressed`). |
 | `src/renderer/src/components/shell/NavigationRail.tsx` | UI Component / Navigation Rail | Implements `w-0` collapsible container transition and conditionally hides `RailDividerToggle` when `isCompactWidth` is true. |
 | `src/renderer/src/components/shell/AppShell.tsx` | Layout Shell / Wiring | Passes responsive panel state and toggle callbacks down to `MenuBar`, `NavigationRail`, `DirectoryTreePanel`, and `TelemetrySidebar`. |
@@ -76,7 +76,7 @@ All layout calculations, state reductions, and CSS class resolutions are strictl
  * Viewport width threshold below which lateral panels cannot simultaneously expand
  * alongside the central 480px canvas without visual crowding (Spec 009 FR-3, FR-4).
  */
-export const PANEL_COMPACT_WIDTH_THRESHOLD = 784;
+export const PANEL_COMPACT_WIDTH_THRESHOLD = 804;
 
 /**
  * Pure evaluator checking if window width is in compact resolution mode (FR-4).
@@ -95,60 +95,106 @@ export function isCompactPanelWidth(windowWidth?: number): boolean {
 export type ToggleablePanel = 'rail' | 'tree' | 'sidebar';
 
 /**
+ * Viewport width threshold above which both directory tree (240px) and right sidebar (260px)
+ * can simultaneously expand alongside the 64px rail and 480px canvas (64 + 240 + 260 + 480 = 1044px).
+ */
+export const PANEL_DUAL_EXPANSION_THRESHOLD = 1044;
+
+/**
+ * Pure evaluator checking if window width allows simultaneous expansion of tree and sidebar.
+ */
+export function canSimultaneouslyExpandTreeAndSidebar(windowWidth?: number): boolean {
+  if (typeof windowWidth !== 'number' || isNaN(windowWidth)) {
+    return true;
+  }
+  return windowWidth >= PANEL_DUAL_EXPANSION_THRESHOLD;
+}
+
+/**
  * Pure state reducer applying panel toggles:
- * - Standard resolution (width >= 784): independent toggling.
- * - Compact resolution (width < 784): strict mutual exclusion (opening any panel closes all others) (FR-9).
+ * - Standard dual resolution (width >= 1044): independent toggling.
+ * - Intermediate resolution (804 <= width < 1044): bidirectional mutual exclusion between tree and sidebar (FR-10).
+ * - Compact resolution (width < 804): strict 3-way mutual exclusion (opening any panel closes all others) (FR-9, FR-11).
  */
 export function reducePanelToggleWithMutualExclusion(
   state: ShellState,
   targetPanel: ToggleablePanel,
-  isCompactWidth: boolean
+  isCompactWidth: boolean,
+  windowWidth?: number
 ): ShellState {
-  if (!isCompactWidth) {
+  // Compact resolution: strict 3-way mutual exclusion (only 1 panel open at a time)
+  if (isCompactWidth) {
     switch (targetPanel) {
-      case 'rail':
-        return { ...state, isRailExpanded: !state.isRailExpanded };
-      case 'tree':
-        return { ...state, isTreeExpanded: !state.isTreeExpanded };
-      case 'sidebar':
-        return { ...state, isSidebarExpanded: !state.isSidebarExpanded };
+      case 'rail': {
+        const willExpand = !state.isRailExpanded;
+        return {
+          ...state,
+          isRailExpanded: willExpand,
+          isTreeExpanded: false,
+          isSidebarExpanded: false
+        };
+      }
+      case 'tree': {
+        const willExpand = !state.isTreeExpanded;
+        return {
+          ...state,
+          isTreeExpanded: willExpand,
+          isRailExpanded: false,
+          isSidebarExpanded: false
+        };
+      }
+      case 'sidebar': {
+        const willExpand = !state.isSidebarExpanded;
+        return {
+          ...state,
+          isSidebarExpanded: willExpand,
+          isRailExpanded: false,
+          isTreeExpanded: false,
+          openMenu: null
+        };
+      }
     }
   }
 
-  // Compact resolution: mutual exclusion (only 1 panel open at a time)
+  // Intermediate resolution (804 <= width < 1044): bidirectional mutual exclusion between tree and sidebar
+  const canDualExpand = canSimultaneouslyExpandTreeAndSidebar(windowWidth);
+  if (!canDualExpand) {
+    switch (targetPanel) {
+      case 'rail':
+        return { ...state, isRailExpanded: !state.isRailExpanded };
+      case 'tree': {
+        const willExpand = !state.isTreeExpanded;
+        return {
+          ...state,
+          isTreeExpanded: willExpand,
+          isSidebarExpanded: willExpand ? false : state.isSidebarExpanded
+        };
+      }
+      case 'sidebar': {
+        const willExpand = !state.isSidebarExpanded;
+        return {
+          ...state,
+          isSidebarExpanded: willExpand,
+          isTreeExpanded: willExpand ? false : state.isTreeExpanded,
+          openMenu: null
+        };
+      }
+    }
+  }
+
+  // Standard dual resolution (width >= 1044): independent toggling
   switch (targetPanel) {
-    case 'rail': {
-      const willExpand = !state.isRailExpanded;
-      return {
-        ...state,
-        isRailExpanded: willExpand,
-        isTreeExpanded: false,
-        isSidebarExpanded: false
-      };
-    }
-    case 'tree': {
-      const willExpand = !state.isTreeExpanded;
-      return {
-        ...state,
-        isTreeExpanded: willExpand,
-        isRailExpanded: false,
-        isSidebarExpanded: false
-      };
-    }
-    case 'sidebar': {
-      const willExpand = !state.isSidebarExpanded;
-      return {
-        ...state,
-        isSidebarExpanded: willExpand,
-        isRailExpanded: false,
-        isTreeExpanded: false
-      };
-    }
+    case 'rail':
+      return { ...state, isRailExpanded: !state.isRailExpanded };
+    case 'tree':
+      return { ...state, isTreeExpanded: !state.isTreeExpanded };
+    case 'sidebar':
+      return { ...state, isSidebarExpanded: !state.isSidebarExpanded, openMenu: null };
   }
 }
 
 /**
- * Pure responsive transition resolver handling crossing the 784px threshold (FR-7, FR-8, EC-6, EC-7).
+ * Pure responsive transition resolver handling crossing the 804px threshold (FR-7, FR-8, EC-6, EC-7).
  */
 export function resolveResponsivePanelCollapse(
   state: ShellState,
@@ -158,7 +204,7 @@ export function resolveResponsivePanelCollapse(
   const wasCompact = isCompactPanelWidth(prevWidth);
   const isNowCompact = isCompactPanelWidth(newWidth);
 
-  // Crossing into compact resolution (< 784px): auto-collapse all 3 lateral bars (FR-7)
+  // Crossing into compact resolution (< 804px): auto-collapse all 3 lateral bars (FR-7)
   if (!wasCompact && isNowCompact) {
     return {
       ...state,
@@ -168,7 +214,7 @@ export function resolveResponsivePanelCollapse(
     };
   }
 
-  // Crossing back into standard resolution (>= 784px): auto-restore navigation rail (FR-8)
+  // Crossing back into standard resolution (>= 804px): auto-restore navigation rail (FR-8)
   if (wasCompact && !isNowCompact) {
     return {
       ...state,
@@ -205,14 +251,19 @@ export function getHeaderPanelToggleButtonClasses(
 }
 
 /**
- * Resolves classes for the navigation rail supporting smooth collapsible transitions to w-0 (FR-7).
+ * Resolves classes for the navigation rail supporting smooth collapsible transitions to w-0
+ * and continuous floating overlay positioning across both expanded and collapsing states in compact mode (FR-7, FR-8).
  */
 export function getNavigationRailClasses(
   isExpanded: boolean,
-  theme: ThemeMode = 'dark'
+  theme: ThemeMode = 'dark',
+  isOverlay: boolean = false
 ): string {
+  const positionClass = isOverlay
+    ? 'absolute left-0 top-0 bottom-0 shadow-md z-20'
+    : 'relative z-30';
   const base =
-    'relative border-r bg-[#F2F0EA] dark:bg-[#15181E] border-[#C9C6BD] dark:border-[#2C323D] flex flex-col items-center py-3 gap-2.5 z-20 shrink-0 h-full select-none transition-all duration-200';
+    `border-r bg-[#F2F0EA] dark:bg-[#15181E] border-[#C9C6BD] dark:border-[#2C323D] flex flex-col items-center py-3 gap-2.5 shrink-0 h-full select-none transition-all duration-200 ${positionClass}`;
 
   if (!isExpanded) {
     return `${base} w-0 p-0 m-0 border-r-0 overflow-hidden opacity-0 pointer-events-none`;
@@ -295,7 +346,7 @@ FUNCTION renderAppShellWorkspace(state, isCompactWidth):
 
 ### 4.1 Visual Hierarchy & Component Mockup
 
-#### A. Standard Resolution ($\ge 784px$): 2 Header Buttons
+#### A. Standard Resolution ($\ge 804px$): 2 Header Buttons
 ```text
 +-----------------------------------------------------------------------------+
 | [FolderTree] [PanelRight]                                 [Info] [Sun] [ES] |
@@ -307,7 +358,7 @@ FUNCTION renderAppShellWorkspace(state, isCompactWidth):
 +-----+----------------+------------------------------------------------+-----+
 ```
 
-#### B. Compact Resolution ($< 784px$): 3 Header Buttons & Overlay Mode
+#### B. Compact Resolution ($< 804px$): 3 Header Buttons & Overlay Mode
 ```text
 +-----------------------------------------------------------------------------+
 | [PanelLeft] [FolderTree] [PanelRight]                     [Info] [Sun] [ES] |
@@ -333,7 +384,7 @@ FUNCTION renderAppShellWorkspace(state, isCompactWidth):
 | :--- | :--- | :--- |
 | **Top-Left Header Cluster replacing static text badge** | Additional toolbar row or floating FAB buttons | Avoids consuming vertical canvas height with extra toolbars. Replaces non-functional decorative text (`UNIDAD: //MY_DRIVE`) with high-utility interactive controls. |
 | **Pure Reducer Mutual Exclusion in Compact Mode** | Imperative event listeners or DOM state manipulation | Centralizes all panel coordination in deterministic, unit-testable pure functions in `shell-state.ts`, eliminating desync bugs and race conditions. |
-| **Auto-collapse all panels upon crossing $< 784px$** | Keeping active panels open and forcing horizontal overflow scroll | Immediately yields 100% of the narrow screen to the user's files and folders, preventing clipped layouts on small laptop screens and split-screen desktop windows. |
+| **Auto-collapse all panels upon crossing $< 804px$** | Keeping active panels open and forcing horizontal overflow scroll | Immediately yields 100% of the narrow screen to the user's files and folders, preventing clipped layouts on small laptop screens and split-screen desktop windows. |
 | **Hiding redundant floating buttons in compact mode** | Leaving rail divider and status bar toggles visible | Eliminates visual noise and prevents overlapping floating controls when panels collapse or superimpose. Top-left header becomes the single source of truth. |
 | **Standard CSS Overlay via Absolute Positioning** | Third-party React drawer/modal libraries | Complies strictly with Constitution Principle 3 (Stack Simplicity: zero unnecessary dependencies). Pure Tailwind `absolute z-20` provides 60fps native transitions. |
 
@@ -344,7 +395,7 @@ FUNCTION renderAppShellWorkspace(state, isCompactWidth):
 ### 6.1 Test Suites
 
 1. **`tests/unit/panel-toggle-controls.test.ts` (New Dedicated Suite):**
-   - **Threshold Evaluator:** Tests `isCompactPanelWidth(width)` across boundaries: 783 (true), 784 (false), 1200 (false), NaN/undefined (false).
+   - **Threshold Evaluator:** Tests `isCompactPanelWidth(width)` across boundaries: 803 (true), 804 (false), 1200 (false), NaN/undefined (false).
    - **State Reducers:** Tests `reducePanelToggleWithMutualExclusion` ensuring standard mode toggles independently, while compact mode closes other open panels.
    - **Responsive Auto-Collapse:** Tests `resolveResponsivePanelCollapse` ensuring crossing into compact mode collapses all 3 bars, and crossing back restores the rail.
    - **Theme Class Resolution:** Asserts exact Swiss Archive light (`#DDE7FA` / `#1B44E8`) and dark (`#1C2D52` / `#3B66FF`) pressed states vs neutral states.
@@ -390,6 +441,6 @@ graph TD
 ```
 
 - **T1 (US-1):** Foundational slice. Replaces static text badge in `MenuBar.tsx` with 2 buttons (`FolderTree`, `PanelRight`) and pressed-state theme styling. *Depends on: None*.
-- **T2 (US-2):** Adaptive rail slice. Adds `isRailExpanded`, `PanelLeft` button in compact resolution ($< 784px$), and auto-collapse/restore logic on window resize. *Depends on: T1*.
+- **T2 (US-2):** Adaptive rail slice. Adds `isRailExpanded`, `PanelLeft` button in compact resolution ($< 804px$), and auto-collapse/restore logic on window resize. *Depends on: T1*.
 - **T3 (US-3):** Overlay coordination slice. Implements mutual exclusion between panels in compact resolution and overlay positioning over the central workspace canvas. *Depends on: T2*.
 - **T4 (US-4):** Synchronization & quality slice. Synchronizes pressed state with rail and sidebar toggles, hides secondary floating controls (rail divider and sidebar buttons) in compact mode while preserving the bottom ExplorerStatusBar permanently visible, adds 100% bilingual tooltip keys, and completes integration testing. *Depends on: T2, T3*.

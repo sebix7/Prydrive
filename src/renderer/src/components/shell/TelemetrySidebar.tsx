@@ -17,6 +17,8 @@ export interface TelemetrySidebarProps {
   onDisconnect?: () => void;
   language?: LanguageCode;
   theme?: ThemeMode;
+  isOverlay?: boolean;
+  isCompactWidth?: boolean;
 }
 
 /**
@@ -34,7 +36,9 @@ export const TelemetrySidebar: React.FC<TelemetrySidebarProps> = ({
   onRefreshQuota,
   onDisconnect,
   language = 'en',
-  theme = 'dark'
+  theme = 'dark',
+  isOverlay = false,
+  isCompactWidth = false
 }) => {
   const sidebarStyles = getSidebarClasses(isExpanded, theme);
   const truncatedEmail = truncateEmail(userEmail, 24);
@@ -47,11 +51,14 @@ export const TelemetrySidebar: React.FC<TelemetrySidebarProps> = ({
   return (
     <aside
       data-testid="shell-sidebar-zone"
-      className={`h-full flex flex-col relative shrink-0 select-none bg-[#F2F0EA] dark:bg-[#15181E] ${sidebarStyles.container}`}
+      className={`h-full flex flex-col shrink-0 select-none bg-[#F2F0EA] dark:bg-[#15181E] z-20 ${sidebarStyles.container} ${
+        isOverlay ? 'absolute right-0 top-0 bottom-0 shadow-md' : 'relative'
+      }`}
       aria-label="Storage telemetry sidebar"
     >
-      {/* Floating Circular Divider Toggle Button (FR-15) */}
-      <button
+      {/* Floating Circular Divider Toggle Button (FR-15, hidden in compact mode per Spec 009 FR-11) */}
+      {onToggle && !isCompactWidth && (
+        <button
         type="button"
         data-testid="sidebar-toggle-btn"
         onClick={onToggle}
@@ -68,6 +75,7 @@ export const TelemetrySidebar: React.FC<TelemetrySidebarProps> = ({
           <ChevronLeft className="w-4 h-4 transition-transform duration-150" />
         )}
       </button>
+      )}
 
       {/* Internal Content Container (260px fixed width, clipped during collapse) */}
       <div

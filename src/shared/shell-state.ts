@@ -19,11 +19,11 @@ export interface ShellState {
 
 export type ShellAction =
   | { type: 'SET_ACTIVE_NAV'; payload: ActiveNavTab }
-  | { type: 'TOGGLE_SIDEBAR' }
+  | { type: 'TOGGLE_SIDEBAR'; isCompact?: boolean; windowWidth?: number }
   | { type: 'SET_SIDEBAR_EXPANDED'; payload: boolean }
-  | { type: 'TOGGLE_TREE' }
+  | { type: 'TOGGLE_TREE'; isCompact?: boolean; windowWidth?: number }
   | { type: 'SET_TREE_EXPANDED'; payload: boolean }
-  | { type: 'TOGGLE_RAIL' }
+  | { type: 'TOGGLE_RAIL'; isCompact?: boolean; windowWidth?: number }
   | { type: 'SET_RAIL_EXPANDED'; payload: boolean }
   | { type: 'OPEN_MENU'; payload: ActiveMenu }
   | { type: 'CLOSE_MENUS' }
@@ -72,15 +72,15 @@ export function shellReducer(state: ShellState, action: ShellAction): ShellState
     case 'SET_ACTIVE_NAV':
       return { ...state, activeNav: action.payload, openMenu: null };
     case 'TOGGLE_SIDEBAR':
-      return { ...state, isSidebarExpanded: !state.isSidebarExpanded, openMenu: null };
+      return reducePanelToggleWithMutualExclusion(state, 'sidebar', Boolean(action.isCompact), action.windowWidth);
     case 'SET_SIDEBAR_EXPANDED':
       return { ...state, isSidebarExpanded: action.payload };
     case 'TOGGLE_TREE':
-      return { ...state, isTreeExpanded: !state.isTreeExpanded };
+      return reducePanelToggleWithMutualExclusion(state, 'tree', Boolean(action.isCompact), action.windowWidth);
     case 'SET_TREE_EXPANDED':
       return { ...state, isTreeExpanded: action.payload };
     case 'TOGGLE_RAIL':
-      return { ...state, isRailExpanded: !state.isRailExpanded };
+      return reducePanelToggleWithMutualExclusion(state, 'rail', Boolean(action.isCompact), action.windowWidth);
     case 'SET_RAIL_EXPANDED':
       return { ...state, isRailExpanded: action.payload };
     case 'OPEN_MENU':
@@ -405,7 +405,7 @@ export function suppressDisabledEvent(
  * Viewport width threshold below which lateral panels cannot simultaneously expand
  * alongside the central 480px canvas without visual crowding (Spec 009 FR-3, FR-4).
  */
-export const PANEL_COMPACT_WIDTH_THRESHOLD = 784;
+export const PANEL_COMPACT_WIDTH_THRESHOLD = 804;
 
 /**
  * Pure evaluator checking if window width is in compact resolution mode (Spec 009 FR-4).
@@ -418,7 +418,7 @@ export function isCompactPanelWidth(windowWidth?: number): boolean {
 }
 
 /**
- * Pure responsive transition resolver handling crossing the 784px threshold (Spec 009 FR-7, FR-8, EC-6, EC-7).
+ * Pure responsive transition resolver handling crossing the 804px threshold (Spec 009 FR-7, FR-8, EC-6, EC-7).
  */
 export function resolveResponsivePanelCollapse(
   state: ShellState,
@@ -428,7 +428,7 @@ export function resolveResponsivePanelCollapse(
   const wasCompact = isCompactPanelWidth(prevWidth);
   const isNowCompact = isCompactPanelWidth(newWidth);
 
-  // Crossing into compact resolution (< 784px): auto-collapse all 3 lateral bars (FR-7, EC-6)
+  // Crossing into compact resolution (< 804px): auto-collapse all 3 lateral bars (FR-7, EC-6)
   if (!wasCompact && isNowCompact) {
     return {
       ...state,
@@ -438,7 +438,7 @@ export function resolveResponsivePanelCollapse(
     };
   }
 
-  // Crossing back into standard resolution (>= 784px): auto-restore navigation rail (FR-8, EC-7)
+  // Crossing back into standard resolution (>= 804px): auto-restore navigation rail (FR-8, EC-7)
   if (wasCompact && !isNowCompact) {
     return {
       ...state,
@@ -448,6 +448,108 @@ export function resolveResponsivePanelCollapse(
 
   return state;
 }
+
+export type ToggleablePanel = 'rail' | 'tree' | 'sidebar';
+
+/**
+ * Viewport width threshold above which both directory tree (240px) and right sidebar (260px)
+ * can simultaneously expand alongside the 64px rail and 480px canvas (64 + 240 + 260 + 480 = 1044px).
+ */
+export const PANEL_DUAL_EXPANSION_THRESHOLD = 1044;
+
+/**
+ * Pure evaluator checking if window width allows simultaneous expansion of tree and sidebar.
+ */
+export function canSimultaneouslyExpandTreeAndSidebar(windowWidth?: number): boolean {
+  if (typeof windowWidth !== 'number' || isNaN(windowWidth)) {
+    return true;
+  }
+  return windowWidth >= PANEL_DUAL_EXPANSION_THRESHOLD;
+}
+
+/**
+ * Pure state reducer applying panel toggles:
+ * - Standard dual resolution (width >= 1044): independent toggling.
+ * - Intermediate resolution (784 <= width < 1044): bidirectional mutual exclusion between tree and sidebar (Spec 009 FR-10).
+ * - Compact resolution (width < 784): strict 3-way mutual exclusion (opening any panel closes all others) (Spec 009 FR-9, FR-11).
+ */
+export function reducePanelToggleWithMutualExclusion(
+  state: ShellState,
+  targetPanel: ToggleablePanel,
+  isCompactWidth: boolean,
+  windowWidth?: number
+): ShellState {
+  // Compact resolution (< 784px): strict 3-way mutual exclusion (only 1 panel open at a time)
+  if (isCompactWidth) {
+    switch (targetPanel) {
+      case 'rail': {
+        const willExpand = !state.isRailExpanded;
+        return {
+          ...state,
+          isRailExpanded: willExpand,
+          isTreeExpanded: false,
+          isSidebarExpanded: false
+        };
+      }
+      case 'tree': {
+        const willExpand = !state.isTreeExpanded;
+        return {
+          ...state,
+          isTreeExpanded: willExpand,
+          isRailExpanded: false,
+          isSidebarExpanded: false
+        };
+      }
+      case 'sidebar': {
+        const willExpand = !state.isSidebarExpanded;
+        return {
+          ...state,
+          isSidebarExpanded: willExpand,
+          isRailExpanded: false,
+          isTreeExpanded: false,
+          openMenu: null
+        };
+      }
+    }
+  }
+
+  // Intermediate resolution (784 <= width < 1044): bidirectional mutual exclusion between tree and sidebar (FR-10)
+  const canDualExpand = canSimultaneouslyExpandTreeAndSidebar(windowWidth);
+  if (!canDualExpand) {
+    switch (targetPanel) {
+      case 'rail':
+        return { ...state, isRailExpanded: !state.isRailExpanded };
+      case 'tree': {
+        const willExpand = !state.isTreeExpanded;
+        return {
+          ...state,
+          isTreeExpanded: willExpand,
+          isSidebarExpanded: willExpand ? false : state.isSidebarExpanded
+        };
+      }
+      case 'sidebar': {
+        const willExpand = !state.isSidebarExpanded;
+        return {
+          ...state,
+          isSidebarExpanded: willExpand,
+          isTreeExpanded: willExpand ? false : state.isTreeExpanded,
+          openMenu: null
+        };
+      }
+    }
+  }
+
+  // Standard dual resolution (width >= 1044): independent toggling
+  switch (targetPanel) {
+    case 'rail':
+      return { ...state, isRailExpanded: !state.isRailExpanded };
+    case 'tree':
+      return { ...state, isTreeExpanded: !state.isTreeExpanded };
+    case 'sidebar':
+      return { ...state, isSidebarExpanded: !state.isSidebarExpanded, openMenu: null };
+  }
+}
+
 
 
 
