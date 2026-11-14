@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.8.0](https://github.com/sebix7/Prydrive/compare/v0.7.0...v0.8.0) (2026-11-14)
+
+
+### Features
+
+* **shell:** add adaptive rail toggle and responsive auto-collapse ([1414521](https://github.com/sebix7/Prydrive/commit/141452160109ee8debe5775571c965f4dae06529))
+* **shell:** add top-left header panel toggle cluster ([3236901](https://github.com/sebix7/Prydrive/commit/3236901470b67c0b4b8a29b9a6038d6115c91600))
+* **shell:** implement compact panel overlays and bidirectional mutual exclusion ([b5dac32](https://github.com/sebix7/Prydrive/commit/b5dac32ca2a041debb774bdcc39f0effa1b8ff06))
+
+
+### Documentation
+
+* **memory:** record v0.7.0 cloud providers release ([23f1eb4](https://github.com/sebix7/Prydrive/commit/23f1eb42929af0962f9d88ff417561b3b57ea6f9))
+
 ## [0.7.0](https://github.com/sebix7/Prydrive/compare/v0.6.2...v0.7.0) (2026-11-12)
 
 
