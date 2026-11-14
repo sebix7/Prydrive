@@ -305,4 +305,44 @@ describe('Bilingual Localization Dictionary (US-6 / T6 / FR-15)', () => {
       expect(getTranslation('es', 'provider_coming_soon')).toBe('Próximamente');
     });
   });
+
+  describe('Panel Visibility Toggle Controls Localization Parity (Spec 009 US-4 / T4 / FR-16)', () => {
+    const requiredToggleKeys: TranslationKey[] = [
+      'panel_toggle_rail_hide',
+      'panel_toggle_rail_show',
+      'panel_toggle_tree_hide',
+      'panel_toggle_tree_show',
+      'panel_toggle_sidebar_hide',
+      'panel_toggle_sidebar_show'
+    ];
+
+    it('should have all 6 panel toggle tooltip keys defined and non-empty in English and Spanish', () => {
+      requiredToggleKeys.forEach((key) => {
+        expect(translations.en[key]).toBeDefined();
+        expect(translations.es[key]).toBeDefined();
+        expect(translations.en[key].trim().length).toBeGreaterThan(0);
+        expect(translations.es[key].trim().length).toBeGreaterThan(0);
+      });
+    });
+
+    it('should accurately translate panel toggle tooltips in English and Spanish', () => {
+      expect(getTranslation('en', 'panel_toggle_rail_hide')).toBe('Hide navigation rail');
+      expect(getTranslation('es', 'panel_toggle_rail_hide')).toBe('Ocultar barra de navegación');
+
+      expect(getTranslation('en', 'panel_toggle_rail_show')).toBe('Show navigation rail');
+      expect(getTranslation('es', 'panel_toggle_rail_show')).toBe('Mostrar barra de navegación');
+
+      expect(getTranslation('en', 'panel_toggle_tree_hide')).toBe('Hide directory tree');
+      expect(getTranslation('es', 'panel_toggle_tree_hide')).toBe('Ocultar árbol de carpetas');
+
+      expect(getTranslation('en', 'panel_toggle_tree_show')).toBe('Show directory tree');
+      expect(getTranslation('es', 'panel_toggle_tree_show')).toBe('Mostrar árbol de carpetas');
+
+      expect(getTranslation('en', 'panel_toggle_sidebar_hide')).toBe('Hide sidebar');
+      expect(getTranslation('es', 'panel_toggle_sidebar_hide')).toBe('Ocultar panel lateral');
+
+      expect(getTranslation('en', 'panel_toggle_sidebar_show')).toBe('Show sidebar');
+      expect(getTranslation('es', 'panel_toggle_sidebar_show')).toBe('Mostrar panel lateral');
+    });
+  });
 });

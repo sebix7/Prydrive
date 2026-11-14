@@ -212,4 +212,40 @@ describe('Panel Visibility Toggle Controls (Spec 009 US-1 / T1 / FR-1, FR-2, FR-
       expect(withSidebar.isTreeExpanded).toBe(false);
     });
   });
+
+  describe('Bidirectional Control Synchronization & Secondary Toggles (Spec 009 US-4 / T4 / FR-11, FR-12, FR-13, FR-14)', () => {
+    it('should verify TelemetrySidebar.tsx hides floating toggle button when isCompactWidth is true (FR-12)', () => {
+      const sidebarSource = readFileSync(
+        resolve(__dirname, '../../src/renderer/src/components/shell/TelemetrySidebar.tsx'),
+        'utf-8'
+      );
+      expect(sidebarSource).toContain('!isCompactWidth');
+      expect(sidebarSource).toContain('sidebar-toggle-btn');
+    });
+
+    it('should verify ExplorerStatusBar.tsx remains permanently visible with refresh control and telemetry (FR-13)', () => {
+      const statusBarSource = readFileSync(
+        resolve(__dirname, '../../src/renderer/src/components/explorer/ExplorerStatusBar.tsx'),
+        'utf-8'
+      );
+      expect(statusBarSource).toContain('explorer-status-bar');
+      expect(statusBarSource).toContain('explorer-refresh-button');
+      expect(statusBarSource).toContain('explorer-status-counts');
+      expect(statusBarSource).toContain('explorer-status-total-size');
+      expect(statusBarSource).not.toContain('isCompactWidth');
+    });
+
+    it('should verify MenuBar.tsx renders accessible tooltips and aria-labels for all toggle buttons (FR-16, NFR-2)', () => {
+      const menuBarSource = readFileSync(
+        resolve(__dirname, '../../src/renderer/src/components/shell/MenuBar.tsx'),
+        'utf-8'
+      );
+      expect(menuBarSource).toContain('panel_toggle_rail_hide');
+      expect(menuBarSource).toContain('panel_toggle_rail_show');
+      expect(menuBarSource).toContain('panel_toggle_tree_hide');
+      expect(menuBarSource).toContain('panel_toggle_tree_show');
+      expect(menuBarSource).toContain('panel_toggle_sidebar_hide');
+      expect(menuBarSource).toContain('panel_toggle_sidebar_show');
+    });
+  });
 });
