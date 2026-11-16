@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.9.0](https://github.com/sebix7/Prydrive/compare/v0.8.0...v0.9.0) (2026-11-16)
+
+
+### Features
+
+* **explorer:** add persistent breadcrumb bar and root path localization ([b1d6ca1](https://github.com/sebix7/Prydrive/commit/b1d6ca152600d451e3da5659694f7d46ce960232))
+* **explorer:** add wheel scrolling, responsive auto-scroll, and nav chevrons ([11836af](https://github.com/sebix7/Prydrive/commit/11836af3a94ffa73105a92b222d9314e46d93696))
+
+
+### Documentation
+
+* **memory:** record v0.8.0 panel toggle controls release ([2f122b2](https://github.com/sebix7/Prydrive/commit/2f122b28ecc0fee54c71fe6c307a7895650e4e9c))
+
 ## [0.8.0](https://github.com/sebix7/Prydrive/compare/v0.7.0...v0.8.0) (2026-11-14)
 
 
