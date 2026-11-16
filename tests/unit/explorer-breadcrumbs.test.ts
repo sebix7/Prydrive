@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   formatCrumbDisplayName,
+  truncateFolderStack,
   type FolderCrumb
 } from '../../src/shared/explorer-helpers';
 import {
@@ -11,7 +12,7 @@ import {
   getBreadcrumbSeparatorClasses
 } from '../../src/shared/theme';
 
-describe('Explorer Navigation Breadcrumbs (Spec 010 US-1 / T1 / FR-1, FR-2, FR-3, FR-4, FR-9, NFR-1)', () => {
+describe('Explorer Navigation Breadcrumbs (Spec 010 US-1, US-2 / T1, T2 / FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-9, FR-13, NFR-1)', () => {
   describe('formatCrumbDisplayName — Root Localization & Name Formatting (FR-2, EC-3)', () => {
     const rootCrumb: FolderCrumb = { id: 'root', name: 'My Drive' };
     const customRootCrumb: FolderCrumb = { id: 'root', name: 'Random Remote Name' };
@@ -116,4 +117,63 @@ describe('Explorer Navigation Breadcrumbs (Spec 010 US-1 / T1 / FR-1, FR-2, FR-3
       expect(explorerSource).toContain('ParentNavRow');
     });
   });
+
+  describe('truncateFolderStack Pure Slicing (US-2 / T2 / FR-5, FR-13)', () => {
+    const stack: FolderCrumb[] = [
+      { id: 'root', name: 'My Drive' },
+      { id: 'f-work', name: 'Work' },
+      { id: 'f-clients', name: 'Clients' },
+      { id: 'f-acme', name: 'Acme Corp' }
+    ];
+
+    it('should truncate stack up to the target ancestor crumb', () => {
+      const truncated = truncateFolderStack(stack, 'f-work');
+      expect(truncated).toEqual([
+        { id: 'root', name: 'My Drive' },
+        { id: 'f-work', name: 'Work' }
+      ]);
+      expect(truncated).toHaveLength(2);
+    });
+
+    it('should truncate all levels to root when target is root', () => {
+      const truncated = truncateFolderStack(stack, 'root');
+      expect(truncated).toEqual([{ id: 'root', name: 'My Drive' }]);
+      expect(truncated).toHaveLength(1);
+    });
+
+    it('should leave stack unchanged if target is the active crumb', () => {
+      const unchanged = truncateFolderStack(stack, 'f-acme');
+      expect(unchanged).toEqual(stack);
+    });
+
+    it('should return original stack if target id is not found in history', () => {
+      const notFound = truncateFolderStack(stack, 'f-unknown');
+      expect(notFound).toEqual(stack);
+    });
+
+    it('should safely fall back to root crumb if input stack is empty', () => {
+      const fallback = truncateFolderStack([], 'f-any');
+      expect(fallback).toEqual([{ id: 'root', name: 'My Drive' }]);
+    });
+  });
+
+  describe('ExplorerBreadcrumbBar.tsx Component Contract (US-2 / T2 / FR-5, FR-6, FR-7)', () => {
+    const barSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/components/explorer/ExplorerBreadcrumbBar.tsx'),
+      'utf-8'
+    );
+
+    it('should render ancestor crumbs as interactive clickable buttons', () => {
+      expect(barSource).toContain('type="button"');
+      expect(barSource).toContain('onClick={() => onNavigateToCrumb(crumb.id)}');
+      expect(barSource).toContain('data-testid={`breadcrumb-crumb-${crumb.id}`}');
+    });
+
+    it('should render active crumb as non-clickable span with aria-current="page"', () => {
+      expect(barSource).toContain('aria-current="page"');
+      expect(barSource).toContain('data-testid="breadcrumb-active-crumb"');
+      expect(barSource).not.toMatch(/<button[^>]*data-testid="breadcrumb-active-crumb"/);
+    });
+  });
 });
+
