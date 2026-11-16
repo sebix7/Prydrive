@@ -343,3 +343,38 @@ export function saveThemePreference(
     // Ignore storage errors and continue operating in memory (FR-12)
   }
 }
+
+/**
+ * Resolves classes for the 32px Explorer Breadcrumb Bar (Spec 010 FR-1, FR-8, FR-11, FR-12).
+ */
+export function getBreadcrumbBarClasses(theme: ThemeMode = 'dark'): string {
+  const base =
+    'h-8 px-3 border-b flex items-center gap-1.5 overflow-x-auto scrollbar-none font-mono text-[11px] shrink-0 select-none transition-colors';
+  return theme === 'dark'
+    ? `${base} bg-[#15181E] border-[#2C323D] text-[#9CA3AF]`
+    : `${base} bg-[#F2F0EA] border-[#C9C6BD] text-[#4A4E54]`;
+}
+
+/**
+ * Resolves classes for breadcrumb segments (ancestor button vs active current folder) (Spec 010 FR-3, FR-4, FR-8).
+ */
+export function getBreadcrumbCrumbClasses(isActive: boolean, theme: ThemeMode = 'dark'): string {
+  if (isActive) {
+    return theme === 'dark'
+      ? 'font-semibold text-[#F3F4F6] cursor-default shrink-0'
+      : 'font-semibold text-[#111315] cursor-default shrink-0';
+  }
+  return theme === 'dark'
+    ? 'text-[#9CA3AF] hover:text-[#3B66FF] hover:underline cursor-pointer shrink-0 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[#3B66FF] rounded-[2px]'
+    : 'text-[#7C8087] hover:text-[#1B44E8] hover:underline cursor-pointer shrink-0 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[#1B44E8] rounded-[2px]';
+}
+
+/**
+ * Resolves typographical slash separator classes with muted contrast (Spec 010 FR-1, FR-8).
+ */
+export function getBreadcrumbSeparatorClasses(theme: ThemeMode = 'dark'): string {
+  return theme === 'dark'
+    ? 'text-[#4B5563] font-mono text-[11px] select-none shrink-0'
+    : 'text-[#A0A4A8] font-mono text-[11px] select-none shrink-0';
+}
+

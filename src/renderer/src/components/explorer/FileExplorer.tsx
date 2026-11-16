@@ -1,11 +1,13 @@
 import React from 'react';
 import { Loader2, FolderOpen, AlertCircle, RotateCw } from 'lucide-react';
 import type { LanguageCode, ThemeMode } from '../../../../shared/types';
+import { truncateFolderStack } from '../../../../shared/explorer-helpers';
 import { getTranslation } from '../../../../shared/i18n/translations';
 import { useDriveExplorerContext } from '../../context/DriveExplorerContext';
 import { FileTableRow } from './FileTableRow';
 import { ParentNavRow } from './ParentNavRow';
 import { ExplorerStatusBar } from './ExplorerStatusBar';
+import { ExplorerBreadcrumbBar } from './ExplorerBreadcrumbBar';
 
 export interface FileExplorerProps {
   language?: LanguageCode;
@@ -25,6 +27,8 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     isLoadingMore,
     errorMessage,
     metrics,
+    folderHistory,
+    navigateToFolderStack,
     selectItem,
     openItem,
     navigateUp,
@@ -48,6 +52,17 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
       data-testid="file-explorer"
       className="flex-1 flex flex-col w-full h-full select-none min-w-0 overflow-hidden bg-[#FFFFFF] dark:bg-[#181C23] text-[#111315] dark:text-[#F3F4F6] transition-colors"
     >
+      {/* Persistent 32px Explorer Breadcrumb Bar (Spec 010 FR-1, FR-2, FR-3, FR-4, FR-10) */}
+      <ExplorerBreadcrumbBar
+        folderHistory={folderHistory}
+        onNavigateToCrumb={(targetId) => {
+          const newStack = truncateFolderStack(folderHistory, targetId);
+          navigateToFolderStack(newStack);
+        }}
+        language={language}
+        theme={theme}
+      />
+
       {/* Scrollable File and Folder List with Sticky Header for 100% Column Alignment */}
       <div
         ref={tableBodyRef}

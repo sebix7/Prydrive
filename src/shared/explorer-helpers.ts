@@ -7,6 +7,8 @@ import type {
   ThemeMode
 } from './types';
 
+export type { FolderCrumb };
+
 export const INITIAL_FOLDER_HISTORY: FolderCrumb[] = [
   { id: 'root', name: 'My Drive' }
 ];
@@ -271,6 +273,43 @@ export function popFolderHistory(stack: FolderCrumb[]): FolderCrumb[] {
   }
   return stack.slice(0, stack.length - 1);
 }
+
+/**
+ * Truncates a folder navigation stack up to the specified targetFolderId (Spec 010 FR-5).
+ * - If targetFolderId is found, returns stack sliced from root (index 0) up to targetIndex inclusive.
+ * - If targetFolderId matches the active folder, returns the stack unchanged.
+ * - If targetFolderId is not found or stack is empty, safely returns baseline INITIAL_FOLDER_HISTORY.
+ */
+export function truncateFolderStack(
+  stack: FolderCrumb[],
+  targetFolderId: string
+): FolderCrumb[] {
+  if (!stack || stack.length === 0) {
+    return [{ id: 'root', name: 'My Drive' }];
+  }
+  const targetIndex = stack.findIndex((crumb) => crumb.id === targetFolderId);
+  if (targetIndex === -1) {
+    return stack;
+  }
+  return stack.slice(0, targetIndex + 1);
+}
+
+/**
+ * Resolves the localized display name for a breadcrumb segment (Spec 010 FR-2, EC-3).
+ * - Root folder (id === 'root' or isRoot === true) displays 'Mi unidad' for 'es', 'My Drive' for 'en'.
+ * - Child folders return their original name string without artificial character truncation.
+ */
+export function formatCrumbDisplayName(
+  crumb: FolderCrumb,
+  isRoot: boolean,
+  language: LanguageCode = 'en'
+): string {
+  if (isRoot || crumb.id === 'root') {
+    return language === 'es' ? 'Mi unidad' : 'My Drive';
+  }
+  return crumb.name || 'Untitled';
+}
+
 
 
 /**
