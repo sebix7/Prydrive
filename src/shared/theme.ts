@@ -349,7 +349,7 @@ export function saveThemePreference(
  */
 export function getBreadcrumbBarClasses(theme: ThemeMode = 'dark'): string {
   const base =
-    'h-8 px-3 border-b flex items-center gap-1.5 overflow-x-auto scrollbar-none font-mono text-[11px] shrink-0 select-none transition-colors';
+    'h-8 px-3 border-b flex items-center gap-1.5 overflow-x-auto scrollbar-none font-mono text-[11px] shrink-0 select-none transition-colors w-full min-w-0';
   return theme === 'dark'
     ? `${base} bg-[#15181E] border-[#2C323D] text-[#9CA3AF]`
     : `${base} bg-[#F2F0EA] border-[#C9C6BD] text-[#4A4E54]`;

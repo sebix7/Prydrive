@@ -175,5 +175,59 @@ describe('Explorer Navigation Breadcrumbs (Spec 010 US-1, US-2 / T1, T2 / FR-1, 
       expect(barSource).not.toMatch(/<button[^>]*data-testid="breadcrumb-active-crumb"/);
     });
   });
+
+  describe('Deep Path Auto-Scroll & Visual Scrollbar Hiding (US-3 / T3 / FR-8, NFR-1, NFR-2, EC-2)', () => {
+    const barSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/components/explorer/ExplorerBreadcrumbBar.tsx'),
+      'utf-8'
+    );
+    const mainCssSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/assets/main.css'),
+      'utf-8'
+    );
+
+    it('should retain full-length folder names without artificial character truncation for long names (FR-8)', () => {
+      const veryLongName =
+        'Q4 2026 Financial Reports and Comprehensive Audit Documentation For Enterprise Clients';
+      const longCrumb: FolderCrumb = { id: 'f-long', name: veryLongName };
+
+      const formatted = formatCrumbDisplayName(longCrumb, false, 'es');
+      expect(formatted).toBe(veryLongName);
+      expect(formatted.length).toBe(veryLongName.length);
+      expect(formatted).not.toContain('...');
+    });
+
+    it('should guarantee crumb items do not shrink or squish with shrink-0 (FR-8)', () => {
+      const lightActive = getBreadcrumbCrumbClasses(true, 'light');
+      const darkActive = getBreadcrumbCrumbClasses(true, 'dark');
+      const lightAncestor = getBreadcrumbCrumbClasses(false, 'light');
+      const darkAncestor = getBreadcrumbCrumbClasses(false, 'dark');
+
+      expect(lightActive).toContain('shrink-0');
+      expect(darkActive).toContain('shrink-0');
+      expect(lightAncestor).toContain('shrink-0');
+      expect(darkAncestor).toContain('shrink-0');
+    });
+
+    it('should apply overflow-x-auto and scrollbar-none to breadcrumb bar classes (FR-8, NFR-1)', () => {
+      expect(getBreadcrumbBarClasses('light')).toContain('overflow-x-auto');
+      expect(getBreadcrumbBarClasses('light')).toContain('scrollbar-none');
+      expect(getBreadcrumbBarClasses('dark')).toContain('overflow-x-auto');
+      expect(getBreadcrumbBarClasses('dark')).toContain('scrollbar-none');
+    });
+
+    it('should programmatically auto-scroll container to the rightmost edge on path changes (FR-8, EC-2)', () => {
+      expect(barSource).toContain('containerRef.current.scrollLeft = containerRef.current.scrollWidth');
+      expect(barSource).toContain('useEffect(');
+      expect(barSource).toContain('[folderHistory]');
+    });
+
+    it('should define .scrollbar-none CSS utility in main.css to hide native visual scrollbars (FR-8)', () => {
+      expect(mainCssSource).toContain('.scrollbar-none');
+      expect(mainCssSource).toContain('scrollbar-width: none');
+      expect(mainCssSource).toContain('display: none');
+    });
+  });
 });
+
 

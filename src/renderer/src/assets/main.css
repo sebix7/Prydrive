@@ -101,3 +101,14 @@ html:not(.dark) ::-webkit-scrollbar-thumb {
 html:not(.dark) ::-webkit-scrollbar-thumb:hover {
   background: #7C8087;
 }
+
+/* Custom scrollbar utility to hide visual scrollbars while keeping overflow scrolling functional (Spec 010 FR-8) */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

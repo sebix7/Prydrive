@@ -8,7 +8,7 @@
   - Depends on: T1
   - Done when: `src/shared/explorer-helpers.ts` implements `truncateFolderStack` slicing history stack up to the target folder ID; ancestor crumbs render as interactive clickable buttons with hover transitions (`hover:text-[#1B44E8]` / `hover:text-[#3B66FF]`); clicking an ancestor invokes `navigateToFolderStack` and truncates subsequent history; active crumb renders as prominent non-clickable text with `aria-current="page"`; and double-clicking `...` in the table pops the active crumb. Verified via automated integration tests in `tests/integration/breadcrumb-navigation-flow.test.ts` and unit tests in `tests/unit/explorer-breadcrumbs.test.ts`.
 
-- [ ] **T3. Implement deep path auto-scroll, native scrollbar hiding, and full-length crumb rendering.** US-3 (FR-8, NFR-1, NFR-2, EC-2)
+- [x] **T3. Implement deep path auto-scroll, native scrollbar hiding, and full-length crumb rendering.** US-3 (FR-8, NFR-1, NFR-2, EC-2)
   - Depends on: T2
   - Done when: `ExplorerBreadcrumbBar.tsx` applies `overflow-x-auto` and `scrollbar-none` to hide native visual scrollbars without clipping the 32px bar height; `useEffect` programmatically scrolls container to the rightmost edge (`scrollLeft = scrollWidth`) upon path changes; and all folder names render in full length without artificial character truncation. Verified via automated unit tests in `tests/unit/explorer-breadcrumbs.test.ts`.
 
