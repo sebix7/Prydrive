@@ -12,6 +12,6 @@
   - Depends on: T2
   - Done when: `ExplorerBreadcrumbBar.tsx` applies `overflow-x-auto` and `scrollbar-none` to hide native visual scrollbars without clipping the 32px bar height; `useEffect` programmatically scrolls container to the rightmost edge (`scrollLeft = scrollWidth`) upon path changes; and all folder names render in full length without artificial character truncation. Verified via automated unit tests in `tests/unit/explorer-breadcrumbs.test.ts`.
 
-- [ ] **T4. Implement Swiss Archive Light/Dark theming, lifecycle state persistence, and quality suite verification.** US-4 (FR-10, FR-11, FR-12, NFR-1, NFR-2, NFR-3, EC-3, EC-4, EC-5, EC-6)
+- [x] **T4. Implement Swiss Archive Light/Dark theming, lifecycle state persistence, and quality suite verification.** US-4 (FR-10, FR-11, FR-12, NFR-1, NFR-2, NFR-3, EC-3, EC-4, EC-5, EC-6)
   - Depends on: T2, T3
   - Done when: `src/shared/theme.ts` provides pure class resolvers ensuring Swiss Archive surfaces (`#F2F0EA` / `#15181E`) and 1px border (`#C9C6BD` / `#2C323D`) across Light and Dark themes verified by `tests/unit/theme-surfaces.test.ts`; breadcrumb bar stays permanently mounted and interactive during loading spinner, empty folder state, and error banner states; language toggling reactively updates root crumb (`Mi unidad` $\leftrightarrow$ `My Drive`); and the complete test suite (`pnpm test`) and type check (`pnpm run typecheck`) pass with zero errors.

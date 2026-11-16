@@ -7,7 +7,10 @@ import {
   SWISS_ARCHIVE_FONTS,
   getGoogleDriveConnectButtonClasses,
   getUpcomingProviderButtonClasses,
-  getRoadmapBadgeClasses
+  getRoadmapBadgeClasses,
+  getBreadcrumbBarClasses,
+  getBreadcrumbCrumbClasses,
+  getBreadcrumbSeparatorClasses
 } from '../../src/shared/theme';
 import {
   getNavButtonStyles,
@@ -207,6 +210,62 @@ describe('Theme Surfaces, Interactive Contrast & Brand Iconography (Spec 005 US-
       expect(darkBadge).toContain('bg-[#1E232C]');
       expect(darkBadge).toContain('border-[#2C323D]');
       expect(darkBadge).toContain('text-[#9CA3AF]');
+    });
+  });
+
+  describe('Explorer Breadcrumb Bar Theming (Spec 010 US-4 / T4 / FR-11, FR-12, NFR-1, NFR-2)', () => {
+    it('should resolve Swiss Archive Light Mode breadcrumb bar classes (#F2F0EA surface, #C9C6BD border) (FR-11)', () => {
+      const lightBar = getBreadcrumbBarClasses('light');
+      expect(lightBar).toContain('h-8');
+      expect(lightBar).toContain('bg-[#F2F0EA]');
+      expect(lightBar).toContain('border-[#C9C6BD]');
+      expect(lightBar).toContain('text-[#4A4E54]');
+      expect(lightBar).toContain('overflow-x-auto');
+      expect(lightBar).toContain('scrollbar-none');
+    });
+
+    it('should resolve Swiss Archive Dark Mode breadcrumb bar classes (#15181E surface, #2C323D border) (FR-12)', () => {
+      const darkBar = getBreadcrumbBarClasses('dark');
+      expect(darkBar).toContain('h-8');
+      expect(darkBar).toContain('bg-[#15181E]');
+      expect(darkBar).toContain('border-[#2C323D]');
+      expect(darkBar).toContain('text-[#9CA3AF]');
+      expect(darkBar).toContain('overflow-x-auto');
+      expect(darkBar).toContain('scrollbar-none');
+    });
+
+    it('should resolve active crumb with prominent primary ink contrast in Light and Dark modes', () => {
+      const lightActive = getBreadcrumbCrumbClasses(true, 'light');
+      expect(lightActive).toContain('font-semibold');
+      expect(lightActive).toContain('text-[#111315]');
+      expect(lightActive).toContain('cursor-default');
+
+      const darkActive = getBreadcrumbCrumbClasses(true, 'dark');
+      expect(darkActive).toContain('font-semibold');
+      expect(darkActive).toContain('text-[#F3F4F6]');
+      expect(darkActive).toContain('cursor-default');
+    });
+
+    it('should resolve ancestor crumb buttons with Klein Blue hover transitions in Light and Dark modes', () => {
+      const lightAncestor = getBreadcrumbCrumbClasses(false, 'light');
+      expect(lightAncestor).toContain('text-[#7C8087]');
+      expect(lightAncestor).toContain('hover:text-[#1B44E8]');
+      expect(lightAncestor).toContain('cursor-pointer');
+
+      const darkAncestor = getBreadcrumbCrumbClasses(false, 'dark');
+      expect(darkAncestor).toContain('text-[#9CA3AF]');
+      expect(darkAncestor).toContain('hover:text-[#3B66FF]');
+      expect(darkAncestor).toContain('cursor-pointer');
+    });
+
+    it('should resolve typographical monospace slash separators in Light and Dark modes', () => {
+      const lightSep = getBreadcrumbSeparatorClasses('light');
+      expect(lightSep).toContain('font-mono');
+      expect(lightSep).toContain('text-[#A0A4A8]');
+
+      const darkSep = getBreadcrumbSeparatorClasses('dark');
+      expect(darkSep).toContain('font-mono');
+      expect(darkSep).toContain('text-[#4B5563]');
     });
   });
 });

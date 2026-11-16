@@ -7,6 +7,7 @@ import {
   truncateFolderStack,
   isAtRootDirectory,
   getCurrentFolder,
+  formatCrumbDisplayName,
   type FolderCrumb
 } from '../../src/shared/explorer-helpers';
 import type { StorageItem } from '../../src/shared/types';
@@ -219,6 +220,76 @@ describe('Breadcrumb Navigation Flow & Stack Truncation (Spec 010 US-2 / T2 / FR
     it('should connect ExplorerBreadcrumbBar in FileExplorer to truncateFolderStack and navigateToFolderStack', () => {
       expect(explorerComponentSource).toContain('truncateFolderStack(folderHistory, targetId)');
       expect(explorerComponentSource).toContain('navigateToFolderStack(newStack)');
+    });
+  });
+
+  describe('Lifecycle State Persistence & Error Escaping (Spec 010 US-4 / T4 / FR-10, EC-3, EC-5, EC-6)', () => {
+    it('should keep breadcrumb trail permanently mounted outside table body across all explorer states (FR-10)', () => {
+      const explorerSource = readFileSync(
+        resolve(__dirname, '../../src/renderer/src/components/explorer/FileExplorer.tsx'),
+        'utf-8'
+      );
+
+      // Verify breadcrumb is placed before the conditional loading / error / empty state blocks
+      const breadcrumbIdx = explorerSource.indexOf('<ExplorerBreadcrumbBar');
+      const loadingIdx = explorerSource.indexOf('data-testid="explorer-loading-spinner"');
+      const errorIdx = explorerSource.indexOf('data-testid="explorer-error-banner"');
+      const emptyIdx = explorerSource.indexOf('data-testid="explorer-empty-state"');
+
+      expect(breadcrumbIdx).toBeGreaterThan(-1);
+      expect(breadcrumbIdx).toBeLessThan(loadingIdx);
+      expect(breadcrumbIdx).toBeLessThan(errorIdx);
+      expect(breadcrumbIdx).toBeLessThan(emptyIdx);
+    });
+
+    it('should allow escaping a failed directory by clicking an ancestor crumb during error state (EC-5)', () => {
+      // Standing in subfolder with error state
+      const errorState = {
+        ...initialExplorerState,
+        folderHistory: deepStack,
+        isLoading: false,
+        errorMessage: 'Network timeout loading directory'
+      };
+
+      // User clicks 'Documents' ancestor to escape
+      const truncatedStack = truncateFolderStack(errorState.folderHistory, 'folder_docs');
+      const nextState = explorerReducer(errorState, {
+        type: 'NAVIGATE_TO_FOLDER_STACK',
+        payload: truncatedStack
+      });
+
+      expect(nextState.folderHistory).toEqual([rootCrumb, docsCrumb]);
+      expect(nextState.errorMessage).toBeNull();
+      expect(nextState.isLoading).toBe(true);
+    });
+
+    it('should reset to root on full REFRESH_DIRECTORY and preserve stack on RETRY_CURRENT_DIRECTORY (EC-6)', () => {
+      const currentState = {
+        ...initialExplorerState,
+        folderHistory: deepStack,
+        refreshCounter: 1,
+        isLoading: false
+      };
+
+      // Full refresh returns to root breadcrumb
+      const refreshed = explorerReducer(currentState, { type: 'REFRESH_DIRECTORY' });
+      expect(refreshed.folderHistory).toEqual([rootCrumb]);
+      expect(refreshed.refreshCounter).toBe(2);
+      expect(refreshed.isLoading).toBe(true);
+
+      // Retry current directory preserves full breadcrumb trail
+      const retried = explorerReducer(currentState, { type: 'RETRY_CURRENT_DIRECTORY' });
+      expect(retried.folderHistory).toEqual(deepStack);
+      expect(retried.refreshCounter).toBe(2);
+      expect(retried.isLoading).toBe(true);
+    });
+
+    it('should reactively update root crumb label upon language toggle without altering folder history (EC-3)', () => {
+      expect(formatCrumbDisplayName(rootCrumb, true, 'es')).toBe('Mi unidad');
+      expect(formatCrumbDisplayName(rootCrumb, true, 'en')).toBe('My Drive');
+      // Subfolders are unaffected by language toggle
+      expect(formatCrumbDisplayName(docsCrumb, false, 'es')).toBe('Documents');
+      expect(formatCrumbDisplayName(docsCrumb, false, 'en')).toBe('Documents');
     });
   });
 });
