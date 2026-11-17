@@ -19,3 +19,11 @@
 - [x] **T5. Implement Swiss Archive modal dialogs (Waiting for Authorization, About Prydrive, and Disconnect Account) with Technical Index Strips, framed metadata boxes, and localized COPY/COPIAR actions.** US-5 (FR-17, EC-4, EC-7)
   - Depends on: T1, T2, T3
   - Done when: `AwaitingAuthModal.tsx` (`OAUTH 2.0 LOOPBACK` // `127.0.0.1`), `AboutModal.tsx` (`SYSTEM // ABOUT` // `[ESC]`), and `DisconnectModal.tsx` (`SECURITY // REVOKE SESSION` // `SAFE_STORAGE`) render inside `6px`-radius `1px`-bordered Swiss Archive containers with their respective Technical Index Strips, `4px`-radius geometric action buttons, rectangular `3px`-radius monospace version badge, `1px` framed metadata box, and bordered `COPY` / `COPIAR` (`COPIED!` / `¡COPIADO!`) email button with 100% EN/ES translation parity. Verified via automated unit tests in `tests/unit/about-modal.test.ts` and `tests/unit/translations.test.ts`.
+
+- [x] **T6. Reorder top-right utility cluster controls to Alternative C ([EN | ES] -> Theme -> About -> Disconnect) across MenuBar, WelcomeScreen, and OfflineScreen.** US-2, US-3 (FR-7, FR-9, FR-16, EC-6)
+  - Depends on: T2, T3
+  - Done when: In `MenuBar.tsx`, `WelcomeScreen.tsx`, and `App.tsx` (offline screen), the top-right utility cluster renders in the exact sequence `LanguageToggle` (`EN | ES`), `ThemeToggle` (Moon/Sun), `About Prydrive` info button, and (in `MenuBar.tsx` when sidebar is collapsed) compact `Disconnect` button; verified via automated unit tests in `tests/unit/menu-bar.test.ts` and `tests/unit/welcome-screen.test.ts`.
+  - Test Scenarios:
+    1. *Authenticated Header Top-Right Cluster Sequence:* `MenuBar.tsx` renders controls in order `LanguageToggle` -> `ThemeToggle` -> `About` -> `Disconnect` (when collapsed). Verified in `tests/unit/menu-bar.test.ts`.
+    2. *Pre-Authentication Welcome Screen Sequence:* `WelcomeScreen.tsx` renders controls in order `LanguageToggle` -> `ThemeToggle` -> `About`. Verified in `tests/unit/welcome-screen.test.ts`.
+    3. *Pre-Authentication Offline Screen Sequence:* `App.tsx` offline screen renders controls in order `LanguageToggle` -> `ThemeToggle` -> `About`. Verified in `tests/unit/welcome-screen.test.ts`.

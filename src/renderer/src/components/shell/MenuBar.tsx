@@ -119,6 +119,20 @@ export const MenuBar: React.FC<MenuBarProps> = ({
 
       {/* Right side: Unified control cluster (FR-7, FR-16, EC-6) */}
       <div className="flex items-center gap-2">
+        {/* Language selector (FR-7) */}
+        <LanguageToggle
+          currentLanguage={language}
+          onLanguageChange={onSetLanguage}
+          theme={theme}
+        />
+
+        {/* Theme toggle button (FR-7) */}
+        <ThemeToggle
+          theme={theme}
+          onToggle={handleToggleTheme}
+          language={language}
+        />
+
         {/* About Prydrive info button (FR-7, EC-7) */}
         <button
           type="button"
@@ -130,20 +144,6 @@ export const MenuBar: React.FC<MenuBarProps> = ({
         >
           <Info className="w-3.5 h-3.5" />
         </button>
-
-        {/* Theme toggle button (FR-7) */}
-        <ThemeToggle
-          theme={theme}
-          onToggle={handleToggleTheme}
-          language={language}
-        />
-
-        {/* Language selector (FR-7) */}
-        <LanguageToggle
-          currentLanguage={language}
-          onLanguageChange={onSetLanguage}
-          theme={theme}
-        />
 
         {/* Compact icon-only Disconnect SVG button (FR-16, EC-6) */}
         {showTopBarDisconnect && (

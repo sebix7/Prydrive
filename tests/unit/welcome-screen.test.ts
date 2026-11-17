@@ -94,6 +94,42 @@ describe('Swiss Archive Pre-Authentication & Offline Views (Spec 006 US-2 / T2)'
       expect(appSource).toContain('AboutModal');
       expect(appSource).toContain('SWISS_CONTROL_LAYOUT.topRightClusterClass');
     });
+
+    it('should render top-right utility cluster in Alternative C sequence: LanguageToggle -> ThemeToggle -> About (FR-7, Spec 006 T6)', () => {
+      const welcomeSource = readFileSync(
+        resolve(__dirname, '../../src/renderer/src/components/auth/WelcomeScreen.tsx'),
+        'utf-8'
+      );
+      const languagePos = welcomeSource.indexOf('<LanguageToggle');
+      const themePos = welcomeSource.indexOf('<ThemeToggle');
+      const aboutPos = welcomeSource.indexOf('data-testid="about-btn"');
+
+      expect(languagePos).toBeGreaterThan(-1);
+      expect(themePos).toBeGreaterThan(-1);
+      expect(aboutPos).toBeGreaterThan(-1);
+
+      expect(languagePos).toBeLessThan(themePos);
+      expect(themePos).toBeLessThan(aboutPos);
+
+      const appSource = readFileSync(
+        resolve(__dirname, '../../src/renderer/src/App.tsx'),
+        'utf-8'
+      );
+      const appClusterStart = appSource.indexOf('SWISS_CONTROL_LAYOUT.topRightClusterClass');
+      expect(appClusterStart).toBeGreaterThan(-1);
+      const appClusterSlice = appSource.slice(appClusterStart, appClusterStart + 1200);
+
+      const appLanguagePos = appClusterSlice.indexOf('<LanguageToggle');
+      const appThemePos = appClusterSlice.indexOf('<ThemeToggle');
+      const appAboutPos = appClusterSlice.indexOf('data-testid="about-btn"');
+
+      expect(appLanguagePos).toBeGreaterThan(-1);
+      expect(appThemePos).toBeGreaterThan(-1);
+      expect(appAboutPos).toBeGreaterThan(-1);
+
+      expect(appLanguagePos).toBeLessThan(appThemePos);
+      expect(appThemePos).toBeLessThan(appAboutPos);
+    });
   });
 
   describe('Google Drive Branded Connection Button & Cloud-Agnostic Subtitle (Spec 008 US-1 / T1 / FR-1, FR-2, FR-9)', () => {

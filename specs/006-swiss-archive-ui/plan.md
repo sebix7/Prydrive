@@ -24,7 +24,7 @@ flowchart TD
     subgraph PreAuthUI ["Pre-Authentication Views (US-2)"]
         AppRoot["App.tsx (Offline view/banner, Session loader, global AboutModal state)"]
         Welcome["WelcomeScreen.tsx (Technical strip, Klein Blue hover)"]
-        Controls["TopRightControls (About button + ThemeToggle + LanguageToggle at top:5px right:12px)"]
+        Controls["TopRightControls (LanguageToggle + ThemeToggle + About button at top:5px right:12px)"]
     end
 
     subgraph ShellUI ["Authenticated Desktop Shell (US-3)"]
@@ -72,9 +72,9 @@ flowchart TD
 | `src/shared/i18n/translations.ts` | Shared i18n | Adds bilingual keys (`en` / `es`) for `drive_unit_badge` (`'DRIVE: //MY_DRIVE'` / `'UNIDAD: //MY_DRIVE'`), `about_copy_short` (`'COPY'` / `'COPIAR'`), and `about_copied_short` (`'COPIED!'` / `'¡COPIADO!'`) (`FR-9`, `FR-10`, `FR-17`). |
 | `src/renderer/src/components/ui/ThemeToggle.tsx` | Renderer UI | Styles the `30px × 30px` (`w-[30px] h-[30px] rounded-[4px]`) Moon/Sun button with `1px` Swiss Archive border (`#C9C6BD` / `#2C323D`), elevated card background, and Klein Blue hover border/text (`FR-4`, `FR-7`). |
 | `src/renderer/src/components/ui/LanguageToggle.tsx` | Renderer UI | Styles the `30px`-tall (`h-[30px] rounded-[4px]`) `EN | ES` control group with `font-mono`, `1px` structural border, and elevated active button with Klein Blue text (`FR-4`, `FR-7`). |
-| `src/renderer/src/components/auth/WelcomeScreen.tsx` | Renderer UI | Applies `.swiss-dot-matrix` canvas, top-right control cluster (`top-[5px] right-[12px] gap-2` with `About` info button + `ThemeToggle` + `LanguageToggle`), `6px` framed card with `PRYDRIVE // AUTHENTICATION` · `OAUTH 2.0 · v<version>` strip, Klein Blue cloud badge, `font-display` heading, and Google sign-in button with Klein Blue hover state (`FR-5`, `FR-6`, `FR-7`, `FR-8`). |
+| `src/renderer/src/components/auth/WelcomeScreen.tsx` | Renderer UI | Applies `.swiss-dot-matrix` canvas, top-right control cluster (`top-[5px] right-[12px] gap-2` with `LanguageToggle` + `ThemeToggle` + `About` info button), `6px` framed card with `PRYDRIVE // AUTHENTICATION` · `OAUTH 2.0 · v<version>` strip, Klein Blue cloud badge, `font-display` heading, and Google sign-in button with Klein Blue hover state (`FR-5`, `FR-6`, `FR-7`, `FR-8`). |
 | `src/renderer/src/App.tsx` | Renderer Root | Mounts `<AboutModal />` globally so it opens from both Pre-Authentication (Sign-In / Offline) and Authenticated views (`FR-7`, `EC-7`); styles Offline Mode screen (`PRYDRIVE // OFFLINE` · `NETWORK_STATUS`), Offline banner, and Session Validation spinner with Swiss Archive tokens and `.swiss-dot-matrix` (`EC-1`). |
-| `src/renderer/src/components/shell/MenuBar.tsx` | Renderer Shell | Replaces legacy `Options` and `Help` dropdown menus with the `40px` Swiss Archive top header bar: static `UNIDAD: //MY_DRIVE` (`DRIVE: //MY_DRIVE`) monospace badge on the left, and unified `About` (`i`) + `ThemeToggle` + `LanguageToggle` + conditional icon-only `Disconnect` SVG button (`!isSidebarExpanded`) on the right (`FR-7`, `FR-9`, `FR-10`, `FR-16`, `EC-3`, `EC-6`). |
+| `src/renderer/src/components/shell/MenuBar.tsx` | Renderer Shell | Replaces legacy `Options` and `Help` dropdown menus with the `40px` Swiss Archive top header bar: static `UNIDAD: //MY_DRIVE` (`DRIVE: //MY_DRIVE`) monospace badge on the left, and unified `LanguageToggle` + `ThemeToggle` + `About` (`i`) + conditional icon-only `Disconnect` SVG button (`!isSidebarExpanded`) on the right (`FR-7`, `FR-9`, `FR-10`, `FR-16`, `EC-3`, `EC-6`). |
 | `src/renderer/src/components/shell/AppShell.tsx` | Renderer Shell | Wires `isSidebarExpanded`, `onOpenAbout`, `onDisconnect`, `language`, and `theme` into `MenuBar`, `NavigationRail`, `WorkspaceCanvas`, and `TelemetrySidebar` (`US-3`). |
 | `src/renderer/src/components/shell/NavigationRail.tsx` | Renderer Shell | Styles the `64px` (`w-16`) left rail with `#F2F0EA` / `#15181E` background, `1px` right border, `3px` (`w-[3px]`) vertical Klein Blue active indicator bar, `40px × 40px` (`rounded-[6px]`) framed active button, and dynamic `"P"` cutout (`FR-11`, `EC-5`). |
 | `src/renderer/src/components/shell/WorkspaceCanvas.tsx` | Renderer Shell | Renders `FileExplorer` when `activeNav === 'google-drive'` and renders the Swiss Archive `PRYDRIVE // WORKSPACE` framed card over `.swiss-dot-matrix` when `activeNav === 'prydrive'` (`US-3`, `FR-5`). |
@@ -212,14 +212,14 @@ export function getRowSelectionClasses(
 FUNCTION renderTopRightControlCluster(context, language, theme, isSidebarExpanded):
     // Identical position in both Pre-Auth (absolute top-[5px] right-[12px]) and Auth Header (h-[40px] px-[12px])
     RENDER container WITH classes "flex items-center gap-2":
-        1. AboutIconButton (30x30, rounded-[4px], 1px border --rule-strong):
-           ON CLICK -> openAboutModal()
+        1. LanguageToggle (h-[30px], rounded-[4px], 1px border --rule-strong, font-mono):
+           BUTTON 'EN' (active if language == 'en' -> cardBg + Klein Blue text)
+           BUTTON 'ES' (active if language == 'es' -> cardBg + Klein Blue text)
         2. ThemeToggle (30x30, rounded-[4px], 1px border --rule-strong):
            ICON -> Moon if theme == 'light' ELSE Sun
            ON CLICK -> toggleTheme()
-        3. LanguageToggle (h-[30px], rounded-[4px], 1px border --rule-strong, font-mono):
-           BUTTON 'EN' (active if language == 'en' -> cardBg + Klein Blue text)
-           BUTTON 'ES' (active if language == 'es' -> cardBg + Klein Blue text)
+        3. AboutIconButton (30x30, rounded-[4px], 1px border --rule-strong):
+           ON CLICK -> openAboutModal()
         4. IF context == 'authenticated' AND shouldShowTopBarDisconnect(isSidebarExpanded) IS TRUE:
            RENDER CompactDisconnectIconButton (30x30, rounded-[4px], 1px danger border, logout SVG only)
            ON CLICK -> openDisconnectModal()

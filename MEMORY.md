@@ -20,8 +20,10 @@ Project memory across sessions. Maximum ~75 lines: summarize or prune obsolete i
 - `specs/008-cloud-providers-showcase/` completed, validated (`FULFILLED`), and released in `v0.7.0`.
 - `specs/009-panel-toggle-controls/` completed, validated (`FULFILLED`), and released in `v0.8.0`.
 - `specs/010-explorer-breadcrumbs/` completed, validated (`FULFILLED`), and released in `v0.9.0`.
+- `specs/006-swiss-archive-ui/` updated via `/sdd-change` (T6: Alternative C reordering of top-right utility cluster).
 
 ## Decisions (and why)
+- **Top-right utility cluster sequence (Alternative C)**: Reordered `[Language: EN | ES]` -> `[Theme: Moon/Sun]` -> `[About]` -> `[Disconnect]` to prioritize workspace preferences before info and keep disconnect isolated at the outer right perimeter.
 - **Tailwind content scan of shared code**: `tailwind.config.js` includes `./src/shared/**` so utility classes in shared state reducers (e.g. `.w-0`, `.min-w-0`) are compiled into CSS.
 - **Desktop root overflow & fluid canvas**: `html, body, #root` enforce `overflow: hidden` with `min-w-0 flex-1` on canvas to eliminate scrollbars and clipping on window resize.
 - **Multi-provider decoupled architecture (`StorageProvider`)**: Unified adapter pattern allowing future cloud hosting providers beyond Google Drive without refactoring UI or core controllers.

@@ -92,6 +92,20 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
     >
       {/* Top right theme, language, and about switches (FR-4, FR-5, FR-7) */}
       <div className={SWISS_CONTROL_LAYOUT.topRightClusterClass}>
+        {onLanguageChange && (
+          <LanguageToggle
+            currentLanguage={language}
+            onLanguageChange={onLanguageChange}
+            theme={theme}
+          />
+        )}
+        {onToggleTheme && (
+          <ThemeToggle
+            theme={theme}
+            onToggle={onToggleTheme}
+            language={language}
+          />
+        )}
         {onOpenAbout && (
           <button
             type="button"
@@ -103,20 +117,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           >
             <Info className="w-3.5 h-3.5" />
           </button>
-        )}
-        {onToggleTheme && (
-          <ThemeToggle
-            theme={theme}
-            onToggle={onToggleTheme}
-            language={language}
-          />
-        )}
-        {onLanguageChange && (
-          <LanguageToggle
-            currentLanguage={language}
-            onLanguageChange={onLanguageChange}
-            theme={theme}
-          />
         )}
       </div>
 

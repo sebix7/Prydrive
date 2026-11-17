@@ -250,6 +250,16 @@ export const App: React.FC = () => {
         >
           {/* Top-right theme, language, and about switches (FR-4, FR-5, FR-7) */}
           <div className={SWISS_CONTROL_LAYOUT.topRightClusterClass}>
+            <LanguageToggle
+              currentLanguage={language}
+              onLanguageChange={handleLanguageChange}
+              theme={theme}
+            />
+            <ThemeToggle
+              theme={theme}
+              onToggle={toggleTheme}
+              language={language}
+            />
             <button
               type="button"
               data-testid="about-btn"
@@ -260,16 +270,6 @@ export const App: React.FC = () => {
             >
               <Info className="w-3.5 h-3.5" />
             </button>
-            <ThemeToggle
-              theme={theme}
-              onToggle={toggleTheme}
-              language={language}
-            />
-            <LanguageToggle
-              currentLanguage={language}
-              onLanguageChange={handleLanguageChange}
-              theme={theme}
-            />
           </div>
 
           <div
