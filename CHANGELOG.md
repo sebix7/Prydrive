@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.9.1](https://github.com/sebix7/Prydrive/compare/v0.9.0...v0.9.1) (2026-11-17)
+
+
+### Code Refactoring
+
+* **shell:** move refresh button to header and left-align status metrics ([14e05f2](https://github.com/sebix7/Prydrive/commit/14e05f238694df080ff264eaeb83080eff41b382))
+* **shell:** reorder top-right utility cluster controls ([d7e91d4](https://github.com/sebix7/Prydrive/commit/d7e91d49983f03a31b88302c7103e282fbe1ee7e))
+
+
+### Documentation
+
+* **memory:** record v0.9.0 explorer breadcrumbs release ([c474d20](https://github.com/sebix7/Prydrive/commit/c474d208b16068a48d07d2cd082b780765fd4d57))
+
 ## [0.9.0](https://github.com/sebix7/Prydrive/compare/v0.8.0...v0.9.0) (2026-11-16)
 
 
