@@ -20,7 +20,7 @@ Project memory across sessions. Maximum ~75 lines: summarize or prune obsolete i
 - `specs/008-cloud-providers-showcase/` completed, validated (`FULFILLED`), and released in `v0.7.0`.
 - `specs/009-panel-toggle-controls/` completed, validated (`FULFILLED`), and released in `v0.8.0`.
 - `specs/010-explorer-breadcrumbs/` completed, validated (`FULFILLED`), and released in `v0.9.0`.
-- `specs/006-swiss-archive-ui/` updated via `/sdd-change` (T6: Alternative C reordering; T7: header refresh button and status bar left-alignment).
+- `specs/006-swiss-archive-ui/` patch updates released in `v0.9.1` (T6: Alternative C reordering; T7: header refresh button and status bar left-alignment).
 
 ## Decisions (and why)
 - **Top-right utility cluster & status bar alignment**: Relocated `Refresh` to top-right header cluster (`[Refresh] -> [Language] -> [Theme] -> [About] -> [Disconnect]`) and left-aligned folder/file counts in bottom status bar for cleaner two-column telemetry.
