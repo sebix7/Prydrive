@@ -53,21 +53,24 @@ describe('Swiss Archive Menu Bar & Desktop Shell (Spec 006 US-3 / T3)', () => {
       expect(menuBarSource).not.toContain('resolveOptionsSubmenu');
     });
 
-    it('should render top-right utility cluster in Alternative C sequence: LanguageToggle -> ThemeToggle -> About -> Disconnect (FR-7, FR-9, FR-16, Spec 006 T6)', () => {
+    it('should render top-right utility cluster in sequence: Refresh -> LanguageToggle -> ThemeToggle -> About -> Disconnect (FR-7, FR-9, FR-16, Spec 006 T7)', () => {
       const menuBarSource = readFileSync(
         resolve(__dirname, '../../src/renderer/src/components/shell/MenuBar.tsx'),
         'utf-8'
       );
+      const refreshPos = menuBarSource.indexOf('data-testid="header-refresh-btn"');
       const languagePos = menuBarSource.indexOf('<LanguageToggle');
       const themePos = menuBarSource.indexOf('<ThemeToggle');
       const aboutPos = menuBarSource.indexOf('data-testid="about-btn"');
       const disconnectPos = menuBarSource.indexOf('data-testid="topbar-disconnect-btn"');
 
+      expect(refreshPos).toBeGreaterThan(-1);
       expect(languagePos).toBeGreaterThan(-1);
       expect(themePos).toBeGreaterThan(-1);
       expect(aboutPos).toBeGreaterThan(-1);
       expect(disconnectPos).toBeGreaterThan(-1);
 
+      expect(refreshPos).toBeLessThan(languagePos);
       expect(languagePos).toBeLessThan(themePos);
       expect(themePos).toBeLessThan(aboutPos);
       expect(aboutPos).toBeLessThan(disconnectPos);

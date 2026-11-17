@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogOut, Info, FolderTree, PanelRight, PanelLeft } from 'lucide-react';
+import { LogOut, Info, FolderTree, PanelRight, PanelLeft, RotateCw } from 'lucide-react';
 import type { LanguageCode, ThemeMode } from '../../../../shared/types';
 import type { ActiveMenu } from '../../../../shared/shell-state';
 import {
@@ -31,6 +31,8 @@ export interface MenuBarProps {
   isCompactWidth?: boolean;
   isRailExpanded?: boolean;
   onToggleRail?: () => void;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
 /**
@@ -52,7 +54,9 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   onToggleSidebar,
   isCompactWidth = false,
   isRailExpanded = true,
-  onToggleRail
+  onToggleRail,
+  onRefresh,
+  isRefreshing = false
 }) => {
   const handleToggleTheme = () => {
     if (onToggleTheme) {
@@ -117,8 +121,27 @@ export const MenuBar: React.FC<MenuBarProps> = ({
         )}
       </div>
 
-      {/* Right side: Unified control cluster (FR-7, FR-16, EC-6) */}
+      {/* Right side: Unified control cluster (FR-7, FR-9, FR-16, EC-6, EC-8) */}
       <div className="flex items-center gap-2">
+        {/* Workspace Refresh button (FR-9, EC-8) */}
+        {onRefresh && (
+          <button
+            type="button"
+            data-testid="header-refresh-btn"
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            title={getTranslation(language, 'explorer_refresh')}
+            aria-label={getTranslation(language, 'explorer_refresh')}
+            className="inline-flex items-center justify-center w-[30px] h-[30px] rounded-[4px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#FFFFFF] dark:bg-[#181C23] text-[#111315] dark:text-[#F3F4F6] hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] hover:border-[#1B44E8] dark:hover:border-[#3B66FF] hover:text-[#1B44E8] dark:hover:text-[#3B66FF] transition-all duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#1B44E8] dark:focus-visible:ring-[#3B66FF] active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+          >
+            <RotateCw
+              className={`w-3.5 h-3.5 text-[#1B44E8] dark:text-[#3B66FF] ${
+                isRefreshing ? 'animate-spin' : ''
+              }`}
+            />
+          </button>
+        )}
+
         {/* Language selector (FR-7) */}
         <LanguageToggle
           currentLanguage={language}

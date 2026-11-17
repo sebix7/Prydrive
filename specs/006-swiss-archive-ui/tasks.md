@@ -27,3 +27,11 @@
     1. *Authenticated Header Top-Right Cluster Sequence:* `MenuBar.tsx` renders controls in order `LanguageToggle` -> `ThemeToggle` -> `About` -> `Disconnect` (when collapsed). Verified in `tests/unit/menu-bar.test.ts`.
     2. *Pre-Authentication Welcome Screen Sequence:* `WelcomeScreen.tsx` renders controls in order `LanguageToggle` -> `ThemeToggle` -> `About`. Verified in `tests/unit/welcome-screen.test.ts`.
     3. *Pre-Authentication Offline Screen Sequence:* `App.tsx` offline screen renders controls in order `LanguageToggle` -> `ThemeToggle` -> `About`. Verified in `tests/unit/welcome-screen.test.ts`.
+
+- [x] **T7. Move Refresh button to top-right header cluster and left-align counts in bottom status bar.** US-3, US-4 (FR-9, FR-14, EC-8)
+  - Depends on: T6
+  - Done when: In `MenuBar.tsx`, a 30px × 30px `header-refresh-btn` with `RotateCw` icon is rendered as the first element of the top-right cluster (`[Refresh] -> [Language] -> [Theme] -> [About] -> [Disconnect]`); `AppShell.tsx` wires `DriveExplorerProvider` with `MenuBar`; and in `ExplorerStatusBar.tsx`, the refresh button is removed and folder/file counts (`explorer-status-counts`) are left-aligned while total size (`explorer-status-total-size`) remains right-aligned; verified via automated unit tests in `tests/unit/menu-bar.test.ts` and `tests/unit/drive-explorer.test.ts`.
+  - Test Scenarios:
+    1. *Header Utility Cluster Sequence:* `MenuBar.tsx` renders controls in order `header-refresh-btn` -> `LanguageToggle` -> `ThemeToggle` -> `About` -> `Disconnect` (when collapsed). Verified in `tests/unit/menu-bar.test.ts`.
+    2. *Status Bar Metrics Left-Alignment:* `ExplorerStatusBar.tsx` renders monospace metrics with `explorer-status-counts` on the left and `explorer-status-total-size` on the right, with no refresh button. Verified in `tests/unit/drive-explorer.test.ts`.
+    3. *Status Bar Visibility & Telemetry Permanence:* `ExplorerStatusBar.tsx` maintains telemetry elements without compact width regression. Verified in `tests/unit/panel-toggle-controls.test.ts`.

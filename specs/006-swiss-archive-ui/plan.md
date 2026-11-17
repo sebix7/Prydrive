@@ -74,7 +74,7 @@ flowchart TD
 | `src/renderer/src/components/ui/LanguageToggle.tsx` | Renderer UI | Styles the `30px`-tall (`h-[30px] rounded-[4px]`) `EN | ES` control group with `font-mono`, `1px` structural border, and elevated active button with Klein Blue text (`FR-4`, `FR-7`). |
 | `src/renderer/src/components/auth/WelcomeScreen.tsx` | Renderer UI | Applies `.swiss-dot-matrix` canvas, top-right control cluster (`top-[5px] right-[12px] gap-2` with `LanguageToggle` + `ThemeToggle` + `About` info button), `6px` framed card with `PRYDRIVE // AUTHENTICATION` · `OAUTH 2.0 · v<version>` strip, Klein Blue cloud badge, `font-display` heading, and Google sign-in button with Klein Blue hover state (`FR-5`, `FR-6`, `FR-7`, `FR-8`). |
 | `src/renderer/src/App.tsx` | Renderer Root | Mounts `<AboutModal />` globally so it opens from both Pre-Authentication (Sign-In / Offline) and Authenticated views (`FR-7`, `EC-7`); styles Offline Mode screen (`PRYDRIVE // OFFLINE` · `NETWORK_STATUS`), Offline banner, and Session Validation spinner with Swiss Archive tokens and `.swiss-dot-matrix` (`EC-1`). |
-| `src/renderer/src/components/shell/MenuBar.tsx` | Renderer Shell | Replaces legacy `Options` and `Help` dropdown menus with the `40px` Swiss Archive top header bar: static `UNIDAD: //MY_DRIVE` (`DRIVE: //MY_DRIVE`) monospace badge on the left, and unified `LanguageToggle` + `ThemeToggle` + `About` (`i`) + conditional icon-only `Disconnect` SVG button (`!isSidebarExpanded`) on the right (`FR-7`, `FR-9`, `FR-10`, `FR-16`, `EC-3`, `EC-6`). |
+| `src/renderer/src/components/shell/MenuBar.tsx` | Renderer Shell | Replaces legacy `Options` and `Help` dropdown menus with the `40px` Swiss Archive top header bar: static `UNIDAD: //MY_DRIVE` (`DRIVE: //MY_DRIVE`) monospace badge on the left, and unified `Refresh` (`RotateCw`) + `LanguageToggle` + `ThemeToggle` + `About` (`i`) + conditional icon-only `Disconnect` SVG button (`!isSidebarExpanded`) on the right (`FR-7`, `FR-9`, `FR-10`, `FR-16`, `EC-3`, `EC-6`, `EC-8`). |
 | `src/renderer/src/components/shell/AppShell.tsx` | Renderer Shell | Wires `isSidebarExpanded`, `onOpenAbout`, `onDisconnect`, `language`, and `theme` into `MenuBar`, `NavigationRail`, `WorkspaceCanvas`, and `TelemetrySidebar` (`US-3`). |
 | `src/renderer/src/components/shell/NavigationRail.tsx` | Renderer Shell | Styles the `64px` (`w-16`) left rail with `#F2F0EA` / `#15181E` background, `1px` right border, `3px` (`w-[3px]`) vertical Klein Blue active indicator bar, `40px × 40px` (`rounded-[6px]`) framed active button, and dynamic `"P"` cutout (`FR-11`, `EC-5`). |
 | `src/renderer/src/components/shell/WorkspaceCanvas.tsx` | Renderer Shell | Renders `FileExplorer` when `activeNav === 'google-drive'` and renders the Swiss Archive `PRYDRIVE // WORKSPACE` framed card over `.swiss-dot-matrix` when `activeNav === 'prydrive'` (`US-3`, `FR-5`). |
@@ -83,7 +83,7 @@ flowchart TD
 | `src/renderer/src/components/explorer/FileExplorer.tsx` | Renderer UI | Styles the central table container (`#FFFFFF` / `#181C23`), `36px` (`h-9`) sticky header in `11px` uppercase `font-mono` with secondary background and `1px` strong bottom border, and Swiss Archive loading/empty/error states (`FR-12`, `EC-2`). |
 | `src/renderer/src/components/explorer/FileTableRow.tsx` | Renderer UI | Styles `36px` (`h-9`) rows with `1px` subtle bottom rule (`#DFDDD6` / `#222730`), `3px` left Klein Blue accent bar when selected, and `font-mono` creation timestamps and file sizes (`FR-12`, `FR-13`). |
 | `src/renderer/src/components/explorer/ParentNavRow.tsx` | Renderer UI | Styles the `36px` virtual `"..."` parent row with Swiss Archive folder icon, bold `font-mono` `"..."` label, and subtle bottom border (`FR-12`). |
-| `src/renderer/src/components/explorer/ExplorerStatusBar.tsx` | Renderer UI | Styles the `36px` (`h-9`) footer bar with secondary surface background, `1px` top strong border, framed `4px`-radius `font-mono` `Refresh` (`Actualizar`) button, and `font-mono` counts and total size (`FR-14`). |
+| `src/renderer/src/components/explorer/ExplorerStatusBar.tsx` | Renderer UI | Styles the `36px` (`h-9`) footer bar with secondary surface background, `1px` top strong border, displaying monospace counts on the left and total size on the right (`FR-14`). |
 | `src/renderer/src/components/auth/AwaitingAuthModal.tsx` | Renderer UI | Adds `OAUTH 2.0 LOOPBACK` // `127.0.0.1` technical header strip, `6px` framed modal container, rectangular `6px` countdown bar, and `4px`-radius cancel button (`FR-17`). |
 | `src/renderer/src/components/shell/AboutModal.tsx` | Renderer Shell | Adds `SYSTEM // ABOUT` // `[ESC]` interactive technical header strip, rectangular `3px`-radius `font-mono` version badge, `1px` framed metadata box, bordered `COPY` / `COPIAR` (`COPIED!` / `¡COPIADO!`) button, and `4px`-radius Klein Blue primary button (`FR-17`). |
 | `src/renderer/src/components/auth/DisconnectModal.tsx` | Renderer UI | Adds `SECURITY // REVOKE SESSION` // `SAFE_STORAGE` technical header strip, `6px`-radius danger icon badge, `font-display` title, and `4px`-radius geometric cancel/confirm buttons (`FR-17`). |
@@ -209,18 +209,21 @@ export function getRowSelectionClasses(
 
 ### A. Unified Top-Right Controls & Conditional Disconnect Rendering (`WelcomeScreen` & `MenuBar`)
 ```text
-FUNCTION renderTopRightControlCluster(context, language, theme, isSidebarExpanded):
+FUNCTION renderTopRightControlCluster(context, language, theme, isSidebarExpanded, onRefresh, isRefreshing):
     // Identical position in both Pre-Auth (absolute top-[5px] right-[12px]) and Auth Header (h-[40px] px-[12px])
     RENDER container WITH classes "flex items-center gap-2":
-        1. LanguageToggle (h-[30px], rounded-[4px], 1px border --rule-strong, font-mono):
+        1. IF context == 'authenticated' AND onRefresh IS PROVIDED:
+           RENDER RefreshIconButton (30x30, rounded-[4px], 1px border --rule-strong, RotateCw icon spinning when isRefreshing)
+           ON CLICK -> onRefresh()
+        2. LanguageToggle (h-[30px], rounded-[4px], 1px border --rule-strong, font-mono):
            BUTTON 'EN' (active if language == 'en' -> cardBg + Klein Blue text)
            BUTTON 'ES' (active if language == 'es' -> cardBg + Klein Blue text)
-        2. ThemeToggle (30x30, rounded-[4px], 1px border --rule-strong):
+        3. ThemeToggle (30x30, rounded-[4px], 1px border --rule-strong):
            ICON -> Moon if theme == 'light' ELSE Sun
            ON CLICK -> toggleTheme()
-        3. AboutIconButton (30x30, rounded-[4px], 1px border --rule-strong):
+        4. AboutIconButton (30x30, rounded-[4px], 1px border --rule-strong):
            ON CLICK -> openAboutModal()
-        4. IF context == 'authenticated' AND shouldShowTopBarDisconnect(isSidebarExpanded) IS TRUE:
+        5. IF context == 'authenticated' AND shouldShowTopBarDisconnect(isSidebarExpanded) IS TRUE:
            RENDER CompactDisconnectIconButton (30x30, rounded-[4px], 1px danger border, logout SVG only)
            ON CLICK -> openDisconnectModal()
 ```

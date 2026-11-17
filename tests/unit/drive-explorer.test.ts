@@ -107,13 +107,16 @@ describe('Swiss Archive Drive Explorer Table & Selection Helper (Spec 006 US-4, 
       expect(statusBarSource).toContain('dark:border-[#2C323D]');
     });
 
-    it('should render framed 4px-radius monospace Refresh button and monospace metrics', () => {
-      expect(statusBarSource).toContain('rounded-[4px]');
+    it('should render monospace metrics with left-aligned counts and right-aligned total size, without refresh button (FR-14, Spec 006 T7)', () => {
+      expect(statusBarSource).toContain('data-testid="explorer-status-counts"');
+      expect(statusBarSource).toContain('data-testid="explorer-status-total-size"');
       expect(statusBarSource).toContain('font-mono');
-      expect(statusBarSource).toContain('border-[#C9C6BD]');
-      expect(statusBarSource).toContain('dark:border-[#2C323D]');
-      expect(statusBarSource).toContain('bg-[#FFFFFF]');
-      expect(statusBarSource).toContain('dark:bg-[#181C23]');
+      expect(statusBarSource).not.toContain('explorer-refresh-button');
+      expect(statusBarSource).not.toContain('RotateCw');
+
+      const countsPos = statusBarSource.indexOf('data-testid="explorer-status-counts"');
+      const totalSizePos = statusBarSource.indexOf('data-testid="explorer-status-total-size"');
+      expect(countsPos).toBeLessThan(totalSizePos);
     });
   });
 });

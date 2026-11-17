@@ -223,13 +223,12 @@ describe('Panel Visibility Toggle Controls (Spec 009 US-1 / T1 / FR-1, FR-2, FR-
       expect(sidebarSource).toContain('sidebar-toggle-btn');
     });
 
-    it('should verify ExplorerStatusBar.tsx remains permanently visible with refresh control and telemetry (FR-13)', () => {
+    it('should verify ExplorerStatusBar.tsx remains permanently visible with telemetry (FR-13)', () => {
       const statusBarSource = readFileSync(
         resolve(__dirname, '../../src/renderer/src/components/explorer/ExplorerStatusBar.tsx'),
         'utf-8'
       );
       expect(statusBarSource).toContain('explorer-status-bar');
-      expect(statusBarSource).toContain('explorer-refresh-button');
       expect(statusBarSource).toContain('explorer-status-counts');
       expect(statusBarSource).toContain('explorer-status-total-size');
       expect(statusBarSource).not.toContain('isCompactWidth');

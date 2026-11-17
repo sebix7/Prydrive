@@ -179,11 +179,9 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         )}
       </div>
 
-      {/* Persistent Bottom Status Bar (FR-12, FR-13) */}
+      {/* Persistent Bottom Status Bar (FR-12, FR-14) */}
       <ExplorerStatusBar
         metrics={metrics}
-        isLoading={isLoading}
-        onRefresh={refreshDirectory}
         language={language}
         theme={theme}
       />

@@ -7,7 +7,7 @@ import { WorkspaceCanvas } from './WorkspaceCanvas';
 import { MenuBar } from './MenuBar';
 import { AboutModal } from './AboutModal';
 import { TelemetrySidebar } from './TelemetrySidebar';
-import { DriveExplorerProvider } from '../../context/DriveExplorerContext';
+import { DriveExplorerProvider, useDriveExplorerContext } from '../../context/DriveExplorerContext';
 
 interface AppShellProps {
   userProfile: UserProfile | null;
@@ -54,7 +54,7 @@ interface AppShellProps {
   }) => React.ReactNode;
 }
 
-export const AppShell: React.FC<AppShellProps> = ({
+const AppShellContent: React.FC<AppShellProps> = ({
   userProfile,
   storageQuota,
   isLoadingQuota = false,
@@ -78,6 +78,7 @@ export const AppShell: React.FC<AppShellProps> = ({
     toggleTree,
     toggleSidebar
   } = useShellState();
+  const { refreshDirectory, isLoading: isRefreshing } = useDriveExplorerContext();
   const userEmail = userProfile?.email || 'user@example.com';
   const isDark = theme === 'dark';
 
@@ -125,12 +126,13 @@ export const AppShell: React.FC<AppShellProps> = ({
           isCompactWidth={isCompactWidth}
           isRailExpanded={state.isRailExpanded}
           onToggleRail={toggleRail}
+          onRefresh={refreshDirectory}
+          isRefreshing={isRefreshing}
         />
       )}
 
       {/* Main Workspace Body: Left Rail + Center Canvas + Right Sidebar */}
-      <DriveExplorerProvider onRefreshQuota={onRefreshQuota}>
-        <div className="flex flex-1 overflow-hidden relative">
+      <div className="flex flex-1 overflow-hidden relative">
           {/* Zone 2: Left Navigation Rail */}
           {renderNavigationRail ? (
             renderNavigationRail({
@@ -201,7 +203,6 @@ export const AppShell: React.FC<AppShellProps> = ({
             />
           )}
         </div>
-      </DriveExplorerProvider>
 
       {/* About Modal (FR-6 / Help) */}
       <AboutModal
@@ -211,5 +212,14 @@ export const AppShell: React.FC<AppShellProps> = ({
         theme={theme}
       />
     </div>
+  );
+};
+
+export const AppShell: React.FC<AppShellProps> = (props) => {
+  const { onRefreshQuota } = props;
+  return (
+    <DriveExplorerProvider onRefreshQuota={onRefreshQuota}>
+      <AppShellContent {...props} />
+    </DriveExplorerProvider>
   );
 };
