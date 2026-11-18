@@ -196,7 +196,7 @@ Column 2: Item Name Container -> flex-1 min-w-0 pr-9 flex items-center justify-b
 - **Surfaces:** Elevated card surface (`#FFFFFF` in Light, `#181C23` in Dark) with exposed `1px` solid border (`#C9C6BD` in Light, `--rule-strong` `#2C323D` in Dark) and `rounded-[6px]`.
 - **Upper Header Strip:** Compact technical strip (`28px` height, `bg-[#F2F0EA]` / `bg-[#15181E]`, `1px` bottom border) with `font-mono text-[10px]` uppercase title (`DETALLES // METADATA` / `DETAILS // METADATA`) on the left and a compact close button `[ESC]` on the right.
 - **Structured Fields List (6 items):**
-  1. **Nombre / Name:** `font-sans text-xs font-semibold text-[#111315] dark:text-[#F3F4F6] break-words`.
+  1. **Nombre / Name:** Selectable text `font-sans text-xs font-semibold text-[#111315] dark:text-[#F3F4F6] break-words select-text cursor-text` (FR-6.1, Decision 12).
   2. **Tipo / Type:** Monospace category badge (`Carpeta`, `Documento PDF`, etc.) with `font-mono text-[11px]`.
   3. **Tamaño / Size:** `font-mono text-[11px]` (e.g. `14.2 MB`, `0 B` for empty files, `--` for folders).
   4. **Fecha de creación / Created:** `font-mono text-[11px]` (`DD/MM/YYYY HH:mm:ss`).

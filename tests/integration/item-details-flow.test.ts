@@ -89,4 +89,59 @@ describe('Item Details Action Button & Selection Decoupling Flow (Spec 011 US-2 
       expect(explorerSource).toContain('language={language}');
     });
   });
+
+  describe('Single Popover Cardinality & Fluid Dismissal Machine (Spec 011 US-4 / T4 / FR-5, FR-7, EC-4, EC-6, EC-7, EC-9)', () => {
+    it('should import ItemDetailsPopover and AnchorRect in FileExplorer', () => {
+      expect(explorerSource).toContain("import { ItemDetailsPopover } from './ItemDetailsPopover'");
+      expect(explorerSource).toContain("import type { AnchorRect } from '../../../../shared/item-details'");
+    });
+
+    it('should declare activeDetailsItemId and activeAnchorRect state in FileExplorer (FR-5.2, FR-5.3)', () => {
+      expect(explorerSource).toContain('const [activeDetailsItemId, setActiveDetailsItemId] = React.useState<string | null>(null)');
+      expect(explorerSource).toContain('const [activeAnchorRect, setActiveAnchorRect] = React.useState<AnchorRect | null>(null)');
+      expect(explorerSource).toContain('anchorElementRef');
+    });
+
+    it('should wire onOpenDetails callback on FileTableRow enforcing single popover cardinality (FR-5.2, EC-9)', () => {
+      expect(explorerSource).toContain('onOpenDetails={(item, targetElement) => {');
+      expect(explorerSource).toContain('setActiveDetailsItemId(item.id)');
+      expect(explorerSource).toContain('setActiveAnchorRect(');
+    });
+
+    it('should dismiss popover immediately upon table scrolling (FR-7.3, EC-4)', () => {
+      expect(explorerSource).toContain('onScroll={onTableScroll}');
+      expect(explorerSource).toContain('const onTableScroll');
+      expect(explorerSource).toContain('activeDetailsItemId !== null');
+      expect(explorerSource).toContain('setActiveDetailsItemId(null)');
+      expect(explorerSource).toContain('handleScroll(e)');
+    });
+
+    it('should dismiss popover and reset state on folder navigation (FR-7.4, EC-6)', () => {
+      expect(explorerSource).toMatch(/\[currentFolder\.id\][\s\S]*setActiveDetailsItemId\(null\)/);
+    });
+
+    it('should dismiss popover on Escape keydown and restore focus to trigger button (FR-7.2, EC-7)', () => {
+      expect(explorerSource).toContain("e.key === 'Escape'");
+      expect(explorerSource).toContain('anchorElementRef.current?.focus()');
+    });
+
+    it('should dismiss popover on outside mousedown clicks (FR-7.1)', () => {
+      expect(explorerSource).toContain("addEventListener('mousedown'");
+      expect(explorerSource).toContain('item-details-popover');
+    });
+
+    it('should re-anchor popover dynamically on window resize, maximize, and table layout changes', () => {
+      expect(explorerSource).toContain("window.addEventListener('resize', updateAnchorPosition)");
+      expect(explorerSource).toContain('ResizeObserver');
+      expect(explorerSource).toContain('updateAnchorPosition');
+      expect(explorerSource).toContain('anchorElementRef.current.getBoundingClientRect()');
+    });
+
+    it('should render ItemDetailsPopover when activeDetailsItemId is present with selected item and anchor rect', () => {
+      expect(explorerSource).toContain('<ItemDetailsPopover');
+      expect(explorerSource).toContain('item={activeItem}');
+      expect(explorerSource).toContain('anchorRect={activeAnchorRect}');
+      expect(explorerSource).toContain('onClose=');
+    });
+  });
 });

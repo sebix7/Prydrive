@@ -22,11 +22,15 @@
   - Test Scenarios:
     1. *Category Resolution & 0-Byte Size Formatting:* `resolveItemCategory` maps all storage item types to bilingual human-readable categories (`en`/`es`); `formatItemSizeDetail` returns `'0 B'` for 0-byte files and `'--'` for folders. Verified in `tests/unit/item-details.test.ts`.
     2. *Viewport Boundary Clamping & Inward/Upward Flipping:* `calculatePopoverPosition` dynamically flips above the anchor button when overflowing the bottom edge, flips rightward when overflowing the left edge, and clamps coordinates strictly within viewport bounds. Verified in `tests/unit/item-details.test.ts`.
-    3. *Structured Metadata Presentation Contract:* `ItemDetailsPopover.tsx` renders a 280px elevated Swiss Archive card (`rounded-[6px]`, `border-[#C9C6BD]` / `dark:border-[#2C323D]`) with upper technical strip (`[ESC]`) and the 6 metadata fields (`name`, `type`, `size`, `created`, `mime`, `id`) with wrapping and selectable monospace text. Verified in `tests/unit/item-details.test.ts`.
+    3. *Structured Metadata Presentation Contract & Text Selection:* `ItemDetailsPopover.tsx` renders a 280px elevated Swiss Archive card (`rounded-[6px]`, `border-[#C9C6BD]` / `dark:border-[#2C323D]`) with upper technical strip (`[ESC]`) and the 6 metadata fields (`name`, `type`, `size`, `created`, `mime`, `id`) with wrapping, selectable monospace text for Drive ID, and selectable text for the file name (`select-text cursor-text`). Verified in `tests/unit/item-details.test.ts`.
 
-- [ ] **T4. Implement Single Popover Cardinality and fluid dismissal machine.** US-4 (FR-5, FR-7, EC-4, EC-6, EC-7, EC-9)
+- [x] **T4. Implement Single Popover Cardinality and fluid dismissal machine.** US-4 (FR-5, FR-7, EC-4, EC-6, EC-7, EC-9)
   - Depends on: T3
   - Done when: `FileExplorer.tsx` manages a single `activeDetailsItemId` state ensuring opening a details popover closes any previously open popover, and the active popover dismisses cleanly upon outside click, pressing `Escape` (returning focus to the triggering details button), table scrolling (`onScroll`), or directory navigation; verified via automated integration tests in `tests/integration/item-details-flow.test.ts`.
+  - Test Scenarios:
+    1. *Single Popover Cardinality & Mutual Exclusivity:* Opening details for item A renders its popover; clicking details on item B immediately closes item A's popover and displays item B's popover. Clicking the details button of the currently active item toggles the popover closed without modifying row selection. Verified in `tests/integration/item-details-flow.test.ts`.
+    2. *Fluid Dismissal on Outside Click & Escape with Focus Restoration:* With an active popover, clicking outside the popover card dismisses it cleanly; pressing `Escape` closes the popover and immediately restores keyboard focus to the triggering details button (`anchorElementRef.current?.focus()`). Verified in `tests/integration/item-details-flow.test.ts`.
+    3. *Table Scrolling & Directory Navigation Dismissal:* Scrolling the table body (`onScroll`) immediately dismisses the active popover to prevent detached overlays; navigating to another folder (`currentFolder.id` change) or list updates reset active state and cleanly unmount the popover. Verified in `tests/integration/item-details-flow.test.ts`.
 
 - [ ] **T5. Implement complete bilingual localization parity for all item details labels and categories.** US-5 (FR-10)
   - Depends on: T3

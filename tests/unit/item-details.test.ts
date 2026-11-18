@@ -141,8 +141,10 @@ describe('Item Details Helpers and Boundary Positioning (Spec 011 US-3 / T3 / FR
       expect(popoverSource).toContain('data-testid="item-details-mime"');
       expect(popoverSource).toContain('data-testid="item-details-id"');
 
-      // Full Name wraps without truncation (EC-2)
+      // Full Name wraps without truncation and is selectable (EC-2, FR-6.1, Decision 12)
       expect(popoverSource).toContain('break-words');
+      expect(popoverSource).toContain('select-text');
+      expect(popoverSource).toContain('cursor-text');
 
       // Monospace ID is selectable and breaks cleanly
       expect(popoverSource).toContain('select-all');

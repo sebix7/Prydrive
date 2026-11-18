@@ -35,7 +35,7 @@ To maximize filename readability, information density, and archival elegance, th
   2. Automatically dismiss any currently open Item Details Popover (enforcing single popover cardinality).
   3. Open the **Item Details Popover** anchored to the activated button.
 - **FR-6:** WHILE the Item Details Popover is open, THE SYSTEM SHALL render the following structured metadata fields inside a Swiss Archive container:
-  1. **Full Name:** The complete item name (`item.name`), wrapping without truncation.
+  1. **Full Name:** The complete item name (`item.name`), wrapping without truncation in selectable text (`select-text` / `cursor-text`), allowing users to highlight and copy complete filenames.
   2. **Item Type:** Human-readable category label derived from `item.iconType` and `item.isDirectory` (e.g., `Carpeta`, `Documento`, `Hoja de cálculo`, `Presentación`, `PDF`, `Imagen`, `Video`, `Audio`, `Archivo comprimido`, `Acceso directo`, `Archivo`).
   3. **File Size:** Formatted storage usage (`item.formattedSize`, displaying `0 B` for empty files and `--` for folders).
   4. **Creation Timestamp:** Localized creation date in `DD/MM/YYYY HH:mm:ss` format (`item.formattedCreatedAt`).
@@ -65,6 +65,7 @@ To maximize filename readability, information density, and archival elegance, th
 - **EC-7:** Keyboard focus management $\rightarrow$ Pressing `Tab` focuses the Details Action Button, `Enter` or `Space` opens the popover, and pressing `Escape` closes the popover and restores focus to the button.
 - **EC-8:** Empty files with 0 bytes $\rightarrow$ The file size field displays `0 B`, differentiating empty files from folders which display `--`.
 - **EC-9:** Opening popover on an unselected row $\rightarrow$ The popover opens without changing or selecting the row, preserving any preexisting selection on another row.
+- **EC-10:** Text selection inside popover $\rightarrow$ Selecting or clicking and dragging over the filename or Google Drive ID does not trigger popover dismissal or outside-click handlers.
 
 ## Out of Scope
 - Inline editing of metadata (such as renaming or changing MIME type from within the popover).
@@ -76,7 +77,7 @@ To maximize filename readability, information density, and archival elegance, th
 - Table header displays strictly two columns: Icon (`w-10`) and `Name` (`flex-1`).
 - Table `Name` column expands to fill all horizontal space across the table up to the trailing details button.
 - Each real file and folder row displays a `26px × 26px` details button with 1px structural borders matching top header controls and localized tooltip.
-- Clicking or activating the details button opens the Swiss Archive Item Details Popover displaying full name, category, size (`0 B` for empty files), creation date, MIME type, and Drive ID (passive selectable text).
+- Clicking or activating the details button opens the Swiss Archive Item Details Popover displaying full name (selectable text), category, size (`0 B` for empty files), creation date, MIME type, and Drive ID (passive selectable text).
 - Only one popover can be open at any time.
 - Virtual `"..."` parent row has no details button.
 - Popover closes on outside click, `Escape` key, table scroll, and directory navigation.
@@ -154,3 +155,7 @@ To maximize filename readability, information density, and archival elegance, th
     - *Question*: Should the Details Action Button dimensions be adjusted to 26px x 26px and include a 1px structural border matching top header controls?
     - *Agreement*: Set button geometry to `26px × 26px` (`w-[26px] h-[26px]`, `rounded-[4px]`) and apply a visible 1px neutral structural border `border-[#C9C6BD] dark:border-[#2C323D]` with elevated background `bg-[#FFFFFF] dark:bg-[#181C23]`, transitioning to Klein Blue `hover:border-[#1B44E8] dark:hover:border-[#3B66FF]` on hover, matching the visual vocabulary of header utility buttons (`MenuBar.tsx`).
     - *Why*: Enhances visual consistency across the desktop shell, increases vertical breathing room inside the `36px` (`h-9`) table row (5px margins top and bottom), and gives the button clear clickable affordance.
+  - **Decision 12 (Selectable File Name in Details Popover):**
+    - *Question*: Should users be able to select and copy the file name displayed in the details popover?
+    - *Agreement*: Allow text selection on the filename inside the Item Details Popover (`select-text cursor-text`), enabling users to highlight and copy long or complex filenames while maintaining the non-selectable shell aesthetic for the card container and field labels.
+    - *Why*: In desktop workflows, inspecting details is often done to copy exact file names (especially long names truncated in the main table view) without renaming the file.

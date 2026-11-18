@@ -1,6 +1,7 @@
 import React from 'react';
 import { Loader2, FolderOpen, AlertCircle, RotateCw } from 'lucide-react';
 import type { LanguageCode, ThemeMode } from '../../../../shared/types';
+import type { AnchorRect } from '../../../../shared/item-details';
 import { truncateFolderStack } from '../../../../shared/explorer-helpers';
 import { getTranslation } from '../../../../shared/i18n/translations';
 import { useDriveExplorerContext } from '../../context/DriveExplorerContext';
@@ -8,6 +9,7 @@ import { FileTableRow } from './FileTableRow';
 import { ParentNavRow } from './ParentNavRow';
 import { ExplorerStatusBar } from './ExplorerStatusBar';
 import { ExplorerBreadcrumbBar } from './ExplorerBreadcrumbBar';
+import { ItemDetailsPopover } from './ItemDetailsPopover';
 
 export interface FileExplorerProps {
   language?: LanguageCode;
@@ -39,13 +41,124 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
   const isDark = theme === 'dark';
   const tableBodyRef = React.useRef<HTMLDivElement>(null);
+  const anchorElementRef = React.useRef<HTMLElement | null>(null);
 
-  // Reset table scroll position to top when changing folders (including returning to root on refresh)
+  // Single popover cardinality state (Spec 011 US-4 / FR-5.2, FR-5.3)
+  const [activeDetailsItemId, setActiveDetailsItemId] = React.useState<string | null>(null);
+  const [activeAnchorRect, setActiveAnchorRect] = React.useState<AnchorRect | null>(null);
+
+  const activeItem = React.useMemo(() => {
+    if (!activeDetailsItemId) return null;
+    return items.find((item) => item.id === activeDetailsItemId) || null;
+  }, [items, activeDetailsItemId]);
+
+  // Reset table scroll position and active popover when changing folders (FR-7.4, EC-6)
   React.useEffect(() => {
     if (tableBodyRef.current) {
       tableBodyRef.current.scrollTop = 0;
     }
+    setActiveDetailsItemId(null);
+    setActiveAnchorRect(null);
+    anchorElementRef.current = null;
   }, [currentFolder.id]);
+
+  // Clean up popover if active item disappears from directory items
+  React.useEffect(() => {
+    if (activeDetailsItemId && !items.some((i) => i.id === activeDetailsItemId)) {
+      setActiveDetailsItemId(null);
+      setActiveAnchorRect(null);
+      anchorElementRef.current = null;
+    }
+  }, [items, activeDetailsItemId]);
+
+  // Global dismissal machine: Escape key & Outside mousedown (FR-7.1, FR-7.2, EC-7)
+  React.useEffect(() => {
+    if (!activeDetailsItemId) return;
+
+    const handleMouseDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      // If clicked inside the popover dialog, do not dismiss
+      const popoverEl = document.querySelector('[data-testid="item-details-popover"]');
+      if (popoverEl && popoverEl.contains(target)) return;
+      // If clicked on the trigger button itself, let button toggle handle it
+      if (anchorElementRef.current && anchorElementRef.current.contains(target)) return;
+
+      setActiveDetailsItemId(null);
+      setActiveAnchorRect(null);
+      anchorElementRef.current = null;
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        setActiveDetailsItemId(null);
+        setActiveAnchorRect(null);
+        anchorElementRef.current?.focus();
+        anchorElementRef.current = null;
+      }
+    };
+
+    document.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activeDetailsItemId]);
+
+  // Re-anchor active popover on window resize, maximize, or table layout changes
+  React.useEffect(() => {
+    if (!activeDetailsItemId) return;
+
+    const updateAnchorPosition = () => {
+      if (anchorElementRef.current && document.body.contains(anchorElementRef.current)) {
+        const rect = anchorElementRef.current.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0) {
+          setActiveDetailsItemId(null);
+          setActiveAnchorRect(null);
+          anchorElementRef.current = null;
+          return;
+        }
+        setActiveAnchorRect({
+          top: rect.top,
+          bottom: rect.bottom,
+          left: rect.left,
+          right: rect.right
+        });
+      } else {
+        setActiveDetailsItemId(null);
+        setActiveAnchorRect(null);
+        anchorElementRef.current = null;
+      }
+    };
+
+    window.addEventListener('resize', updateAnchorPosition);
+
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined' && tableBodyRef.current) {
+      resizeObserver = new ResizeObserver(() => {
+        updateAnchorPosition();
+      });
+      resizeObserver.observe(tableBodyRef.current);
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateAnchorPosition);
+      resizeObserver?.disconnect();
+    };
+  }, [activeDetailsItemId]);
+
+  // Instant dismissal on table scroll (FR-7.3, EC-4)
+  const onTableScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (activeDetailsItemId !== null) {
+      setActiveDetailsItemId(null);
+      setActiveAnchorRect(null);
+      anchorElementRef.current = null;
+    }
+    handleScroll(e);
+  };
 
   return (
     <div
@@ -68,7 +181,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         ref={tableBodyRef}
         role="table"
         data-testid="explorer-table-body"
-        onScroll={handleScroll}
+        onScroll={onTableScroll}
         className="flex-1 flex flex-col overflow-y-auto min-h-0"
       >
         {/* Compact Sticky Table Header: Strictly Two Columns (Icon and Name per Spec 011 FR-2) */}
@@ -155,6 +268,23 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                     isSelected={selectedItemId === item.id}
                     onSelect={selectItem}
                     onDoubleClick={openItem}
+                    onOpenDetails={(item, targetElement) => {
+                      if (activeDetailsItemId === item.id) {
+                        setActiveDetailsItemId(null);
+                        setActiveAnchorRect(null);
+                        anchorElementRef.current = null;
+                      } else {
+                        const rect = targetElement.getBoundingClientRect();
+                        anchorElementRef.current = targetElement;
+                        setActiveDetailsItemId(item.id);
+                        setActiveAnchorRect({
+                          top: rect.top,
+                          bottom: rect.bottom,
+                          left: rect.left,
+                          right: rect.right
+                        });
+                      }
+                    }}
                     theme={theme}
                     language={language}
                   />
@@ -180,6 +310,22 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         language={language}
         theme={theme}
       />
+
+      {/* Floating Item Details Popover (Spec 011 US-3, US-4 / FR-5, FR-6, FR-7) */}
+      {activeDetailsItemId && activeItem && activeAnchorRect && (
+        <ItemDetailsPopover
+          item={activeItem}
+          anchorRect={activeAnchorRect}
+          onClose={() => {
+            setActiveDetailsItemId(null);
+            setActiveAnchorRect(null);
+            anchorElementRef.current?.focus();
+            anchorElementRef.current = null;
+          }}
+          language={language}
+          theme={theme}
+        />
+      )}
     </div>
   );
 };

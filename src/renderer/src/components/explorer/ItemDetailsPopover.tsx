@@ -36,7 +36,7 @@ export const ItemDetailsPopover: React.FC<ItemDetailsPopoverProps> = ({
       return { width: window.innerWidth, height: window.innerHeight };
     }
     return { width: 1024, height: 768 };
-  }, [viewport]);
+  }, [viewport, anchorRect]);
 
   const position = useMemo(() => {
     return calculatePopoverPosition(anchorRect, currentViewport, 280, 260, 6);
@@ -87,7 +87,7 @@ export const ItemDetailsPopover: React.FC<ItemDetailsPopoverProps> = ({
           </span>
           <div
             data-testid="item-details-name"
-            className="font-sans text-xs font-semibold text-[#111315] dark:text-[#F3F4F6] break-words"
+            className="font-sans text-xs font-semibold text-[#111315] dark:text-[#F3F4F6] break-words select-text cursor-text"
           >
             {item.name}
           </div>
