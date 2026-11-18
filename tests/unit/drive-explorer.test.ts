@@ -149,4 +149,32 @@ describe('Swiss Archive Drive Explorer Table & Selection Helper (Spec 006 US-4, 
       expect(explorerSource).toContain('explorer_col_name');
     });
   });
+
+  describe('Spec 011 Details Action Button (US-2, FR-3, FR-4, FR-5, EC-1, EC-7)', () => {
+    const fileRowSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/components/explorer/FileTableRow.tsx'),
+      'utf-8'
+    );
+    const parentRowSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/components/explorer/ParentNavRow.tsx'),
+      'utf-8'
+    );
+
+    it('should render 26px x 26px geometric button with Info icon and Swiss Archive borders in FileTableRow (FR-3, FR-4)', () => {
+      expect(fileRowSource).toContain('data-testid="item-details-btn"');
+      expect(fileRowSource).toContain('w-[26px]');
+      expect(fileRowSource).toContain('h-[26px]');
+      expect(fileRowSource).toContain('rounded-[4px]');
+      expect(fileRowSource).toContain('border-[#C9C6BD]');
+      expect(fileRowSource).toContain('dark:border-[#2C323D]');
+      expect(fileRowSource).toContain('Info');
+      expect(fileRowSource).toContain('item_details_tooltip');
+    });
+
+    it('should not render details button in ParentNavRow (FR-9, EC-3)', () => {
+      expect(parentRowSource).not.toContain('item-details-btn');
+      expect(parentRowSource).not.toContain('item_details_tooltip');
+      expect(parentRowSource).not.toContain('Info');
+    });
+  });
 });

@@ -183,8 +183,8 @@ export function getSidebarClasses(
       ? `w-[260px] border-l ${borderClass} transition-all duration-200 ease-in-out`
       : 'w-0 border-l-0 overflow-visible transition-all duration-200 ease-in-out',
     inner: isExpanded
-      ? 'opacity-100 transition-opacity duration-150 delay-75'
-      : 'opacity-0 pointer-events-none'
+      ? 'w-[260px] p-4 opacity-100 visible transition-opacity duration-150 delay-75'
+      : 'w-0 p-0 opacity-0 invisible pointer-events-none overflow-hidden'
   };
 }
 
@@ -204,8 +204,8 @@ export function getTreePanelClasses(
       ? `w-[240px] border-r ${borderClass} transition-all duration-200 ease-in-out`
       : 'w-0 border-r-0 overflow-hidden transition-all duration-200 ease-in-out',
     inner: isExpanded
-      ? 'opacity-100 transition-opacity duration-150 delay-75'
-      : 'opacity-0 pointer-events-none'
+      ? 'w-[240px] opacity-100 visible transition-opacity duration-150 delay-75'
+      : 'w-0 p-0 opacity-0 invisible pointer-events-none overflow-hidden'
   };
 }
 

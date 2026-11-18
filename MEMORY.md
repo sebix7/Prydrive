@@ -21,9 +21,10 @@ Project memory across sessions. Maximum ~75 lines: summarize or prune obsolete i
 - `specs/009-panel-toggle-controls/` completed, validated (`FULFILLED`), and released in `v0.8.0`.
 - `specs/010-explorer-breadcrumbs/` completed, validated (`FULFILLED`), and released in `v0.9.0`.
 - `specs/006-swiss-archive-ui/` patch updates released in `v0.9.1` (T6: Alternative C reordering; T7: header refresh button and status bar left-alignment).
-- `specs/011-item-details-popover/` approved, planned, and decomposed (T1-T5: US-1 through US-5).
+- `specs/011-item-details-popover/` approved, planned, and decomposed (T1-T2 completed: US-1, US-2).
 
 ## Decisions (and why)
+- **Details button sizing and borders alignment**: Resized details button to 26px x 26px with 1px neutral structural borders matching top header utility buttons for shell design consistency and 5px row margin.
 - **Top-right utility cluster & status bar alignment**: Relocated `Refresh` to top-right header cluster (`[Refresh] -> [Language] -> [Theme] -> [About] -> [Disconnect]`) and left-aligned folder/file counts in bottom status bar for cleaner two-column telemetry.
 - **Tailwind content scan of shared code**: `tailwind.config.js` includes `./src/shared/**` so utility classes in shared state reducers (e.g. `.w-0`, `.min-w-0`) are compiled into CSS.
 - **Desktop root overflow & fluid canvas**: `html, body, #root` enforce `overflow: hidden` with `min-w-0 flex-1` on canvas to eliminate scrollbars and clipping on window resize.
@@ -45,4 +46,5 @@ Project memory across sessions. Maximum ~75 lines: summarize or prune obsolete i
 - Do not use embedded WebViews for Google login; Google blocks them for security. Always use the system default browser with an ephemeral loopback server.
 - For mass production distribution, request free Google OAuth Consent Screen verification to eliminate the "Unverified App" warning.
 - Never import Node.js modules (`fs`, `googleapis`) directly into React renderer code.
+- In collapsible panels, use `invisible` (`visibility: hidden`) and `tabIndex={-1}` when collapsed; `opacity-0` and `pointer-events-none` leave elements in the Tab order, causing native focus auto-scrolling to shift the workspace layout.
 - Spec `Status:` in `spec.md` only uses `draft` or `approved` (remains `approved` after completion; never use `implemented`).

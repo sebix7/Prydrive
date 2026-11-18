@@ -40,7 +40,9 @@ export const DirectoryTreePanel: React.FC<DirectoryTreePanelProps> = ({
         isOverlay ? 'absolute left-0 top-0 bottom-0 shadow-md' : 'relative'
       }`}
     >
-      <div className={`flex flex-col h-full w-[240px] overflow-hidden ${classes.inner}`}>
+      <div
+        className={`flex flex-col h-full overflow-hidden transition-all duration-200 ${classes.inner}`}
+      >
         {/* Upper Technical Index Strip (FR-3) */}
         <div
           data-testid="tree-technical-strip"

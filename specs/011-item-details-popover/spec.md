@@ -4,21 +4,21 @@ Status: approved
 ## Context and Goal
 In the Google Drive file explorer table, the file list currently displays dedicated fixed-width columns for creation timestamp (`176px`) and file size (`96px`). In high-density desktop views or when navigation panels (left rail, directory tree, right telemetry sidebar) are expanded, these columns severely constrain the horizontal space available for the file name, forcing premature text truncation on descriptive or nested filenames.
 
-To maximize filename readability, information density, and archival elegance, this specification defines a pure **Two-Column Explorer Table** (Type Icon and Name) replacing the date and size columns. Every real file and folder row includes a compact, persistent `28px × 28px` **Details Action Button** at its trailing end. When clicked or activated via keyboard, this button opens an anchored **Item Details Popover** presenting the asset's complete metadata (full name, human-readable category, formatted size with `0 B` for empty files, creation timestamp, technical MIME type, and selectable Google Drive resource ID) in a high-precision Swiss Archive container without cluttering the main table grid.
+To maximize filename readability, information density, and archival elegance, this specification defines a pure **Two-Column Explorer Table** (Type Icon and Name) replacing the date and size columns. Every real file and folder row includes a compact, persistent `26px × 26px` **Details Action Button** with 1px structural border at its trailing end. When clicked or activated via keyboard, this button opens an anchored **Item Details Popover** presenting the asset's complete metadata (full name, human-readable category, formatted size with `0 B` for empty files, creation timestamp, technical MIME type, and selectable Google Drive resource ID) in a high-precision Swiss Archive container without cluttering the main table grid.
 
 ## Users
 - **Authenticated Desktop User:** A signed-in user exploring Google Drive items who benefits from maximally expanded filename visibility across the entire table width and has on-demand access to detailed item metadata via popover.
 
 ## User Stories
 - **US-1 (Two-Column Explorer Table Layout):** As an authenticated user, I want the file explorer table to remove the fixed `Creation Date` and `Size` columns and expand the `Name` column across the full remaining table width so that long filenames are readable without truncation.
-- **US-2 (Interactive Details Action Button & Keyboard Access):** As an authenticated user, I want each file and folder row to display a subtle, persistent `28px × 28px` details button at its trailing end that highlights on hover, receives keyboard focus, and opens an anchored metadata popover without modifying table row selection or triggering directory navigation.
+- **US-2 (Interactive Details Action Button & Keyboard Access):** As an authenticated user, I want each file and folder row to display a persistent `26px × 26px` details button with 1px structural borders matching top header controls at its trailing end that highlights on hover, receives keyboard focus, and opens an anchored metadata popover without modifying table row selection or triggering directory navigation.
 - **US-3 (Swiss Archive Item Details Popover Presentation):** As an authenticated user, I want the details popover to display the item's full name, human-readable category, formatted size (`0 B` for empty files), creation timestamp in local time, exact MIME type, and Google Drive ID in a clean Swiss Archive layout that automatically stays within viewport boundaries.
 - **US-4 (Single Popover Cardinality & Fluid Dismissal):** As a user, I want only one details popover open at any time, and I want the popover to automatically close whenever I click outside, press `Escape` (returning focus to the button), scroll the table, or navigate to another directory.
 - **US-5 (Bilingual Localization Parity):** As a user, I want all metadata labels in the details popover and the button tooltip to be fully localized in my active language (`en` or `es`).
 
 ## Definitions
 - **Two-Column Explorer Table:** A streamlined table layout consisting strictly of two visible columns: Column 1 (Type Icon, `w-10`) and Column 2 (Name, `flex-1`), where the row's trailing end accommodates the details action button.
-- **Details Action Button:** A compact square geometric button (`28px × 28px`, `4px` radius) displaying an info icon (`Info`) rendered at the trailing end of every real file and folder row.
+- **Details Action Button:** A compact square geometric button (`26px × 26px`, `4px` radius) with visible 1px structural border (`#C9C6BD` / `#2C323D`) and surface background (`#FFFFFF` / `#181C23`) matching top utility header controls, displaying an info icon (`Info`) rendered at the trailing end of every real file and folder row.
 - **Item Details Popover:** A floating contextual card anchored to the row's details button displaying comprehensive item metadata.
 - **Single Popover Cardinality:** A strict UI state constraint ensuring that at most one details popover exists in the DOM at any given moment; opening a new popover immediately dismisses any previously active popover.
 - **Parent Navigation Entry ("..."):** The virtual navigation row rendered at the top of subfolders, which navigates up one level on double-click; it represents no real cloud asset and never renders a details button.
@@ -28,8 +28,8 @@ To maximize filename readability, information density, and archival elegance, th
 - **FR-2:** THE SYSTEM SHALL render the sticky file explorer table header using strictly two columns:
   1. An icon column (`w-10`) displaying an empty placeholder.
   2. A name column (`flex-1`) displaying the localized header label (`NOMBRE` in `es` / `NAME` in `en`), expanding across the entire remaining width of the table.
-- **FR-3:** THE SYSTEM SHALL render a persistent `28px × 28px` Details Action Button at the trailing right end of each real file and folder row, displaying a centered info icon (`Info`) with a localized native tooltip (`Ver detalles` in `es` / `View details` in `en`).
-- **FR-4:** WHILE hovering over the Details Action Button of any row, THE SYSTEM SHALL visually emphasize the button with Swiss Archive hover border and accent color transitions without triggering row double-click or opening the popover.
+- **FR-3:** THE SYSTEM SHALL render a persistent `26px × 26px` Details Action Button with a visible 1px structural border (`border-[#C9C6BD] dark:border-[#2C323D]`) and surface background (`bg-[#FFFFFF] dark:bg-[#181C23]`) matching top header utility controls at the trailing right end of each real file and folder row, displaying a centered info icon (`Info`) with a localized native tooltip (`Ver detalles` in `es` / `View details` in `en`).
+- **FR-4:** WHILE hovering over the Details Action Button of any row, THE SYSTEM SHALL visually emphasize the button with Swiss Archive hover border and accent color transitions (`hover:border-[#1B44E8] dark:hover:border-[#3B66FF] hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] hover:text-[#1B44E8] dark:hover:text-[#3B66FF]`) without triggering row double-click or opening the popover.
 - **FR-5:** WHEN the user clicks or activates the Details Action Button of a row (via `Enter` or `Space` key), THE SYSTEM SHALL:
   1. Prevent event propagation (`stopPropagation`) so that table row selection and navigation states are not altered.
   2. Automatically dismiss any currently open Item Details Popover (enforcing single popover cardinality).
@@ -75,7 +75,7 @@ To maximize filename readability, information density, and archival elegance, th
 - Table header and file rows no longer render `Creation Date` and `Size` column containers.
 - Table header displays strictly two columns: Icon (`w-10`) and `Name` (`flex-1`).
 - Table `Name` column expands to fill all horizontal space across the table up to the trailing details button.
-- Each real file and folder row displays a `28px × 28px` details button with localized tooltip and subtle idle appearance.
+- Each real file and folder row displays a `26px × 26px` details button with 1px structural borders matching top header controls and localized tooltip.
 - Clicking or activating the details button opens the Swiss Archive Item Details Popover displaying full name, category, size (`0 B` for empty files), creation date, MIME type, and Drive ID (passive selectable text).
 - Only one popover can be open at any time.
 - Virtual `"..."` parent row has no details button.
@@ -149,3 +149,8 @@ To maximize filename readability, information density, and archival elegance, th
     - *Question*: Are third-party positioning libraries allowed?
     - *Agreement*: Implement using lightweight positioning logic without heavy external dependencies, strictly adhering to Principle 3.
     - *Why*: Guarantees high performance, zero bundle bloat, and constitution compliance.
+- **2026-11-18 (Requirement Change — `/sdd-change`):**
+  - **Decision 11 (Details Button Sizing and Top Header Border Alignment):**
+    - *Question*: Should the Details Action Button dimensions be adjusted to 26px x 26px and include a 1px structural border matching top header controls?
+    - *Agreement*: Set button geometry to `26px × 26px` (`w-[26px] h-[26px]`, `rounded-[4px]`) and apply a visible 1px neutral structural border `border-[#C9C6BD] dark:border-[#2C323D]` with elevated background `bg-[#FFFFFF] dark:bg-[#181C23]`, transitioning to Klein Blue `hover:border-[#1B44E8] dark:hover:border-[#3B66FF]` on hover, matching the visual vocabulary of header utility buttons (`MenuBar.tsx`).
+    - *Why*: Enhances visual consistency across the desktop shell, increases vertical breathing room inside the `36px` (`h-9`) table row (5px margins top and bottom), and gives the button clear clickable affordance.

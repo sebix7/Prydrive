@@ -185,10 +185,10 @@ FUNCTION handleGlobalDismissal(event):
 ```text
 Row Height: 36px (h-9)
 Column 1: Type Icon Container -> w-10 shrink-0 flex items-center justify-center (16px x 16px Lucide icons)
-Column 2: Item Name Container -> flex-1 min-w-0 pr-2 flex items-center justify-between
+Column 2: Item Name Container -> flex-1 min-w-0 pr-9 flex items-center justify-between
   - Left child: Truncated Name -> font-sans font-medium text-xs truncate
   - Right child: Details Button Container -> shrink-0 ml-2
-    - Details Action Button: w-[28px] h-[28px] rounded-[4px] border border-transparent hover:border-[#C9C6BD] dark:hover:border-[#2C323D] hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] text-[#7C8087] dark:text-[#6B7280] hover:text-[#1B44E8] dark:hover:text-[#3B66FF]
+    - Details Action Button: w-[26px] h-[26px] rounded-[4px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#FFFFFF] dark:bg-[#181C23] text-[#111315] dark:text-[#F3F4F6] hover:border-[#1B44E8] dark:hover:border-[#3B66FF] hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] hover:text-[#1B44E8] dark:hover:text-[#3B66FF] transition-all duration-150
 ```
 
 ### B. Item Details Popover Design Specifications
@@ -231,7 +231,7 @@ Column 2: Item Name Container -> flex-1 min-w-0 pr-2 flex items-center justify-b
 ### B. Explorer Layout Unit Tests (`tests/unit/drive-explorer.test.ts`)
 - Verifies sticky table header renders strictly Two Columns: Icon (`w-10`) and `Name` (`flex-1`).
 - Verifies absence of `Creation Date` (`FECHA DE CREACIÓN`) and `Size` (`TAMAÑO`) in sticky header and rows.
-- Verifies each `FileTableRow` contains the `28px × 28px` details button (`data-testid="item-details-btn"`).
+- Verifies each `FileTableRow` contains the `26px × 26px` details button with 1px structural borders (`data-testid="item-details-btn"`).
 - Verifies `ParentNavRow` does not contain any details button.
 
 ### C. Bilingual Parity Tests (`tests/unit/translations.test.ts`)

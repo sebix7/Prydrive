@@ -121,6 +121,7 @@ export const translations = {
     explorer_loading_more: 'Loading more...',
     explorer_error_title: 'Unable to load folder',
     explorer_retry: 'Retry',
+    item_details_tooltip: 'View details',
 
     // Theme Mode (Spec 005)
     menu_theme: 'Theme',
@@ -249,6 +250,7 @@ export const translations = {
     explorer_loading_more: 'Cargando más...',
     explorer_error_title: 'No se pudo cargar la carpeta',
     explorer_retry: 'Reintentar',
+    item_details_tooltip: 'Ver detalles',
 
     // Theme Mode (Spec 005)
     menu_theme: 'Tema',

@@ -33,7 +33,7 @@ export const ParentNavRow: React.FC<ParentNavRowProps> = ({
 
       {/* Column 2: "..." Parent Label (Two-Column Layout per Spec 011 FR-1, FR-9) */}
       <div
-        className="flex-1 min-w-0 pr-4 font-mono font-bold text-[#4A4E54] dark:text-[#9CA3AF]"
+        className="flex-1 min-w-0 pr-9 font-mono font-bold text-[#4A4E54] dark:text-[#9CA3AF]"
       >
         ...
       </div>

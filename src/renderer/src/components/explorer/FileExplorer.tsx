@@ -80,7 +80,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           <div className="w-10 text-center shrink-0">
             {getTranslation(language, 'explorer_col_type')}
           </div>
-          <div className="flex-1 min-w-0 pr-4">
+          <div className="flex-1 min-w-0 pr-9">
             {getTranslation(language, 'explorer_col_name')}
           </div>
         </div>
@@ -156,6 +156,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                     onSelect={selectItem}
                     onDoubleClick={openItem}
                     theme={theme}
+                    language={language}
                   />
                 ))}
                 {isLoadingMore && (

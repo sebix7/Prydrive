@@ -132,7 +132,14 @@ const AppShellContent: React.FC<AppShellProps> = ({
       )}
 
       {/* Main Workspace Body: Left Rail + Center Canvas + Right Sidebar */}
-      <div className="flex flex-1 overflow-hidden relative">
+      <div
+        className="flex flex-1 overflow-hidden relative"
+        onScroll={(e) => {
+          if (e.currentTarget.scrollLeft !== 0) {
+            e.currentTarget.scrollLeft = 0;
+          }
+        }}
+      >
           {/* Zone 2: Left Navigation Rail */}
           {renderNavigationRail ? (
             renderNavigationRail({

@@ -38,6 +38,9 @@ describe('Telemetry Sidebar & Divider Toggle (US-4 / T4)', () => {
     const collapsedClasses = getSidebarClasses(false);
     expect(collapsedClasses.container).toContain('w-0');
     expect(collapsedClasses.container).toContain('border-l-0');
+    expect(collapsedClasses.inner).toContain('invisible');
+    expect(collapsedClasses.inner).toContain('overflow-hidden');
+    expect(collapsedClasses.inner).toContain('w-0');
   });
 
   it('should truncate long emails gracefully with tooltip compatibility (EC-1)', () => {

@@ -9,17 +9,21 @@ import {
   FileAudio,
   FileArchive,
   ExternalLink,
-  File
+  File,
+  Info
 } from 'lucide-react';
-import type { StorageItem, StorageItemType, ThemeMode } from '../../../../shared/types';
+import type { StorageItem, StorageItemType, ThemeMode, LanguageCode } from '../../../../shared/types';
 import { getRowSelectionClasses } from '../../../../shared/explorer-helpers';
+import { getTranslation } from '../../../../shared/i18n/translations';
 
 export interface FileTableRowProps {
   item: StorageItem;
   isSelected?: boolean;
   onSelect?: (id: string) => void;
   onDoubleClick?: (item: StorageItem) => void;
+  onOpenDetails?: (item: StorageItem, targetElement: HTMLElement) => void;
   theme?: ThemeMode;
+  language?: LanguageCode;
 }
 
 function renderItemIcon(iconType: StorageItemType): React.ReactNode {
@@ -54,7 +58,9 @@ export const FileTableRow: React.FC<FileTableRowProps> = ({
   isSelected = false,
   onSelect,
   onDoubleClick,
-  theme = 'dark'
+  onOpenDetails,
+  theme = 'dark',
+  language = 'en'
 }) => {
   return (
     <div
@@ -70,12 +76,41 @@ export const FileTableRow: React.FC<FileTableRowProps> = ({
         {renderItemIcon(item.iconType)}
       </div>
 
-      {/* Column 2: Name (Two-Column Layout per Spec 011 FR-1, FR-2) */}
-      <div
-        className="flex-1 min-w-0 pr-4 truncate font-sans font-medium"
-        title={item.name}
-      >
-        {item.name}
+      {/* Column 2: Name & Details Action Button (Two-Column Layout with pr-9 clearing sidebar toggle button) */}
+      <div className="flex-1 min-w-0 pr-9 flex items-center justify-between">
+        <span
+          className="truncate font-sans font-medium text-xs"
+          title={item.name}
+        >
+          {item.name}
+        </span>
+
+        <div className="shrink-0 ml-2">
+          <button
+            type="button"
+            data-testid="item-details-btn"
+            title={getTranslation(language, 'item_details_tooltip')}
+            aria-label={getTranslation(language, 'item_details_tooltip')}
+            tabIndex={0}
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenDetails?.(item, e.currentTarget);
+            }}
+            onDoubleClick={(e) => {
+              e.stopPropagation();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                e.stopPropagation();
+                onOpenDetails?.(item, e.currentTarget);
+              }
+            }}
+            className="w-[26px] h-[26px] rounded-[4px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#FFFFFF] dark:bg-[#181C23] text-[#7C8087] dark:text-[#6B7280] hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] hover:border-[#1B44E8] dark:hover:border-[#3B66FF] hover:text-[#1B44E8] dark:hover:text-[#3B66FF] flex items-center justify-center transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#1B44E8] dark:focus:ring-[#3B66FF]"
+          >
+            <Info className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
     </div>
   );
