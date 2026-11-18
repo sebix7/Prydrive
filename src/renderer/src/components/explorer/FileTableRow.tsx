@@ -56,13 +56,6 @@ export const FileTableRow: React.FC<FileTableRowProps> = ({
   onDoubleClick,
   theme = 'dark'
 }) => {
-  const isDark = theme === 'dark';
-  const metaTextClass = isSelected
-    ? 'text-inherit'
-    : isDark
-      ? 'text-[#6B7280]'
-      : 'text-[#7C8087]';
-
   return (
     <div
       role="row"
@@ -77,22 +70,12 @@ export const FileTableRow: React.FC<FileTableRowProps> = ({
         {renderItemIcon(item.iconType)}
       </div>
 
-      {/* Column 2: Name (Truncated with Tooltip for EC-3) */}
+      {/* Column 2: Name (Two-Column Layout per Spec 011 FR-1, FR-2) */}
       <div
         className="flex-1 min-w-0 pr-4 truncate font-sans font-medium"
         title={item.name}
       >
         {item.name}
-      </div>
-
-      {/* Column 3: Creation Date (DD/MM/YYYY HH:mm:ss local) */}
-      <div className={`w-44 shrink-0 ${metaTextClass} font-mono text-[11px]`}>
-        {item.formattedCreatedAt}
-      </div>
-
-      {/* Column 4: File Size */}
-      <div className={`w-24 shrink-0 text-right ${metaTextClass} font-mono text-[11px] pr-2`}>
-        {item.formattedSize}
       </div>
     </div>
   );

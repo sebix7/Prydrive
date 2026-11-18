@@ -81,7 +81,7 @@ describe('Swiss Archive Drive Explorer Table & Selection Helper (Spec 006 US-4, 
       expect(fileRowSource).toContain('h-9');
       expect(fileRowSource).toContain('border-b-[#DFDDD6]');
       expect(fileRowSource).toContain('dark:border-b-[#222730]');
-      expect(fileRowSource).toContain('font-mono');
+      expect(fileRowSource).toContain('font-sans');
     });
 
     it('should render ParentNavRow with 36px (h-9) height, subtle horizontal rules #DFDDD6 / #222730, and monospace "..." label', () => {
@@ -117,6 +117,36 @@ describe('Swiss Archive Drive Explorer Table & Selection Helper (Spec 006 US-4, 
       const countsPos = statusBarSource.indexOf('data-testid="explorer-status-counts"');
       const totalSizePos = statusBarSource.indexOf('data-testid="explorer-status-total-size"');
       expect(countsPos).toBeLessThan(totalSizePos);
+    });
+  });
+
+  describe('Spec 011 Two-Column Table Layout (US-1, FR-1, FR-2)', () => {
+    const explorerSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/components/explorer/FileExplorer.tsx'),
+      'utf-8'
+    );
+    const fileRowSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/components/explorer/FileTableRow.tsx'),
+      'utf-8'
+    );
+    const parentRowSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/components/explorer/ParentNavRow.tsx'),
+      'utf-8'
+    );
+
+    it('should eliminate creation date and size columns from sticky header and rows (FR-1, FR-2)', () => {
+      expect(explorerSource).not.toContain('explorer_col_created');
+      expect(explorerSource).not.toContain('explorer_col_size');
+      expect(fileRowSource).not.toContain('formattedCreatedAt');
+      expect(fileRowSource).not.toContain('formattedSize');
+      expect(parentRowSource).not.toContain('w-44');
+      expect(parentRowSource).not.toContain('w-24');
+    });
+
+    it('should render two-column sticky header: Icon w-10 and Name flex-1 (FR-2)', () => {
+      expect(explorerSource).toContain('w-10 text-center shrink-0');
+      expect(explorerSource).toContain('flex-1 min-w-0');
+      expect(explorerSource).toContain('explorer_col_name');
     });
   });
 });

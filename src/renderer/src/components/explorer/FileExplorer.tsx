@@ -71,7 +71,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         onScroll={handleScroll}
         className="flex-1 flex flex-col overflow-y-auto min-h-0"
       >
-        {/* Compact Sticky Table Header */}
+        {/* Compact Sticky Table Header: Strictly Two Columns (Icon and Name per Spec 011 FR-2) */}
         <div
           role="row"
           data-testid="explorer-table-header"
@@ -82,12 +82,6 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           </div>
           <div className="flex-1 min-w-0 pr-4">
             {getTranslation(language, 'explorer_col_name')}
-          </div>
-          <div className="w-44 shrink-0">
-            {getTranslation(language, 'explorer_col_created')}
-          </div>
-          <div className="w-24 shrink-0 text-right pr-2">
-            {getTranslation(language, 'explorer_col_size')}
           </div>
         </div>
 

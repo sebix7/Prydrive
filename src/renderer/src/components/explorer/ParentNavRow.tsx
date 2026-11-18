@@ -31,18 +31,12 @@ export const ParentNavRow: React.FC<ParentNavRowProps> = ({
         <Folder className="w-4 h-4 text-[#1B44E8] dark:text-[#3B66FF] fill-[#1B44E8]/20 dark:fill-[#3B66FF]/20" />
       </div>
 
-      {/* Column 2: "..." Parent Label */}
+      {/* Column 2: "..." Parent Label (Two-Column Layout per Spec 011 FR-1, FR-9) */}
       <div
         className="flex-1 min-w-0 pr-4 font-mono font-bold text-[#4A4E54] dark:text-[#9CA3AF]"
       >
         ...
       </div>
-
-      {/* Column 3: Empty Creation Date */}
-      <div className="w-44 shrink-0 text-[#7C8087] dark:text-[#6B7280] font-mono text-[11px]" />
-
-      {/* Column 4: Empty Size */}
-      <div className="w-24 shrink-0 text-right text-[#7C8087] dark:text-[#6B7280] font-mono text-[11px] pr-2" />
     </div>
   );
 };
