@@ -16,9 +16,13 @@
     3. *Keyboard Accessibility & Virtual Row Exclusion:* The details button is focusable via `Tab` (`tabIndex={0}`), triggers on `Enter` and `Space` keydown preventing default scroll/action, and the virtual parent row (`ParentNavRow.tsx`) does not render any details button. Verified in `tests/integration/item-details-flow.test.ts`.
     4. *Trailing Clearance from Lateral Toggle:* Every row applies `pr-9` trailing padding ensuring details action buttons maintain at least a 12px clearance from the lateral sidebar divider toggle button, preventing any visual overlap. Verified in `tests/integration/item-details-flow.test.ts`.
 
-- [ ] **T3. Implement Swiss Archive Item Details Popover presentation and pure boundary collision calculations.** US-3 (FR-6, FR-8, NFR-1, NFR-2, NFR-3, EC-2, EC-5, EC-8)
+- [x] **T3. Implement Swiss Archive Item Details Popover presentation and pure boundary collision calculations.** US-3 (FR-6, FR-8, NFR-1, NFR-2, NFR-3, EC-2, EC-5, EC-8)
   - Depends on: T2
   - Done when: `src/shared/item-details.ts` implements `resolveItemCategory`, `formatItemSizeDetail` (verifying `0 B` for empty files and `--` for folders), and `calculatePopoverPosition` (verifying automatic upward and inward flipping near viewport boundaries); and `ItemDetailsPopover.tsx` renders a `280px`-wide Swiss Archive elevated card displaying the 6 structured metadata fields (Full Name with wrapping, Category, Size, Creation Date, MIME type, and selectable Google Drive ID) with top index strip; verified via automated unit tests in `tests/unit/item-details.test.ts`.
+  - Test Scenarios:
+    1. *Category Resolution & 0-Byte Size Formatting:* `resolveItemCategory` maps all storage item types to bilingual human-readable categories (`en`/`es`); `formatItemSizeDetail` returns `'0 B'` for 0-byte files and `'--'` for folders. Verified in `tests/unit/item-details.test.ts`.
+    2. *Viewport Boundary Clamping & Inward/Upward Flipping:* `calculatePopoverPosition` dynamically flips above the anchor button when overflowing the bottom edge, flips rightward when overflowing the left edge, and clamps coordinates strictly within viewport bounds. Verified in `tests/unit/item-details.test.ts`.
+    3. *Structured Metadata Presentation Contract:* `ItemDetailsPopover.tsx` renders a 280px elevated Swiss Archive card (`rounded-[6px]`, `border-[#C9C6BD]` / `dark:border-[#2C323D]`) with upper technical strip (`[ESC]`) and the 6 metadata fields (`name`, `type`, `size`, `created`, `mime`, `id`) with wrapping and selectable monospace text. Verified in `tests/unit/item-details.test.ts`.
 
 - [ ] **T4. Implement Single Popover Cardinality and fluid dismissal machine.** US-4 (FR-5, FR-7, EC-4, EC-6, EC-7, EC-9)
   - Depends on: T3

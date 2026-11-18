@@ -21,7 +21,7 @@ Project memory across sessions. Maximum ~75 lines: summarize or prune obsolete i
 - `specs/009-panel-toggle-controls/` completed, validated (`FULFILLED`), and released in `v0.8.0`.
 - `specs/010-explorer-breadcrumbs/` completed, validated (`FULFILLED`), and released in `v0.9.0`.
 - `specs/006-swiss-archive-ui/` patch updates released in `v0.9.1` (T6: Alternative C reordering; T7: header refresh button and status bar left-alignment).
-- `specs/011-item-details-popover/` approved, planned, and decomposed (T1-T2 completed: US-1, US-2).
+- `specs/011-item-details-popover/` approved, planned, and decomposed (T1-T3 completed: US-1, US-2, US-3).
 
 ## Decisions (and why)
 - **Details button sizing and borders alignment**: Resized details button to 26px x 26px with 1px neutral structural borders matching top header utility buttons for shell design consistency and 5px row margin.
