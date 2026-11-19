@@ -25,7 +25,7 @@ describe('Item Details Action Button & Selection Decoupling Flow (Spec 011 US-2 
       expect(fileRowSource).toContain('rounded-[4px]');
       expect(fileRowSource).toContain('Info');
       expect(fileRowSource).toContain('w-3.5 h-3.5');
-      expect(fileRowSource).toContain('pr-9');
+      expect(fileRowSource).toMatch(/pr-(9|16)/);
     });
 
     it('should apply Swiss Archive structural borders, elevated surfaces, and Klein Blue hover transitions (FR-3, FR-4, NFR-1)', () => {

@@ -10,7 +10,8 @@ import {
   FileArchive,
   ExternalLink,
   File,
-  Info
+  Info,
+  Download
 } from 'lucide-react';
 import type { StorageItem, StorageItemType, ThemeMode, LanguageCode } from '../../../../shared/types';
 import { getRowSelectionClasses } from '../../../../shared/explorer-helpers';
@@ -22,6 +23,7 @@ export interface FileTableRowProps {
   onSelect?: (id: string) => void;
   onDoubleClick?: (item: StorageItem) => void;
   onOpenDetails?: (item: StorageItem, targetElement: HTMLElement) => void;
+  onDownload?: (item: StorageItem, targetElement: HTMLElement) => void;
   theme?: ThemeMode;
   language?: LanguageCode;
 }
@@ -59,6 +61,7 @@ export const FileTableRow: React.FC<FileTableRowProps> = ({
   onSelect,
   onDoubleClick,
   onOpenDetails,
+  onDownload,
   theme = 'dark',
   language = 'en'
 }) => {
@@ -76,8 +79,8 @@ export const FileTableRow: React.FC<FileTableRowProps> = ({
         {renderItemIcon(item.iconType)}
       </div>
 
-      {/* Column 2: Name & Details Action Button (Two-Column Layout with pr-9 clearing sidebar toggle button) */}
-      <div className="flex-1 min-w-0 pr-9 flex items-center justify-between">
+      {/* Column 2: Name & Action Buttons (Two-Column Layout with pr-16 clearing sidebar toggle button) */}
+      <div className="flex-1 min-w-0 pr-16 flex items-center justify-between">
         <span
           className="truncate font-sans font-medium text-xs"
           title={item.name}
@@ -85,7 +88,32 @@ export const FileTableRow: React.FC<FileTableRowProps> = ({
           {item.name}
         </span>
 
-        <div className="shrink-0 ml-2">
+        <div className="flex items-center gap-1.5 shrink-0 ml-2">
+          <button
+            type="button"
+            data-testid="item-download-btn"
+            title={getTranslation(language, 'download_tooltip')}
+            aria-label={getTranslation(language, 'download_tooltip')}
+            tabIndex={0}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDownload?.(item, e.currentTarget);
+            }}
+            onDoubleClick={(e) => {
+              e.stopPropagation();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                e.stopPropagation();
+                onDownload?.(item, e.currentTarget);
+              }
+            }}
+            className="w-[26px] h-[26px] rounded-[4px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#FFFFFF] dark:bg-[#181C23] text-[#7C8087] dark:text-[#6B7280] hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] hover:border-[#1B44E8] dark:hover:border-[#3B66FF] hover:text-[#1B44E8] dark:hover:text-[#3B66FF] flex items-center justify-center transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#1B44E8] dark:focus:ring-[#3B66FF]"
+          >
+            <Download className="w-3.5 h-3.5" />
+          </button>
+
           <button
             type="button"
             data-testid="item-details-btn"
