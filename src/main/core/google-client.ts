@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { google } from 'googleapis';
+import { google, type drive_v3 } from 'googleapis';
 import type { UserProfile } from '../../shared/types';
 
 type OAuth2Client = InstanceType<typeof google.auth.OAuth2>;
@@ -25,6 +25,12 @@ export class GoogleAuthClient {
 
   getClientId(): string {
     return this.clientId;
+  }
+
+  getDriveClient(refreshToken: string): drive_v3.Drive {
+    const client = this.createOAuthClient('http://127.0.0.1');
+    client.setCredentials({ refresh_token: refreshToken });
+    return google.drive({ version: 'v3', auth: client });
   }
 
   async exchangeCodeForTokens(code: string, redirectUri: string): Promise<{ refreshToken: string; accessToken: string }> {

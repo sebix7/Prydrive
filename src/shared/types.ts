@@ -107,4 +107,44 @@ export interface FolderMetrics {
   formattedTotalSize: string;
 }
 
+export type TransferStatus = 'queued' | 'downloading' | 'completed' | 'failed' | 'cancelled';
+
+export interface DownloadTransferItem {
+  id: string;
+  driveItemId: string;
+  name: string;
+  isDirectory: boolean;
+  iconType: StorageItemType;
+  status: TransferStatus;
+  transferredBytes: number;
+  totalBytes: number | null;
+  progressPercent: number;
+  destinationPath: string;
+  error?: string;
+  warning?: string;
+  startedAt?: number;
+  completedAt?: number;
+  exportMimeType?: string;
+}
+
+export interface DownloadSettings {
+  defaultDownloadPath: string;
+}
+
+export interface DownloadStartParams {
+  driveItemId: string;
+  name: string;
+  isDirectory: boolean;
+  iconType: StorageItemType;
+  totalBytes?: number | null;
+  exportMimeType?: string;
+}
+
+export interface WorkspaceExportOption {
+  format: 'pdf' | 'docx' | 'xlsx' | 'pptx';
+  extension: string;
+  mimeType: string;
+  labelKey: string;
+}
+
 

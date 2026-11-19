@@ -4,8 +4,10 @@ import { app, BrowserWindow, shell } from 'electron';
 import { join } from 'path';
 import { AuthIpcController } from './ipc/auth-ipc';
 import { StorageIpcController } from './ipc/storage-ipc';
+import { DownloadIpcController } from './ipc/download-ipc';
 
 let mainWindow: BrowserWindow | null = null;
+const downloadController = new DownloadIpcController();
 
 function getAppIcon(): string | undefined {
   const iconName = process.platform === 'win32' ? 'icon.ico' : 'icon.png';
@@ -51,6 +53,8 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
   }
+
+  downloadController.setMainWindow(mainWindow);
 }
 
 app.whenReady().then(() => {
@@ -60,6 +64,8 @@ app.whenReady().then(() => {
 
   const storageController = new StorageIpcController();
   storageController.register();
+
+  downloadController.register();
 
   createWindow();
 

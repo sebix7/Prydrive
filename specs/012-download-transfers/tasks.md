@@ -11,9 +11,17 @@
     5. *Virtual Parent Row Exclusion*: Verify that `ParentNavRow.tsx` never renders `item-download-btn` or download tooltips.
     6. *FileExplorer Handler Wiring*: Verify that `FileExplorer.tsx` passes an `onDownload` callback down to `FileTableRow`.
 
-- [ ] **T2. Implement Main Process sequential streaming pipeline and recursive folder archive zipping.** US-2 (FR-3.2, FR-3.3, FR-3.4, FR-4, NFR-2, NFR-3, EC-2, EC-5, EC-6, EC-10)
+- [x] **T2. Implement Main Process sequential streaming pipeline and recursive folder archive zipping.** US-2 (FR-3.2, FR-3.3, FR-3.4, FR-4, NFR-2, NFR-3, EC-2, EC-5, EC-6, EC-10)
   - Depends on: T1
   - Done when: `src/main/operations/download-stream.ts` and `src/main/core/download-queue-manager.ts` implement sequential FIFO download execution (1 active download at a time without concurrency) piping direct byte streams to disk with collision renaming (`resolveNextAvailableFilename`), 0-byte file handling, and recursive folder zipping via `archiver` with partial error resilience (logging skipped files to `_descarga_advertencias.txt`); exposed through strongly typed IPC channels in `download-ipc.ts` and `preload/index.ts`; verified via automated unit tests in `tests/unit/download-helpers.test.ts` and integration tests in `tests/integration/download-flow.test.ts`.
+  - Test Scenarios:
+    1. *Sequential FIFO Queue Enforcement*: Verify that enqueuing multiple items causes only 1 transfer to transition to `downloading` while others stay in `queued` status, auto-advancing to the next queued item upon transfer completion or cancellation.
+    2. *Streaming Direct to Disk & Progress Emission*: Verify that file downloads pipe streams directly to `fs.createWriteStream` reporting incremental transferred byte counts and deterministic progress percentages (0-100%) without buffering in memory.
+    3. *0-Byte File Stream Handling (EC-2)*: Verify that downloading a zero-byte file writes an empty file of 0 bytes, immediately flags status as completed, and emits 100% progress.
+    4. *Active Stream Cancellation & Disk Cleanup (EC-3)*: Verify that calling `cancelDownload` immediately aborts active streams, closes file descriptors, and cleanly deletes partial files from disk via `unlinkSync`.
+    5. *Filename Collision Renaming (EC-6)*: Verify that `resolveNextAvailableFilename` automatically appends an incremental counter `(1)`, `(2)` before the extension when target files already exist in destination folder.
+    6. *Recursive Folder Archive Zipping & Error Resilience (FR-4, EC-5, EC-10)*: Verify that directory downloads stream recursive contents into a `.zip` archive via `ZipArchive`, and if individual nested files fail (e.g. permission restriction), skips them and writes `_descarga_advertencias.txt` into the zip archive.
+    7. *Preload IPC Security Bridge (NFR-3)*: Verify that `window.api.download` exposes strongly typed methods (`startDownload`, `cancelDownload`, `retryDownload`, `openContainingFolder`, `getSettings`, `setSettings`, `selectDownloadDirectory`, `onProgress`) under strict process isolation.
 
 - [ ] **T3. Implement Google Workspace export format selection menu.** US-3 (FR-5, FR-12)
   - Depends on: T1

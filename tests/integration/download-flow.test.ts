@@ -94,4 +94,98 @@ describe('Download Action Button & Row Clearance Flow (Spec 012 US-1 / T1 / FR-1
       expect(parentRowSource).toContain('pr-16');
     });
   });
+
+  describe('Main Process Sequential Streaming Pipeline & Queue Manager (Spec 012 US-2 / T2 / FR-3.2, FR-3.3, FR-3.4, FR-4, NFR-2, NFR-3, EC-2, EC-5, EC-6, EC-10)', () => {
+    const queueManagerSource = (() => {
+      try {
+        return readFileSync(resolve(__dirname, '../../src/main/core/download-queue-manager.ts'), 'utf-8');
+      } catch {
+        return '';
+      }
+    })();
+    const streamSource = (() => {
+      try {
+        return readFileSync(resolve(__dirname, '../../src/main/operations/download-stream.ts'), 'utf-8');
+      } catch {
+        return '';
+      }
+    })();
+    const ipcSource = (() => {
+      try {
+        return readFileSync(resolve(__dirname, '../../src/main/ipc/download-ipc.ts'), 'utf-8');
+      } catch {
+        return '';
+      }
+    })();
+    const preloadSource = readFileSync(
+      resolve(__dirname, '../../src/preload/index.ts'),
+      'utf-8'
+    );
+    const preloadDtsSource = readFileSync(
+      resolve(__dirname, '../../src/preload/index.d.ts'),
+      'utf-8'
+    );
+    const ipcChannelsSource = readFileSync(
+      resolve(__dirname, '../../src/shared/ipc-channels.ts'),
+      'utf-8'
+    );
+
+    it('should define strongly typed download IPC channels in ipc-channels.ts', () => {
+      expect(ipcChannelsSource).toContain('DOWNLOAD_START');
+      expect(ipcChannelsSource).toContain('DOWNLOAD_CANCEL');
+      expect(ipcChannelsSource).toContain('DOWNLOAD_RETRY');
+      expect(ipcChannelsSource).toContain('DOWNLOAD_OPEN_FOLDER');
+      expect(ipcChannelsSource).toContain('DOWNLOAD_GET_SETTINGS');
+      expect(ipcChannelsSource).toContain('DOWNLOAD_SET_SETTINGS');
+      expect(ipcChannelsSource).toContain('DOWNLOAD_SELECT_DIRECTORY');
+      expect(ipcChannelsSource).toContain('DOWNLOAD_PROGRESS_EVENT');
+    });
+
+    it('should expose typed window.api.download bridge in preload', () => {
+      expect(preloadSource).toContain('download:');
+      expect(preloadSource).toContain('startDownload:');
+      expect(preloadSource).toContain('cancelDownload:');
+      expect(preloadSource).toContain('retryDownload:');
+      expect(preloadSource).toContain('openContainingFolder:');
+      expect(preloadSource).toContain('getSettings:');
+      expect(preloadSource).toContain('setSettings:');
+      expect(preloadSource).toContain('selectDownloadDirectory:');
+      expect(preloadSource).toContain('onProgress:');
+
+      expect(preloadDtsSource).toContain('download: {');
+      expect(preloadDtsSource).toContain('startDownload:');
+      expect(preloadDtsSource).toContain('cancelDownload:');
+      expect(preloadDtsSource).toContain('retryDownload:');
+    });
+
+    it('should enforce sequential FIFO execution with 1 active download at a time in DownloadQueueManager (FR-3.3)', () => {
+      expect(queueManagerSource).toContain('class DownloadQueueManager');
+      expect(queueManagerSource).toContain('activeTransfer');
+      expect(queueManagerSource).toContain('status === \'queued\'');
+      expect(queueManagerSource).toContain('processQueue');
+    });
+
+    it('should handle cancellation by aborting active streams and cleaning up partial files (EC-3)', () => {
+      expect(queueManagerSource).toContain('cancel(');
+      expect(queueManagerSource).toContain('abort(');
+      expect(queueManagerSource).toContain('unlinkSync');
+    });
+
+    it('should implement folder streaming compression via archiver with error resilience logging (FR-4, EC-5, EC-10)', () => {
+      expect(streamSource).toContain('archiver');
+      expect(streamSource).toContain('createWriteStream');
+      expect(streamSource).toContain('_descarga_advertencias.txt');
+    });
+
+    it('should implement filename collision resolution in queue manager (EC-6)', () => {
+      expect(queueManagerSource).toContain('resolveNextAvailableFilename');
+    });
+
+    it('should register IPC handlers for all download operations in download-ipc.ts', () => {
+      expect(ipcSource).toContain('IPC_CHANNELS.DOWNLOAD_START');
+      expect(ipcSource).toContain('IPC_CHANNELS.DOWNLOAD_CANCEL');
+      expect(ipcSource).toContain('IPC_CHANNELS.DOWNLOAD_RETRY');
+      expect(ipcSource).toContain('IPC_CHANNELS.DOWNLOAD_OPEN_FOLDER');
+    });
+  });
 });
