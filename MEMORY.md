@@ -21,7 +21,7 @@ Project memory across sessions. Maximum ~75 lines: summarize or prune obsolete i
 - `specs/009-panel-toggle-controls/` completed, validated (`FULFILLED`), and released in `v0.8.0`.
 - `specs/010-explorer-breadcrumbs/` completed, validated (`FULFILLED`), and released in `v0.9.0`.
 - `specs/006-swiss-archive-ui/` patch updates released in `v0.9.1` (T6: Alternative C reordering; T7: header refresh button and status bar left-alignment).
-- `specs/011-item-details-popover/` approved, planned, and decomposed (T1-T5 completed: all tasks fulfilled).
+- `specs/011-item-details-popover/` completed, validated (`FULFILLED`), and released in `v0.10.0`.
 
 ## Decisions (and why)
 - **Selectable details filename**: Enabled `select-text cursor-text` on filename inside item details popover for copying long names without unmounting or renaming.
