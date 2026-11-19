@@ -32,6 +32,10 @@
     2. *Fluid Dismissal on Outside Click & Escape with Focus Restoration:* With an active popover, clicking outside the popover card dismisses it cleanly; pressing `Escape` closes the popover and immediately restores keyboard focus to the triggering details button (`anchorElementRef.current?.focus()`). Verified in `tests/integration/item-details-flow.test.ts`.
     3. *Table Scrolling & Directory Navigation Dismissal:* Scrolling the table body (`onScroll`) immediately dismisses the active popover to prevent detached overlays; navigating to another folder (`currentFolder.id` change) or list updates reset active state and cleanly unmount the popover. Verified in `tests/integration/item-details-flow.test.ts`.
 
-- [ ] **T5. Implement complete bilingual localization parity for all item details labels and categories.** US-5 (FR-10)
+- [x] **T5. Implement complete bilingual localization parity for all item details labels and categories.** US-5 (FR-10)
   - Depends on: T3
   - Done when: `src/shared/i18n/translations.ts` defines 100% matched keys across English (`en`) and Spanish (`es`) for popover field headers (`item_details_*`) and item categories (`category_*`), returning correct translations according to active language; verified via automated unit tests in `tests/unit/translations.test.ts`.
+  - Test Scenarios:
+    1. *Bilingual Dictionary Key Parity:* Assert that all 20 details popover keys (`item_details_*`) and category keys (`category_*`) exist, are non-empty, and maintain 100% parity across English (`en`) and Spanish (`es`). Verified in `tests/unit/translations.test.ts`.
+    2. *Field Header & Action Label Localization Accuracy:* Verify exact translation outputs for tooltip, title, close shortcut indicator (`[ESC]`), and all 6 metadata headers (`name`, `type`, `size`, `created`, `mime`, `id`) in both languages. Verified in `tests/unit/translations.test.ts`.
+    3. *Storage Item Category Translations:* Verify accurate localized string outputs for all 11 storage item categories (`folder`, `document`, `spreadsheet`, `presentation`, `pdf`, `image`, `video`, `audio`, `archive`, `shortcut`, `file`) across English and Spanish. Verified in `tests/unit/translations.test.ts`.

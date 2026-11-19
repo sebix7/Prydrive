@@ -345,4 +345,103 @@ describe('Bilingual Localization Dictionary (US-6 / T6 / FR-15)', () => {
       expect(getTranslation('es', 'panel_toggle_sidebar_show')).toBe('Mostrar panel lateral');
     });
   });
+
+  describe('Item Details Popover & Categories Localization Parity (Spec 011 US-5 / T5 / FR-10)', () => {
+    const requiredDetailsKeys: TranslationKey[] = [
+      'item_details_tooltip',
+      'item_details_title',
+      'item_details_close',
+      'item_details_field_name',
+      'item_details_field_type',
+      'item_details_field_size',
+      'item_details_field_created',
+      'item_details_field_mime',
+      'item_details_field_id',
+      'category_folder',
+      'category_document',
+      'category_spreadsheet',
+      'category_presentation',
+      'category_pdf',
+      'category_image',
+      'category_video',
+      'category_audio',
+      'category_archive',
+      'category_shortcut',
+      'category_file'
+    ];
+
+    it('should have all 20 details popover and category keys defined and non-empty in English and Spanish (FR-10)', () => {
+      expect(requiredDetailsKeys).toHaveLength(20);
+      requiredDetailsKeys.forEach((key) => {
+        expect(translations.en[key]).toBeDefined();
+        expect(translations.es[key]).toBeDefined();
+        expect(translations.en[key].trim().length).toBeGreaterThan(0);
+        expect(translations.es[key].trim().length).toBeGreaterThan(0);
+      });
+    });
+
+    it('should accurately translate popover action and field header labels in English and Spanish (FR-6, FR-10)', () => {
+      expect(getTranslation('en', 'item_details_tooltip')).toBe('View details');
+      expect(getTranslation('es', 'item_details_tooltip')).toBe('Ver detalles');
+
+      expect(getTranslation('en', 'item_details_title')).toBe('DETAILS // METADATA');
+      expect(getTranslation('es', 'item_details_title')).toBe('DETALLES // METADATA');
+
+      expect(getTranslation('en', 'item_details_close')).toBe('Close [ESC]');
+      expect(getTranslation('es', 'item_details_close')).toBe('Cerrar [ESC]');
+
+      expect(getTranslation('en', 'item_details_field_name')).toBe('Name');
+      expect(getTranslation('es', 'item_details_field_name')).toBe('Nombre');
+
+      expect(getTranslation('en', 'item_details_field_type')).toBe('Type');
+      expect(getTranslation('es', 'item_details_field_type')).toBe('Tipo');
+
+      expect(getTranslation('en', 'item_details_field_size')).toBe('Size');
+      expect(getTranslation('es', 'item_details_field_size')).toBe('Tamaño');
+
+      expect(getTranslation('en', 'item_details_field_created')).toBe('Created');
+      expect(getTranslation('es', 'item_details_field_created')).toBe('Fecha de creación');
+
+      expect(getTranslation('en', 'item_details_field_mime')).toBe('MIME Type');
+      expect(getTranslation('es', 'item_details_field_mime')).toBe('Tipo MIME');
+
+      expect(getTranslation('en', 'item_details_field_id')).toBe('Drive ID');
+      expect(getTranslation('es', 'item_details_field_id')).toBe('ID de Drive');
+    });
+
+    it('should accurately translate all 11 storage item categories in English and Spanish (FR-6.2, FR-10)', () => {
+      expect(getTranslation('en', 'category_folder')).toBe('Folder');
+      expect(getTranslation('es', 'category_folder')).toBe('Carpeta');
+
+      expect(getTranslation('en', 'category_document')).toBe('Document');
+      expect(getTranslation('es', 'category_document')).toBe('Documento');
+
+      expect(getTranslation('en', 'category_spreadsheet')).toBe('Spreadsheet');
+      expect(getTranslation('es', 'category_spreadsheet')).toBe('Hoja de cálculo');
+
+      expect(getTranslation('en', 'category_presentation')).toBe('Presentation');
+      expect(getTranslation('es', 'category_presentation')).toBe('Presentación');
+
+      expect(getTranslation('en', 'category_pdf')).toBe('PDF Document');
+      expect(getTranslation('es', 'category_pdf')).toBe('Documento PDF');
+
+      expect(getTranslation('en', 'category_image')).toBe('Image');
+      expect(getTranslation('es', 'category_image')).toBe('Imagen');
+
+      expect(getTranslation('en', 'category_video')).toBe('Video');
+      expect(getTranslation('es', 'category_video')).toBe('Video');
+
+      expect(getTranslation('en', 'category_audio')).toBe('Audio');
+      expect(getTranslation('es', 'category_audio')).toBe('Audio');
+
+      expect(getTranslation('en', 'category_archive')).toBe('Compressed Archive');
+      expect(getTranslation('es', 'category_archive')).toBe('Archivo comprimido');
+
+      expect(getTranslation('en', 'category_shortcut')).toBe('Shortcut');
+      expect(getTranslation('es', 'category_shortcut')).toBe('Acceso directo');
+
+      expect(getTranslation('en', 'category_file')).toBe('File');
+      expect(getTranslation('es', 'category_file')).toBe('Archivo');
+    });
+  });
 });
