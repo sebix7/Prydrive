@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.10.0](https://github.com/sebix7/Prydrive/compare/v0.9.1...v0.10.0) (2026-11-19)
+
+
+### Features
+
+* **explorer:** convert file explorer table to two-column layout ([8b29a04](https://github.com/sebix7/Prydrive/commit/8b29a04c2d4a0d5399f210582e8d9ce9cecdf042))
+* **explorer:** implement item details button and fix panel focus leak ([e49eca4](https://github.com/sebix7/Prydrive/commit/e49eca48f75148039a8be39ac9e9d0448de63f0d))
+* **explorer:** implement popover dismissal machine and dynamic re-anchoring ([5b38bf6](https://github.com/sebix7/Prydrive/commit/5b38bf620325f90f0ee84f6c116e761d8a969646))
+* **explorer:** implement swiss archive item details popover and boundary positioning ([b126584](https://github.com/sebix7/Prydrive/commit/b126584d4048ae2924a0d8d7aeda74c9c0d5dc2b))
+
+
+### Documentation
+
+* **memory:** record v0.9.1 swiss archive controls patch release ([3cf7659](https://github.com/sebix7/Prydrive/commit/3cf7659843e0fb7b3d9f4a896270243a5531bb4a))
+
 ## [0.9.1](https://github.com/sebix7/Prydrive/compare/v0.9.0...v0.9.1) (2026-11-17)
 
 
