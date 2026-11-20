@@ -6,12 +6,14 @@ import { truncateFolderStack } from '../../../../shared/explorer-helpers';
 import { resolveWorkspaceExportOptions } from '../../../../shared/download-helpers';
 import { getTranslation } from '../../../../shared/i18n/translations';
 import { useDriveExplorerContext } from '../../context/DriveExplorerContext';
+import { useDownloadContext } from '../../context/DownloadContext';
 import { FileTableRow } from './FileTableRow';
 import { ParentNavRow } from './ParentNavRow';
 import { ExplorerStatusBar } from './ExplorerStatusBar';
 import { ExplorerBreadcrumbBar } from './ExplorerBreadcrumbBar';
 import { ItemDetailsPopover } from './ItemDetailsPopover';
 import { WorkspaceExportMenu } from './WorkspaceExportMenu';
+import { FloatingTransferTrigger } from '../transfer/FloatingTransferTrigger';
 
 export interface FileExplorerProps {
   language?: LanguageCode;
@@ -40,6 +42,13 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     retryCurrentDirectory,
     handleScroll
   } = useDriveExplorerContext();
+
+  const {
+    transfers,
+    isQueueModalOpen,
+    startDownload,
+    openQueueModal
+  } = useDownloadContext();
 
   const isDark = theme === 'dark';
   const tableBodyRef = React.useRef<HTMLDivElement>(null);
@@ -222,14 +231,16 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         theme={theme}
       />
 
-      {/* Scrollable File and Folder List with Sticky Header for 100% Column Alignment */}
-      <div
-        ref={tableBodyRef}
-        role="table"
-        data-testid="explorer-table-body"
-        onScroll={onTableScroll}
-        className="flex-1 flex flex-col overflow-y-auto min-h-0"
-      >
+      {/* Explorer Table Canvas Wrapper hosting scrollable table and Floating Transfer Trigger */}
+      <div className="relative flex-1 min-h-0 flex flex-col">
+        {/* Scrollable File and Folder List with Sticky Header for 100% Column Alignment */}
+        <div
+          ref={tableBodyRef}
+          role="table"
+          data-testid="explorer-table-body"
+          onScroll={onTableScroll}
+          className="flex-1 flex flex-col overflow-y-auto min-h-0"
+        >
         {/* Compact Sticky Table Header: Strictly Two Columns (Icon and Name per Spec 011 FR-2) */}
         <div
           role="row"
@@ -337,7 +348,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                           anchorElementRef.current = null;
                         }
                       } else {
-                        void window.api?.download?.startDownload({
+                        void startDownload({
                           driveItemId: item.id,
                           name: item.name,
                           isDirectory: item.isDirectory,
@@ -382,6 +393,16 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
             )}
           </div>
         )}
+        </div>
+
+        {/* Floating Transfer Trigger & Hover Progress Pill (Spec 012 US-4 / FR-6) */}
+        <FloatingTransferTrigger
+          transfers={transfers}
+          isModalOpen={isQueueModalOpen}
+          onClick={openQueueModal}
+          language={language}
+          theme={theme}
+        />
       </div>
 
       {/* Persistent Bottom Status Bar (FR-12, FR-14) */}
@@ -414,7 +435,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           anchorRect={exportMenuTarget.anchorRect}
           triggerElement={exportTriggerRef.current}
           onSelectFormat={(option) => {
-            void window.api?.download?.startDownload({
+            void startDownload({
               driveItemId: exportMenuTarget.item.id,
               name: exportMenuTarget.item.name,
               isDirectory: false,

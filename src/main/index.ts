@@ -5,9 +5,13 @@ import { join } from 'path';
 import { AuthIpcController } from './ipc/auth-ipc';
 import { StorageIpcController } from './ipc/storage-ipc';
 import { DownloadIpcController } from './ipc/download-ipc';
+import { GoogleAuthClient } from './core/google-client';
+import { TokenStorage } from './core/token-storage';
+import { DownloadSettingsStorage } from './core/download-settings-storage';
+import { DownloadQueueManager } from './core/download-queue-manager';
 
 let mainWindow: BrowserWindow | null = null;
-const downloadController = new DownloadIpcController();
+let downloadController: DownloadIpcController | null = null;
 
 function getAppIcon(): string | undefined {
   const iconName = process.platform === 'win32' ? 'icon.ico' : 'icon.png';
@@ -54,17 +58,28 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
   }
 
-  downloadController.setMainWindow(mainWindow);
+  downloadController?.setMainWindow(mainWindow);
 }
 
 app.whenReady().then(() => {
+  // Share a single GoogleAuthClient instance across all IPC controllers for in-memory OAuth token reuse (FR-13)
+  const sharedTokenStorage = new TokenStorage();
+  const sharedGoogleClient = new GoogleAuthClient();
+  const sharedDownloadSettings = new DownloadSettingsStorage();
+  const sharedDownloadQueue = new DownloadQueueManager(
+    sharedDownloadSettings,
+    sharedTokenStorage,
+    sharedGoogleClient
+  );
+
   // Register IPC controllers
-  const authController = new AuthIpcController();
+  const authController = new AuthIpcController(sharedTokenStorage, sharedGoogleClient);
   authController.register();
 
-  const storageController = new StorageIpcController();
+  const storageController = new StorageIpcController(sharedTokenStorage, sharedGoogleClient);
   storageController.register();
 
+  downloadController = new DownloadIpcController(sharedDownloadQueue, sharedDownloadSettings);
   downloadController.register();
 
   createWindow();

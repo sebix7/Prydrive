@@ -229,4 +229,85 @@ describe('Download Action Button & Row Clearance Flow (Spec 012 US-1 / T1 / FR-1
       expect(explorerSource).toContain('triggerElement={exportTriggerRef.current}');
     });
   });
+
+  describe('Floating Transfer Trigger & Hover Expansion (Spec 012 US-4 / T4 / FR-6, NFR-1, EC-7)', () => {
+    const floatingTriggerSource = (() => {
+      try {
+        return readFileSync(
+          resolve(__dirname, '../../src/renderer/src/components/transfer/FloatingTransferTrigger.tsx'),
+          'utf-8'
+        );
+      } catch {
+        return '';
+      }
+    })();
+
+    const downloadContextSource = (() => {
+      try {
+        return readFileSync(
+          resolve(__dirname, '../../src/renderer/src/context/DownloadContext.tsx'),
+          'utf-8'
+        );
+      } catch {
+        return '';
+      }
+    })();
+
+    const appShellSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/components/shell/AppShell.tsx'),
+      'utf-8'
+    );
+
+    it('should render FloatingTransferTrigger at bottom-3 right-3 in resting 40px x 40px state with Drive emblem and download badge (FR-6.1, NFR-1)', () => {
+      expect(floatingTriggerSource).toContain('data-testid="floating-transfer-trigger"');
+      expect(floatingTriggerSource).toContain('bottom-3');
+      expect(floatingTriggerSource).toContain('right-3');
+      expect(floatingTriggerSource).toContain('w-10');
+      expect(floatingTriggerSource).toContain('h-10');
+      expect(floatingTriggerSource).toContain('rounded-[6px]');
+      expect(floatingTriggerSource).toContain('GoogleDriveLogo');
+      expect(floatingTriggerSource).toContain('border-[#C9C6BD]');
+      expect(floatingTriggerSource).toContain('dark:border-[#2C323D]');
+      expect(floatingTriggerSource).toContain('bg-[#FFFFFF]');
+      expect(floatingTriggerSource).toContain('dark:bg-[#181C23]');
+    });
+
+    it('should expand horizontally to the left to 260px on hover displaying active filename, progress bar, percentage, and queue counter (FR-6.2)', () => {
+      expect(floatingTriggerSource).toContain('w-[260px]');
+      expect(floatingTriggerSource).toContain('onMouseEnter');
+      expect(floatingTriggerSource).toContain('onMouseLeave');
+      expect(floatingTriggerSource).toContain('data-testid="floating-transfer-progress-bar"');
+      expect(floatingTriggerSource).toContain('bg-[#1B44E8]');
+      expect(floatingTriggerSource).toContain('dark:bg-[#3B66FF]');
+      expect(floatingTriggerSource).toContain('transfer_queue_count');
+      expect(floatingTriggerSource).toContain('progressPercent');
+    });
+
+    it('should auto-hide after 4-second grace period on completion and freeze timer while modal is open (FR-6.3, FR-8)', () => {
+      expect(floatingTriggerSource).toContain('FLOATING_TRIGGER_GRACE_MS');
+      expect(floatingTriggerSource).toContain('setTimeout');
+      expect(floatingTriggerSource).toContain('clearTimeout');
+      expect(floatingTriggerSource).toContain('isModalOpen');
+    });
+
+    it('should declare bilingual translations for floating transfer trigger and queue counter (FR-6.2, FR-12)', () => {
+      expect(getTranslation('en', 'transfer_floating_active')).toBe('Active downloads');
+      expect(getTranslation('es', 'transfer_floating_active')).toBe('Descargas activas');
+      expect(getTranslation('en', 'transfer_queue_count', { current: 1, total: 3 })).toBe('1 of 3');
+      expect(getTranslation('es', 'transfer_queue_count', { current: 1, total: 3 })).toBe('1 de 3');
+    });
+
+    it('should provide DownloadContext subscribing to window.api.download.onProgress and wrap AppShell (FR-6, EC-7)', () => {
+      expect(downloadContextSource).toContain('DownloadProvider');
+      expect(downloadContextSource).toContain('useDownloadContext');
+      expect(downloadContextSource).toContain('onProgress');
+      expect(downloadContextSource).toContain('upsertTransferItem');
+      expect(appShellSource).toContain('DownloadProvider');
+    });
+
+    it('should mount FloatingTransferTrigger inside FileExplorer canvas and connect download actions to DownloadContext (FR-6)', () => {
+      expect(explorerSource).toContain('FloatingTransferTrigger');
+      expect(explorerSource).toContain('useDownloadContext');
+    });
+  });
 });

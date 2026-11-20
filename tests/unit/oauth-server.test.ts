@@ -22,6 +22,8 @@ describe('OAuthServer (Loopback RFC 8252)', () => {
     expect(authUrl).toContain(`redirect_uri=${encodeURIComponent(`http://127.0.0.1:${port}`)}`);
     expect(authUrl).toContain('response_type=code');
     expect(authUrl).toContain('access_type=offline');
+    expect(authUrl).toContain(encodeURIComponent('https://www.googleapis.com/auth/drive'));
+    expect(authUrl).not.toContain('drive.metadata.readonly');
   });
 
   it('should capture authorization code from incoming loopback HTTP request', async () => {

@@ -39,8 +39,13 @@
 - `src/main/ipc/download-ipc.ts`:
   - Exposes typed IPC handlers for starting, cancelling, retrying downloads, opening containing folders via `shell.showItemInFolder`, getting/saving settings, and selecting directories via `dialog.showOpenDialog`.
   - Emits real-time progress events to the Renderer window (`win.webContents.send(IPC_CHANNELS.DOWNLOAD_PROGRESS_EVENT, item)`).
+- `src/main/core/google-client.ts`:
+  - Caches and reuses a single in-memory authenticated `OAuth2Client` (`cachedAuthClient`) keyed by `cachedRefreshToken` across `getDriveClient`, `listDirectory`, `fetchStorageQuota`, and `fetchUserProfile` (FR-13).
+  - Exposes `getAuthenticatedClient(refreshToken)` and `clearCachedClient()`, invalidating automatically when `refreshToken` changes, on `AUTH_DISCONNECT`, or on `401` / `invalid_grant` errors (EC-13, EC-14).
+- `src/main/ipc/auth-ipc.ts`:
+  - Clears the cached OAuth2Client via `googleClient.clearCachedClient()` during `AUTH_DISCONNECT`.
 - `src/main/index.ts`:
-  - Instantiates `DownloadSettingsStorage`, `DownloadQueueManager`, and registers `DownloadIpcController`.
+  - Instantiates a single shared `GoogleAuthClient` instance inside `app.whenReady()` and injects it into `AuthIpcController`, `StorageIpcController`, and `DownloadQueueManager` (`DownloadIpcController`).
 
 ### C. Preload Security Bridge (`src/preload/`)
 - `src/preload/index.ts` & `src/preload/index.d.ts`:
@@ -80,6 +85,8 @@
 ### E. Automated Tests (`tests/`)
 - `tests/unit/download-helpers.test.ts`:
   - Unit tests for pure calculation, filename collision resolution, and workspace export option mappers.
+- `tests/unit/google-client.test.ts`:
+  - Unit tests verifying in-memory `OAuth2Client` reuse per `refreshToken`, invalidation on different token or `clearCachedClient()`, and cache reset on `401` / `invalid_grant` errors.
 - `tests/unit/translations.test.ts`:
   - Unit tests verifying 100% dictionary parity across English and Spanish for all download and settings keys.
 - `tests/integration/download-flow.test.ts`:
@@ -357,12 +364,13 @@ Row Trailing Action Container:
 | **Compact Workspace Export Menu on Row Button** | Downloading default format without asking | Google Docs can be exported as Word or PDF; Sheets as Excel or PDF. Offering an immediate 2-item menu gives users exact control without polluting the main explorer table with extra controls. |
 | **Freeze Auto-Hide Timer While Modal Is Open** | Hiding floating button strictly after 4 seconds regardless of modal state | If the user opens the modal to open downloaded files, hiding the trigger widget beneath their active interaction causes disorientation and broken UI state. |
 | **Row Trailing Padding `pr-16` (64px)** | Retaining `pr-9` (36px) | Adding a second 26px button requires extra trailing clearance so that neither the download button nor the details button is occluded by the lateral sidebar toggle chevron button `<`. |
+| **Shared In-Memory `OAuth2Client` Reuse per `refreshToken`** | Instantiating a new `OAuth2Client` on every Drive call | Eliminates redundant `oauth2.googleapis.com/token` round-trips on every folder click or download while keeping short-lived access tokens strictly in RAM (zero plaintext disk writes per Principle 5). |
 
 ---
 
 ## 6. Automated Testing Strategy
 
-### A. Unit Tests (`tests/unit/download-helpers.test.ts`)
+### A. Unit Tests (`tests/unit/download-helpers.test.ts` & `tests/unit/google-client.test.ts`)
 1. `calculateTransferPercent`:
    - Validates ratio clamping between 0 and 100.
    - Handles `totalBytes === null` and `0` bytes safely.
@@ -374,6 +382,10 @@ Row Trailing Action Container:
    - Returns XLSX and PDF for Google Sheets.
    - Returns PPTX and PDF for Google Slides.
    - Returns empty array for regular binary files.
+4. `GoogleAuthClient` (`tests/unit/google-client.test.ts`):
+   - Returns the identical cached `OAuth2Client` instance on consecutive calls with the same `refreshToken`.
+   - Replaces the cached `OAuth2Client` immediately when a different `refreshToken` is passed.
+   - Invalidates the cached `OAuth2Client` when `clearCachedClient()` is invoked (on disconnect) or when a `401` / `invalid_grant` error occurs.
 
 ### B. Bilingual Localization Parity Tests (`tests/unit/translations.test.ts`)
 - Asserts that all newly added `download_*`, `transfers_*`, `settings_*`, and `export_*` keys maintain 100% parity across English and Spanish.
@@ -407,6 +419,7 @@ Row Trailing Action Container:
 | **US-5 (Centered Download Queue Modal)** | FR-7, FR-8, FR-9, EC-3, EC-4 | `DownloadQueueModal.tsx`, `DownloadContext.tsx` | `tests/integration/download-flow.test.ts` |
 | **US-6 (Configurable Default Download Directory)** | FR-10, NFR-3, EC-11 | `DownloadSettingsModal.tsx`, `MenuBar.tsx`, `download-settings-storage.ts` | `tests/integration/download-flow.test.ts` |
 | **US-7 (Bilingual Localization Parity)** | FR-12 | `translations.ts` | `tests/unit/translations.test.ts` |
+| **US-8 (Cached OAuth Client & Folder Navigation Performance)** | FR-13, EC-13, EC-14 | `google-client.ts`, `auth-ipc.ts`, `index.ts` | `tests/unit/google-client.test.ts` |
 
 ### Story Dependency Flow for `tasks.md`:
 ```mermaid
@@ -417,4 +430,5 @@ flowchart TD
     US4 --> US5["US-5: Centered Download Queue Modal (T5)"]
     US5 --> US6["US-6: Configurable Download Directory (T6)"]
     US6 --> US7["US-7: Bilingual Localization Parity (T7)"]
+    US2 --> US8["US-8: Cached OAuth Client Performance (T8)"]
 ```

@@ -161,6 +161,7 @@ export class AuthIpcController {
           const evaluated = evaluateAuthError(err);
 
           if (evaluated.shouldPurgeCredentials) {
+            this.googleClient.clearCachedClient();
             await this.tokenStorage.wipeSession();
           }
 
@@ -188,6 +189,7 @@ export class AuthIpcController {
       IPC_CHANNELS.AUTH_DISCONNECT,
       async (): Promise<IpcResult<void>> => {
         try {
+          this.googleClient.clearCachedClient();
           await this.tokenStorage.wipeSession();
           return { success: true };
         } catch (err) {

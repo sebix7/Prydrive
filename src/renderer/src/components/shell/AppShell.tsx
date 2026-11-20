@@ -8,6 +8,7 @@ import { MenuBar } from './MenuBar';
 import { AboutModal } from './AboutModal';
 import { TelemetrySidebar } from './TelemetrySidebar';
 import { DriveExplorerProvider, useDriveExplorerContext } from '../../context/DriveExplorerContext';
+import { DownloadProvider } from '../../context/DownloadContext';
 
 interface AppShellProps {
   userProfile: UserProfile | null;
@@ -226,7 +227,9 @@ export const AppShell: React.FC<AppShellProps> = (props) => {
   const { onRefreshQuota } = props;
   return (
     <DriveExplorerProvider onRefreshQuota={onRefreshQuota}>
-      <AppShellContent {...props} />
+      <DownloadProvider>
+        <AppShellContent {...props} />
+      </DownloadProvider>
     </DriveExplorerProvider>
   );
 };

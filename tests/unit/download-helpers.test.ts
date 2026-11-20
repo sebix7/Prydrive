@@ -3,8 +3,12 @@ import {
   calculateTransferPercent,
   resolveNextAvailableFilename,
   resolveWorkspaceExportOptions,
+  resolveExportExtension,
   filterActiveTransfers,
-  hasInFlightTransfers
+  hasInFlightTransfers,
+  upsertTransferItem,
+  getTransferQueueSummary,
+  FLOATING_TRIGGER_GRACE_MS
 } from '../../src/shared/download-helpers';
 import type { DownloadTransferItem } from '../../src/shared/types';
 
@@ -88,6 +92,25 @@ describe('Download Pure Helpers (Spec 012 US-2 / T2 / FR-3.4, FR-4, FR-5, EC-2, 
       expect(resolveWorkspaceExportOptions('image/png')).toEqual([]);
       expect(resolveWorkspaceExportOptions('application/zip')).toEqual([]);
     });
+
+    it('should map target export MIME types back to their binary file extensions', () => {
+      expect(resolveExportExtension('application/pdf')).toBe('.pdf');
+      expect(
+        resolveExportExtension(
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        )
+      ).toBe('.docx');
+      expect(
+        resolveExportExtension(
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+      ).toBe('.xlsx');
+      expect(
+        resolveExportExtension(
+          'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+        )
+      ).toBe('.pptx');
+    });
   });
 
   describe('filterActiveTransfers & hasInFlightTransfers (FR-6.1, FR-6.3)', () => {
@@ -140,6 +163,90 @@ describe('Download Pure Helpers (Spec 012 US-2 / T2 / FR-3.4, FR-4, FR-5, EC-2, 
       expect(hasInFlightTransfers(mockTransfers)).toBe(true);
       expect(hasInFlightTransfers([mockTransfers[0]])).toBe(false);
       expect(hasInFlightTransfers([])).toBe(false);
+    });
+  });
+
+  describe('Floating Transfer Trigger Helpers (Spec 012 US-4 / T4 / FR-6, EC-7)', () => {
+    const baseItem = (
+      id: string,
+      status: DownloadTransferItem['status'],
+      progressPercent = 0
+    ): DownloadTransferItem => ({
+      id,
+      driveItemId: `drive-${id}`,
+      name: `file-${id}.bin`,
+      isDirectory: false,
+      iconType: 'file',
+      status,
+      transferredBytes: progressPercent * 10,
+      totalBytes: 1000,
+      progressPercent,
+      destinationPath: `/downloads/file-${id}.bin`
+    });
+
+    it('should define a 4000ms completion auto-hide grace period constant (FR-6.3)', () => {
+      expect(FLOATING_TRIGGER_GRACE_MS).toBe(4000);
+    });
+
+    it('should upsert transfer items immutably preserving FIFO order without duplicates (EC-7)', () => {
+      const t1 = baseItem('1', 'queued', 0);
+      const t2 = baseItem('2', 'queued', 0);
+      let list = upsertTransferItem([], t1);
+      list = upsertTransferItem(list, t2);
+      expect(list).toHaveLength(2);
+      expect(list.map((t) => t.id)).toEqual(['1', '2']);
+
+      const t1Updated = baseItem('1', 'downloading', 45);
+      const nextList = upsertTransferItem(list, t1Updated);
+      expect(nextList).toHaveLength(2);
+      expect(nextList[0].status).toBe('downloading');
+      expect(nextList[0].progressPercent).toBe(45);
+      // Original array remains unmutated
+      expect(list[0].progressPercent).toBe(0);
+    });
+
+    it('should select the actively downloading item and compute queue position (1 of 3, 2 of 3) (FR-6.2)', () => {
+      const batch1 = [
+        baseItem('1', 'downloading', 30),
+        baseItem('2', 'queued', 0),
+        baseItem('3', 'queued', 0)
+      ];
+      const summary1 = getTransferQueueSummary(batch1);
+      expect(summary1.hasInFlight).toBe(true);
+      expect(summary1.activeTransfer?.id).toBe('1');
+      expect(summary1.currentIndex).toBe(1);
+      expect(summary1.totalCount).toBe(3);
+
+      const batch2 = [
+        baseItem('1', 'completed', 100),
+        baseItem('2', 'downloading', 60),
+        baseItem('3', 'queued', 0)
+      ];
+      const summary2 = getTransferQueueSummary(batch2);
+      expect(summary2.hasInFlight).toBe(true);
+      expect(summary2.activeTransfer?.id).toBe('2');
+      expect(summary2.currentIndex).toBe(2);
+      expect(summary2.totalCount).toBe(3);
+    });
+
+    it('should report completed last item when queue finishes for the 4-second grace period (FR-6.3)', () => {
+      const doneBatch = [
+        baseItem('1', 'completed', 100),
+        baseItem('2', 'completed', 100)
+      ];
+      const summary = getTransferQueueSummary(doneBatch);
+      expect(summary.hasInFlight).toBe(false);
+      expect(summary.activeTransfer?.id).toBe('2');
+      expect(summary.currentIndex).toBe(2);
+      expect(summary.totalCount).toBe(2);
+    });
+
+    it('should handle empty transfer list safely', () => {
+      const summary = getTransferQueueSummary([]);
+      expect(summary.hasInFlight).toBe(false);
+      expect(summary.activeTransfer).toBeNull();
+      expect(summary.currentIndex).toBe(0);
+      expect(summary.totalCount).toBe(0);
     });
   });
 });

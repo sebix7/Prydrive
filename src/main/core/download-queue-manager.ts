@@ -7,7 +7,7 @@ import type {
 import {
   calculateTransferPercent,
   resolveNextAvailableFilename,
-  resolveWorkspaceExportOptions
+  resolveExportExtension
 } from '../../shared/download-helpers';
 import { DownloadSettingsStorage } from './download-settings-storage';
 import { TokenStorage } from './token-storage';
@@ -48,9 +48,10 @@ export class DownloadQueueManager {
   }
 
   private emitProgress(item: DownloadTransferItem): void {
+    const snapshot = { ...item };
     for (const listener of this.listeners) {
       try {
-        listener(item);
+        listener(snapshot);
       } catch {
         // Suppress listener errors
       }
@@ -77,9 +78,7 @@ export class DownloadQueueManager {
     if (params.isDirectory) {
       desiredFilename = `${params.name}.zip`;
     } else if (params.exportMimeType) {
-      const options = resolveWorkspaceExportOptions(params.exportMimeType);
-      const matched = options.find((o) => o.mimeType === params.exportMimeType);
-      const ext = matched ? matched.extension : '.pdf';
+      const ext = resolveExportExtension(params.exportMimeType);
       if (!desiredFilename.toLowerCase().endsWith(ext)) {
         desiredFilename = `${params.name}${ext}`;
       }
@@ -145,10 +144,28 @@ export class DownloadQueueManager {
 
       const drive = this.googleClient.getDriveClient(session.refreshToken);
 
-      const onProgress = (transferred: number): void => {
+      let lastEmitAt = 0;
+      let lastEmittedPercent = -1;
+
+      const onProgress = (transferred: number, resolvedTotalBytes?: number | null): void => {
+        if (resolvedTotalBytes !== undefined && resolvedTotalBytes !== null) {
+          nextItem.totalBytes = resolvedTotalBytes;
+        }
         nextItem.transferredBytes = transferred;
-        nextItem.progressPercent = calculateTransferPercent(transferred, nextItem.totalBytes);
-        this.emitProgress(nextItem);
+        const computedPercent = calculateTransferPercent(transferred, nextItem.totalBytes);
+        // Keep active progress capped at 99% until stream & disk flush completely finalize
+        const livePercent =
+          nextItem.totalBytes && nextItem.totalBytes > 0
+            ? Math.min(99, computedPercent)
+            : computedPercent;
+        nextItem.progressPercent = livePercent;
+
+        const now = Date.now();
+        if (livePercent !== lastEmittedPercent || now - lastEmitAt >= 150) {
+          lastEmittedPercent = livePercent;
+          lastEmitAt = now;
+          this.emitProgress(nextItem);
+        }
       };
 
       if (nextItem.isDirectory) {
@@ -182,8 +199,16 @@ export class DownloadQueueManager {
       if ((err as Error).name === 'AbortError') {
         nextItem.status = 'cancelled';
       } else {
+        console.error('[DownloadQueueManager] Download failed:', (err as Error).message || err);
         nextItem.status = 'failed';
         nextItem.error = (err as Error).message || 'Download failed';
+        try {
+          if (fs.existsSync(nextItem.destinationPath)) {
+            fs.unlinkSync(nextItem.destinationPath);
+          }
+        } catch {
+          // Ignore partial file cleanup failures
+        }
       }
     } finally {
       this.abortControllers.delete(nextItem.id);

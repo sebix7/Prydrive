@@ -34,9 +34,16 @@
     5. *Fluid Dismissal Machine*: Verify that the export menu dismisses on `Escape` keydown, clicking outside (`mousedown`), table scrolling, and folder navigation.
     6. *Export Format Enqueueing*: Verify that selecting a format calls `window.api.download.startDownload` passing the specific `exportMimeType` and closes the menu, returning focus to the row button.
 
-- [ ] **T4. Implement Floating Transfer Trigger with resting Drive emblem and hover expansion.** US-4 (FR-6, NFR-1, EC-7)
+- [x] **T4. Implement Floating Transfer Trigger with resting Drive emblem and hover expansion.** US-4 (FR-6, NFR-1, EC-7)
   - Depends on: T1
   - Done when: `FloatingTransferTrigger.tsx` is rendered at `bottom-3 right-3` of the `FileExplorer` canvas strictly when one or more transfers are active or queued; in resting state, renders as a `40px × 40px` card with Google Drive emblem and a download indicator badge; on mouse hover, expands smoothly to the left to exactly `260px` displaying the actively downloading item's name, animated progress bar, percentage, and queue counter (e.g. `1 de 3`); and automatically hides after a 4-second grace period when all transfers finish or cancel; verified via automated integration tests in `tests/integration/download-flow.test.ts`.
+  - Test Scenarios:
+    1. *Idle Invisibility & Active Appearance (FR-6.1)*: Verify that `FloatingTransferTrigger` renders `null` when no transfers exist, and mounts immediately at `bottom-3 right-3` inside the `FileExplorer` table canvas wrapper as soon as a download starts.
+    2. *Resting 40px × 40px Card Geometry (FR-6.1, NFR-1)*: Verify resting state renders `w-10 h-10` (`40px × 40px`), `rounded-[6px]`, Swiss Archive structural borders (`border-[#C9C6BD]` / `dark:border-[#2C323D]`), centered `GoogleDriveLogo`, and Klein Blue downward arrow badge.
+    3. *Leftward Hover Expansion to 260px (FR-6.2)*: Verify that hovering expands the card horizontally to the left to `w-[260px]`, revealing the truncated active filename, live queue index (`1 of 3` / `1 de 3`), percentage, and animated progress bar (`bg-[#1B44E8]` / `dark:bg-[#3B66FF]`).
+    4. *4-Second Completion Grace Period & Modal Freeze (FR-6.3, FR-8)*: Verify that once all transfers complete, the badge switches to emerald check and auto-hides after `FLOATING_TRIGGER_GRACE_MS` (4000ms), while setting `isModalOpen={true}` freezes the auto-hide timer.
+    5. *Rapid Click Queue Upserts & IPC Sync (EC-7)*: Verify `DownloadContext` subscribes to `window.api.download.onProgress` and immutably upserts transfers via `upsertTransferItem` without duplicates or progress regression.
+    6. *Sidebar Collapse/Expand Repositioning*: Verify that because the trigger is anchored `absolute bottom-3 right-3` inside the `FileExplorer` canvas wrapper, expanding or collapsing the right telemetry sidebar smoothly moves the widget alongside the explorer boundary.
 
 - [ ] **T5. Implement centered Download Queue Modal with full lifecycle controls.** US-5 (FR-7, FR-8, FR-9, EC-3, EC-4, EC-8, EC-12)
   - Depends on: T4
@@ -49,3 +56,13 @@
 - [ ] **T7. Implement complete bilingual localization parity for all download and transfer controls.** US-7 (FR-12)
   - Depends on: T6
   - Done when: `src/shared/i18n/translations.ts` defines 100% matched keys across English (`en`) and Spanish (`es`) for all download button tooltips, floating trigger labels, modal headers, progress status strings, export menu options, and settings dialog controls, returning correct localized strings according to active language; verified via automated unit tests in `tests/unit/translations.test.ts`.
+
+- [x] **T8. Implement shared in-memory OAuth2Client caching and invalidation in GoogleAuthClient.** US-8 (FR-13, EC-13, EC-14)
+  - Depends on: T2
+  - Done when: `src/main/core/google-client.ts` caches and reuses a single authenticated `OAuth2Client` instance in memory keyed by `refreshToken` across `getDriveClient`, `listDirectory`, `fetchStorageQuota`, and `fetchUserProfile` (seeding initial credentials from `exchangeCodeForTokens`); `src/main/index.ts` shares a single `GoogleAuthClient` instance across `AuthIpcController`, `StorageIpcController`, and `DownloadQueueManager`; `src/main/ipc/auth-ipc.ts` clears the cached client on `AUTH_DISCONNECT`; authentication errors (`401` / `invalid_grant`) clear the cached client automatically; and all reuse and invalidation scenarios are verified via automated unit tests in `tests/unit/google-client.test.ts`.
+  - Test Scenarios:
+    1. *OAuth2Client Reuse Across Operations (FR-13.1)*: Verify `getAuthenticatedClient(refreshToken)` returns the identical `OAuth2Client` reference across repeated calls, allowing `googleapis` to reuse the in-memory `access_token` without extra OAuth token exchanges on every folder click or download.
+    2. *Account Switch Isolation (FR-13.2, EC-13)*: Verify calling `getAuthenticatedClient` with a different `refreshToken` immediately replaces the cached client so credentials never leak across accounts.
+    3. *Explicit Disconnect Invalidation (FR-13.2)*: Verify `clearCachedClient()` discards the cached client immediately and is invoked by `AuthIpcController` during `AUTH_DISCONNECT` and revoked-session purges.
+    4. *Auth Error Auto-Invalidation vs Transient Error Preservation (FR-13.3, EC-14)*: Verify `401` / `invalid_grant` errors clear the cached client for clean re-authentication, whereas transient non-auth errors (e.g. `503`) keep the valid cached client intact.
+    5. *Shared Main Process Singleton Wiring*: Verify `src/main/index.ts` constructs one shared `GoogleAuthClient` and injects it into `AuthIpcController`, `StorageIpcController`, and `DownloadQueueManager`.

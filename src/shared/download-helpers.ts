@@ -100,6 +100,24 @@ export function resolveWorkspaceExportOptions(mimeType: string): WorkspaceExport
 }
 
 /**
+ * Maps a target binary export MIME type to its corresponding file extension.
+ */
+export function resolveExportExtension(exportMimeType: string): string {
+  switch (exportMimeType) {
+    case 'application/pdf':
+      return '.pdf';
+    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+      return '.docx';
+    case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+      return '.xlsx';
+    case 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
+      return '.pptx';
+    default:
+      return '.pdf';
+  }
+}
+
+/**
  * Filters items that are in-flight (currently downloading or queued) (FR-6.1).
  */
 export function filterActiveTransfers(transfers: DownloadTransferItem[]): DownloadTransferItem[] {
@@ -111,4 +129,86 @@ export function filterActiveTransfers(transfers: DownloadTransferItem[]): Downlo
  */
 export function hasInFlightTransfers(transfers: DownloadTransferItem[]): boolean {
   return filterActiveTransfers(transfers).length > 0;
+}
+
+/**
+ * Duration in milliseconds before the floating transfer trigger hides after all transfers finish (FR-6.3).
+ */
+export const FLOATING_TRIGGER_GRACE_MS = 4000;
+
+export interface TransferQueueSummary {
+  activeTransfer: DownloadTransferItem | null;
+  currentIndex: number;
+  totalCount: number;
+  hasInFlight: boolean;
+}
+
+/**
+ * Immutably upserts a transfer item into the FIFO list by id, preserving order and preventing duplicates (EC-7).
+ */
+export function upsertTransferItem(
+  transfers: DownloadTransferItem[],
+  incoming: DownloadTransferItem
+): DownloadTransferItem[] {
+  const existingIndex = transfers.findIndex((item) => item.id === incoming.id);
+  if (existingIndex === -1) {
+    return [...transfers, incoming];
+  }
+  const next = [...transfers];
+  next[existingIndex] = incoming;
+  return next;
+}
+
+/**
+ * Computes the active item, 1-based queue index, and total count for the floating hover pill (FR-6.2, FR-6.3).
+ */
+export function getTransferQueueSummary(transfers: DownloadTransferItem[]): TransferQueueSummary {
+  const hasInFlight = hasInFlightTransfers(transfers);
+  if (transfers.length === 0) {
+    return {
+      activeTransfer: null,
+      currentIndex: 0,
+      totalCount: 0,
+      hasInFlight: false
+    };
+  }
+
+  const nonCancelled = transfers.filter((item) => item.status !== 'cancelled');
+  const totalCount = nonCancelled.length;
+
+  const downloading = nonCancelled.find((item) => item.status === 'downloading');
+  if (downloading) {
+    return {
+      activeTransfer: downloading,
+      currentIndex: nonCancelled.findIndex((item) => item.id === downloading.id) + 1,
+      totalCount,
+      hasInFlight
+    };
+  }
+
+  const firstQueued = nonCancelled.find((item) => item.status === 'queued');
+  if (firstQueued) {
+    return {
+      activeTransfer: firstQueued,
+      currentIndex: nonCancelled.findIndex((item) => item.id === firstQueued.id) + 1,
+      totalCount,
+      hasInFlight
+    };
+  }
+
+  if (nonCancelled.length > 0) {
+    return {
+      activeTransfer: nonCancelled[nonCancelled.length - 1],
+      currentIndex: nonCancelled.length,
+      totalCount,
+      hasInFlight: false
+    };
+  }
+
+  return {
+    activeTransfer: transfers[transfers.length - 1],
+    currentIndex: 0,
+    totalCount: 0,
+    hasInFlight: false
+  };
 }

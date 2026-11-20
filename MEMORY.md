@@ -22,7 +22,7 @@ Project memory across sessions. Maximum ~75 lines: summarize or prune obsolete i
 - `specs/010-explorer-breadcrumbs/` completed, validated (`FULFILLED`), and released in `v0.9.0`.
 - `specs/006-swiss-archive-ui/` patch updates released in `v0.9.1` (T6: Alternative C reordering; T7: header refresh button and status bar left-alignment).
 - `specs/011-item-details-popover/` completed, validated (`FULFILLED`), and released in `v0.10.0`.
-- `specs/012-download-transfers/` in progress: T1-T3 implemented and verified green (US-1, US-2, US-3); T4-T7 pending.
+- `specs/012-download-transfers/` in progress: T1-T4 and T8 implemented and verified green (US-1..US-4, US-8); T5-T7 pending.
 
 ## Decisions (and why)
 - **Selectable details filename**: Enabled `select-text cursor-text` on filename inside item details popover for copying long names without unmounting or renaming.
@@ -51,4 +51,5 @@ Project memory across sessions. Maximum ~75 lines: summarize or prune obsolete i
 - In collapsible panels, use `invisible` (`visibility: hidden`) and `tabIndex={-1}` when collapsed; `opacity-0` and `pointer-events-none` leave elements in the Tab order, causing native focus auto-scrolling to shift the workspace layout.
 - Floating popovers must re-anchor via window `resize` and `ResizeObserver` on table container so maximizing or resizing the window keeps them attached to their row button.
 - Archiver v8 is pure ESM (`ERR_REQUIRE_ESM`); use `archiver@7.0.1` and `@types/archiver@6.0.4` for native CommonJS compatibility in Electron Main process.
+- OAuth scope must be `https://www.googleapis.com/auth/drive` (never `drive.metadata.readonly`, which returns 403 Insufficient Permission on `files.get(alt=media)` and `files.export`).
 - Spec `Status:` in `spec.md` only uses `draft` or `approved` (remains `approved` after completion; never use `implemented`).

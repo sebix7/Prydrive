@@ -18,6 +18,7 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
 - **US-5 (Centered Download Queue Modal):** As a user, I want clicking the floating transfer widget to open a Swiss Archive modal listing all active, queued, completed, and failed downloads with individual control actions (cancel, retry, open folder) and a clear completed action, pausing any auto-hide timers while open.
 - **US-6 (Configurable Default Download Directory):** As a user, I want a settings button in the top bar to inspect and modify my default download directory so that files land in my preferred folder without prompting on every download.
 - **US-7 (Bilingual Localization Parity):** As an international user, I want all download button tooltips, transfer state badges, progress indicators, modal controls, export menus, and settings dialogs to be fully localized in English (`en`) and Spanish (`es`).
+- **US-8 (Cached OAuth Client & Folder Navigation Performance):** As an authenticated user navigating directories and initiating downloads, I want Google API requests to reuse an in-memory authenticated OAuth client and access token so that folder listings and downloads avoid redundant token exchange round-trips on every click.
 
 ## Definitions
 - **Download Action Button:** A `26px × 26px` square button with visible 1px structural border and download icon (`Download`) positioned at the trailing end of every real file and folder row immediately preceding the details button.
@@ -62,6 +63,10 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
   4. The dialog provides a **Restore Default** button (`Restablecer` / `Reset`) to revert to the system `Downloads` folder.
 - **FR-11:** WHILE the user is viewing the virtual parent directory row (`"..."`), THE SYSTEM SHALL NOT render any Download Action Button.
 - **FR-12:** THE SYSTEM SHALL ensure all button tooltips, status badges, modal titles, progress text, export menu labels, and folder selection dialogs maintain 100% bilingual parity across English (`en`) and Spanish (`es`).
+- **FR-13:** WHILE a user session is active in the Electron Main Process, THE SYSTEM SHALL reuse an in-memory authenticated `OAuth2Client` instance keyed by the active `refreshToken` across all Google Drive API operations (`listDirectory`, `fetchStorageQuota`, `fetchUserProfile`, and download streams):
+  1. WHEN a Drive API operation is requested using the same `refreshToken`, THE SYSTEM SHALL reuse the cached `OAuth2Client` and its valid in-memory `access_token`, avoiding redundant OAuth token exchange round-trips on every folder navigation or download request.
+  2. WHEN the user disconnects or initiates a request with a different `refreshToken`, THE SYSTEM SHALL immediately clear and replace the cached `OAuth2Client` instance.
+  3. IF a Drive API request using the cached client fails with an authentication or revocation error (`401` / `invalid_grant`), THEN THE SYSTEM SHALL clear the cached `OAuth2Client` so subsequent operations re-authenticate cleanly.
 
 ## Non-Functional Requirements
 - **NFR-1 (Archival Visual Alignment):** All newly introduced controls (row download button, floating trigger, expanded hover pill, export menu, queue modal, and settings modal) must strictly adhere to Swiss Archive design tokens (`1px` structural borders, `4px` button radius, `6px` modal/trigger card radius, `#C9C6BD`/`#2C323D` borders, `#FFFFFF`/`#181C23` surfaces, and monospace data typography).
@@ -81,12 +86,16 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
 - **EC-10:** Partial failure during recursive folder zipping $\rightarrow$ If an individual file fails (e.g. permission error 403), it is skipped, a log entry is written into `_descarga_advertencias.txt` inside the `.zip`, and the archive completes with a warning notice in the queue.
 - **EC-11:** Destination directory unavailable or disk full (`ENOSPC`) $\rightarrow$ If destination folder is non-writable or disk runs out of space, the stream halts cleanly, partial files are deleted, and the queue flags the item as failed with an action to modify destination folder.
 - **EC-12:** Queue state lifecycle $\rightarrow$ Transfer queue entries are maintained in-memory for the active session and cleanly reset upon application restart.
+- **EC-13:** User disconnects and signs in with a different Google account $\rightarrow$ The cached `OAuth2Client` is immediately invalidated on disconnect and whenever a different `refreshToken` is provided, preventing cross-account credential leakage.
+- **EC-14:** Cached in-memory `access_token` expires after ~1 hour of session activity $\rightarrow$ The reused `OAuth2Client` detects expiration transparently and refreshes the `access_token` automatically via its bound `refresh_token` without user interaction.
 
 ## Out of Scope
 - File upload transfers (deferred to a subsequent dedicated specification).
 - Pausing and resuming interrupted download streams across application restarts.
 - Bandwidth throttling or rate-limiting download speeds.
 - Peer-to-peer or LAN transfer sharing.
+- Persisting short-lived OAuth `access_token` values to disk (only encrypted `refresh_token` persistence via `safeStorage` is permitted).
+- Disk-persisted directory listing cache across application restarts.
 
 ## Completion Criteria
 - Each real file and folder row displays a `26px × 26px` Download Action Button with 1px structural borders and localized tooltip.
@@ -101,6 +110,7 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
 - Opening the queue modal freezes the 4-second completion auto-hide grace period.
 - Top menu bar features a settings button opening `DownloadSettingsModal` to view and change default download directory via native directory picker.
 - Virtual parent row (`"..."`) has no download button.
+- Authenticated Google Drive API operations reuse a shared in-memory `OAuth2Client` per active `refreshToken` and invalidate it cleanly on disconnect or token change.
 - 100% bilingual parity for all download-related labels and dialogs in `en` and `es`.
 - 100% of automated unit and integration tests passing with zero TypeScript errors.
 
@@ -154,3 +164,8 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
     - *Question*: What clearance and spacing are required with two action buttons in each row?
     - *Agreement*: Download button is `26px × 26px`, separated by `6px` (`gap-1.5`) from the details button. Trailing padding on row and header is set to `pr-16` (64px clearance from the right edge), guaranteeing at least 12px clearance from the lateral sidebar toggle chevron button.
     - *Why*: Eliminates visual overlap and ensures both buttons have clear, unobstructed click targets.
+- **2026-11-20 (Requirement Change — `/sdd-change`):**
+  - **Decision 12 (In-Memory OAuth2Client & Access Token Reuse):**
+    - *Question / Need*: Navigating folders and listing Drive contents incurred two sequential network round-trips per operation because `GoogleAuthClient` instantiated a fresh `OAuth2Client` with only `refresh_token` on every call, forcing an OAuth token exchange (`oauth2.googleapis.com/token`) before every `drive.files.list`, `about.get`, or download request.
+    - *Agreement*: Cache and reuse a single authenticated `OAuth2Client` instance in Main Process memory keyed by the active `refreshToken`, sharing it across `AuthIpcController`, `StorageIpcController`, and `DownloadQueueManager`, and immediately invalidating it on disconnect, token change, or `401` / `invalid_grant` errors.
+    - *Why*: Cuts directory listing and download startup latency roughly in half while keeping short-lived access tokens strictly in memory (zero plaintext disk persistence) and preserving automatic `googleapis` token refresh on expiration.

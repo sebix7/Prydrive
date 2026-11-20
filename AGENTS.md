@@ -276,7 +276,7 @@ The project operates with two clearly defined memory layers:
 | Command | Description |
 | :--- | :--- |
 | `pnpm install` | Installs project dependencies. |
-| `pnpm run dev` | Starts Electron and Vite with Hot Reload for both Main and Renderer. |
+| `pnpm run dev` | Starts Electron and Vite with Hot Reload for Renderer (changes in `src/main/`, `src/preload/`, or shared IPC contracts require restarting `pnpm run dev`). |
 | `pnpm run build` | Compiles TypeScript and bundles the frontend with Vite. |
 | `pnpm run build:win` | Generates Windows executable installer (`.exe`) via electron-builder. |
 | `pnpm run verify:auth` | Validates stored token and tests Google Drive API connection without launching GUI. |
@@ -305,3 +305,5 @@ Any AI agent modifying or extending this repository must strictly adhere to the 
 9. **Prompts without skills or commands (Orders vs Questions)**:
    - When the user writes an instruction or direct order, the agent is allowed to modify the code.
    - When the user asks a question or makes an inquiry, the agent must NOT modify the code and must exclusively provide a textual answer/explanation.
+10. **Mandatory `pnpm run dev` Restart Notification**:
+   - Whenever code changes modify the Electron *Main Process* (`src/main/`), *Preload* (`src/preload/`), shared IPC contracts (`src/shared/`), dependencies (`package.json`), or Electron/Vite configuration, the agent MUST **ALWAYS** explicitly notify the user that restarting `pnpm run dev` is required for those changes to take effect.

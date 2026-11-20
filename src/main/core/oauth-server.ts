@@ -31,7 +31,7 @@ export class OAuthServer {
 
     const redirectUri = `http://127.0.0.1:${this.port}`;
     const scopes = [
-      'https://www.googleapis.com/auth/drive.metadata.readonly',
+      'https://www.googleapis.com/auth/drive',
       'https://www.googleapis.com/auth/userinfo.email',
       'https://www.googleapis.com/auth/userinfo.profile'
     ].join(' ');
