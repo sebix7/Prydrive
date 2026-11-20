@@ -1,8 +1,9 @@
 import React from 'react';
 import { Loader2, FolderOpen, AlertCircle, RotateCw } from 'lucide-react';
-import type { LanguageCode, ThemeMode } from '../../../../shared/types';
+import type { LanguageCode, ThemeMode, StorageItem } from '../../../../shared/types';
 import type { AnchorRect } from '../../../../shared/item-details';
 import { truncateFolderStack } from '../../../../shared/explorer-helpers';
+import { resolveWorkspaceExportOptions } from '../../../../shared/download-helpers';
 import { getTranslation } from '../../../../shared/i18n/translations';
 import { useDriveExplorerContext } from '../../context/DriveExplorerContext';
 import { FileTableRow } from './FileTableRow';
@@ -10,6 +11,7 @@ import { ParentNavRow } from './ParentNavRow';
 import { ExplorerStatusBar } from './ExplorerStatusBar';
 import { ExplorerBreadcrumbBar } from './ExplorerBreadcrumbBar';
 import { ItemDetailsPopover } from './ItemDetailsPopover';
+import { WorkspaceExportMenu } from './WorkspaceExportMenu';
 
 export interface FileExplorerProps {
   language?: LanguageCode;
@@ -47,6 +49,13 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   const [activeDetailsItemId, setActiveDetailsItemId] = React.useState<string | null>(null);
   const [activeAnchorRect, setActiveAnchorRect] = React.useState<AnchorRect | null>(null);
 
+  // Google Workspace export format menu state (Spec 012 US-3 / FR-5)
+  const [exportMenuTarget, setExportMenuTarget] = React.useState<{
+    item: StorageItem;
+    anchorRect: AnchorRect;
+  } | null>(null);
+  const exportTriggerRef = React.useRef<HTMLElement | null>(null);
+
   const activeItem = React.useMemo(() => {
     if (!activeDetailsItemId) return null;
     return items.find((item) => item.id === activeDetailsItemId) || null;
@@ -60,6 +69,8 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     setActiveDetailsItemId(null);
     setActiveAnchorRect(null);
     anchorElementRef.current = null;
+    setExportMenuTarget(null);
+    exportTriggerRef.current = null;
   }, [currentFolder.id]);
 
   // Clean up popover if active item disappears from directory items
@@ -108,29 +119,60 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     };
   }, [activeDetailsItemId]);
 
-  // Re-anchor active popover on window resize, maximize, or table layout changes
+  // Re-anchor active popovers on window resize, maximize, or table layout changes
   React.useEffect(() => {
-    if (!activeDetailsItemId) return;
+    if (!activeDetailsItemId && !exportMenuTarget) return;
 
     const updateAnchorPosition = () => {
-      if (anchorElementRef.current && document.body.contains(anchorElementRef.current)) {
-        const rect = anchorElementRef.current.getBoundingClientRect();
-        if (rect.width === 0 && rect.height === 0) {
+      // Re-anchor Item Details popover
+      if (activeDetailsItemId) {
+        if (anchorElementRef.current && document.body.contains(anchorElementRef.current)) {
+          const rect = anchorElementRef.current.getBoundingClientRect();
+          if (rect.width === 0 && rect.height === 0) {
+            setActiveDetailsItemId(null);
+            setActiveAnchorRect(null);
+            anchorElementRef.current = null;
+          } else {
+            setActiveAnchorRect({
+              top: rect.top,
+              bottom: rect.bottom,
+              left: rect.left,
+              right: rect.right
+            });
+          }
+        } else {
           setActiveDetailsItemId(null);
           setActiveAnchorRect(null);
           anchorElementRef.current = null;
-          return;
         }
-        setActiveAnchorRect({
-          top: rect.top,
-          bottom: rect.bottom,
-          left: rect.left,
-          right: rect.right
-        });
-      } else {
-        setActiveDetailsItemId(null);
-        setActiveAnchorRect(null);
-        anchorElementRef.current = null;
+      }
+
+      // Re-anchor Workspace Export Menu popover
+      if (exportMenuTarget) {
+        if (exportTriggerRef.current && document.body.contains(exportTriggerRef.current)) {
+          const rect = exportTriggerRef.current.getBoundingClientRect();
+          if (rect.width === 0 && rect.height === 0) {
+            setExportMenuTarget(null);
+            exportTriggerRef.current = null;
+          } else {
+            setExportMenuTarget((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    anchorRect: {
+                      top: rect.top,
+                      bottom: rect.bottom,
+                      left: rect.left,
+                      right: rect.right
+                    }
+                  }
+                : null
+            );
+          }
+        } else {
+          setExportMenuTarget(null);
+          exportTriggerRef.current = null;
+        }
       }
     };
 
@@ -148,7 +190,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
       window.removeEventListener('resize', updateAnchorPosition);
       resizeObserver?.disconnect();
     };
-  }, [activeDetailsItemId]);
+  }, [activeDetailsItemId, exportMenuTarget]);
 
   // Instant dismissal on table scroll (FR-7.3, EC-4)
   const onTableScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -156,6 +198,10 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
       setActiveDetailsItemId(null);
       setActiveAnchorRect(null);
       anchorElementRef.current = null;
+    }
+    if (exportMenuTarget !== null) {
+      setExportMenuTarget(null);
+      exportTriggerRef.current = null;
     }
     handleScroll(e);
   };
@@ -269,9 +315,40 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                     onSelect={selectItem}
                     onDoubleClick={openItem}
                     onDownload={(item, targetElement) => {
-                      // Trigger download transfer (wired to DownloadContext in T2)
+                      const exportOptions = resolveWorkspaceExportOptions(item.mimeType);
+                      if (exportOptions.length > 0) {
+                        if (exportMenuTarget?.item.id === item.id) {
+                          setExportMenuTarget(null);
+                          exportTriggerRef.current = null;
+                        } else {
+                          const rect = targetElement.getBoundingClientRect();
+                          exportTriggerRef.current = targetElement;
+                          setExportMenuTarget({
+                            item,
+                            anchorRect: {
+                              top: rect.top,
+                              bottom: rect.bottom,
+                              left: rect.left,
+                              right: rect.right
+                            }
+                          });
+                          setActiveDetailsItemId(null);
+                          setActiveAnchorRect(null);
+                          anchorElementRef.current = null;
+                        }
+                      } else {
+                        void window.api?.download?.startDownload({
+                          driveItemId: item.id,
+                          name: item.name,
+                          isDirectory: item.isDirectory,
+                          iconType: item.iconType,
+                          totalBytes: item.sizeBytes
+                        });
+                      }
                     }}
                     onOpenDetails={(item, targetElement) => {
+                      setExportMenuTarget(null);
+                      exportTriggerRef.current = null;
                       if (activeDetailsItemId === item.id) {
                         setActiveDetailsItemId(null);
                         setActiveAnchorRect(null);
@@ -324,6 +401,35 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
             setActiveAnchorRect(null);
             anchorElementRef.current?.focus();
             anchorElementRef.current = null;
+          }}
+          language={language}
+          theme={theme}
+        />
+      )}
+
+      {/* Floating Google Workspace Export Format Menu (Spec 012 US-3 / FR-5) */}
+      {exportMenuTarget && (
+        <WorkspaceExportMenu
+          item={exportMenuTarget.item}
+          anchorRect={exportMenuTarget.anchorRect}
+          triggerElement={exportTriggerRef.current}
+          onSelectFormat={(option) => {
+            void window.api?.download?.startDownload({
+              driveItemId: exportMenuTarget.item.id,
+              name: exportMenuTarget.item.name,
+              isDirectory: false,
+              iconType: exportMenuTarget.item.iconType,
+              totalBytes: null,
+              exportMimeType: option.mimeType
+            });
+            setExportMenuTarget(null);
+            exportTriggerRef.current?.focus();
+            exportTriggerRef.current = null;
+          }}
+          onClose={() => {
+            setExportMenuTarget(null);
+            exportTriggerRef.current?.focus();
+            exportTriggerRef.current = null;
           }}
           language={language}
           theme={theme}

@@ -3,6 +3,8 @@ import type {
   WorkspaceExportOption
 } from './types';
 
+export type { WorkspaceExportOption };
+
 /**
  * Computes deterministic progress percentage between 0 and 100 (FR-3.4, FR-6.2).
  */

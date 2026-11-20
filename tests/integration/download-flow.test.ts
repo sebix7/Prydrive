@@ -188,4 +188,45 @@ describe('Download Action Button & Row Clearance Flow (Spec 012 US-1 / T1 / FR-1
       expect(ipcSource).toContain('IPC_CHANNELS.DOWNLOAD_OPEN_FOLDER');
     });
   });
+
+  describe('Google Workspace Export Format Selection Menu (Spec 012 US-3 / T3 / FR-5, FR-12)', () => {
+    const exportMenuSource = (() => {
+      try {
+        return readFileSync(resolve(__dirname, '../../src/renderer/src/components/explorer/WorkspaceExportMenu.tsx'), 'utf-8');
+      } catch {
+        return '';
+      }
+    })();
+
+    it('should render WorkspaceExportMenu component with Swiss Archive styling and data-testid attributes (FR-5, NFR-1)', () => {
+      expect(exportMenuSource).toContain('data-testid="workspace-export-menu"');
+      expect(exportMenuSource).toContain('export-option-');
+      expect(exportMenuSource).toContain('resolveWorkspaceExportOptions');
+      expect(exportMenuSource).toContain('calculatePopoverPosition');
+    });
+
+    it('should declare bilingual translations for all export formats in English and Spanish (FR-12)', () => {
+      expect(getTranslation('en', 'export_menu_title')).toBe('Format');
+      expect(getTranslation('es', 'export_menu_title')).toBe('Formato');
+      expect(getTranslation('en', 'export_format_pdf')).toContain('PDF');
+      expect(getTranslation('es', 'export_format_pdf')).toContain('PDF');
+      expect(getTranslation('en', 'export_format_docx')).toContain('Word');
+      expect(getTranslation('es', 'export_format_docx')).toContain('Word');
+      expect(getTranslation('en', 'export_format_xlsx')).toContain('Excel');
+      expect(getTranslation('es', 'export_format_xlsx')).toContain('Excel');
+      expect(getTranslation('en', 'export_format_pptx')).toContain('PowerPoint');
+      expect(getTranslation('es', 'export_format_pptx')).toContain('PowerPoint');
+    });
+
+    it('should wire WorkspaceExportMenu in FileExplorer on Google Workspace document rows (FR-5)', () => {
+      expect(explorerSource).toContain('WorkspaceExportMenu');
+      expect(explorerSource).toContain('exportMenuTarget');
+      expect(explorerSource).toContain('resolveWorkspaceExportOptions');
+    });
+
+    it('should dynamically re-anchor WorkspaceExportMenu on window resize, maximize, and table layout changes', () => {
+      expect(explorerSource).toContain('exportTriggerRef.current.getBoundingClientRect()');
+      expect(explorerSource).toContain('triggerElement={exportTriggerRef.current}');
+    });
+  });
 });

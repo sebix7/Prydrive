@@ -23,9 +23,16 @@
     6. *Recursive Folder Archive Zipping & Error Resilience (FR-4, EC-5, EC-10)*: Verify that directory downloads stream recursive contents into a `.zip` archive via `ZipArchive`, and if individual nested files fail (e.g. permission restriction), skips them and writes `_descarga_advertencias.txt` into the zip archive.
     7. *Preload IPC Security Bridge (NFR-3)*: Verify that `window.api.download` exposes strongly typed methods (`startDownload`, `cancelDownload`, `retryDownload`, `openContainingFolder`, `getSettings`, `setSettings`, `selectDownloadDirectory`, `onProgress`) under strict process isolation.
 
-- [ ] **T3. Implement Google Workspace export format selection menu.** US-3 (FR-5, FR-12)
+- [x] **T3. Implement Google Workspace export format selection menu.** US-3 (FR-5, FR-12)
   - Depends on: T1
   - Done when: `resolveWorkspaceExportOptions` in `src/shared/download-helpers.ts` maps Google Docs, Sheets, and Slides MIME types to their standard export formats (PDF/DOCX, XLSX/PDF, PPTX/PDF); and clicking download on a Google Workspace row opens an anchored Swiss Archive `WorkspaceExportMenu.tsx` popover displaying format choices, which enqueues the item in the selected binary export format upon click; verified via automated unit tests in `tests/unit/download-helpers.test.ts` and integration tests in `tests/integration/download-flow.test.ts`.
+  - Test Scenarios:
+    1. *Document Type Export Options Mapping*: Verify that `resolveWorkspaceExportOptions` returns PDF/DOCX for Docs, XLSX/PDF for Sheets, PPTX/PDF for Slides, and empty array for binary files.
+    2. *Swiss Archive Popover Presentation (FR-5, NFR-1)*: Verify that clicking download on a Google Workspace row mounts `WorkspaceExportMenu.tsx` with `data-testid="workspace-export-menu"`, 1px structural borders, and header title `Format` / `Formato` with `[ESC]`.
+    3. *Dynamic Boundary Re-Anchoring*: Verify that `calculatePopoverPosition` places the popover adjacent to the row download button without overflowing viewport boundaries.
+    4. *Bilingual Localization (FR-12)*: Verify that all menu options and headers display localized labels in English and Spanish (`export_format_pdf`, `export_format_docx`, `export_format_xlsx`, `export_format_pptx`).
+    5. *Fluid Dismissal Machine*: Verify that the export menu dismisses on `Escape` keydown, clicking outside (`mousedown`), table scrolling, and folder navigation.
+    6. *Export Format Enqueueing*: Verify that selecting a format calls `window.api.download.startDownload` passing the specific `exportMimeType` and closes the menu, returning focus to the row button.
 
 - [ ] **T4. Implement Floating Transfer Trigger with resting Drive emblem and hover expansion.** US-4 (FR-6, NFR-1, EC-7)
   - Depends on: T1

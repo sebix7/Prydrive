@@ -22,7 +22,7 @@ Project memory across sessions. Maximum ~75 lines: summarize or prune obsolete i
 - `specs/010-explorer-breadcrumbs/` completed, validated (`FULFILLED`), and released in `v0.9.0`.
 - `specs/006-swiss-archive-ui/` patch updates released in `v0.9.1` (T6: Alternative C reordering; T7: header refresh button and status bar left-alignment).
 - `specs/011-item-details-popover/` completed, validated (`FULFILLED`), and released in `v0.10.0`.
-- `specs/012-download-transfers/` in progress: T1-T2 implemented and verified green (US-1, US-2); T3-T7 pending.
+- `specs/012-download-transfers/` in progress: T1-T3 implemented and verified green (US-1, US-2, US-3); T4-T7 pending.
 
 ## Decisions (and why)
 - **Selectable details filename**: Enabled `select-text cursor-text` on filename inside item details popover for copying long names without unmounting or renaming.
