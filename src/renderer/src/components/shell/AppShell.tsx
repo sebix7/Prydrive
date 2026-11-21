@@ -8,7 +8,9 @@ import { MenuBar } from './MenuBar';
 import { AboutModal } from './AboutModal';
 import { TelemetrySidebar } from './TelemetrySidebar';
 import { DriveExplorerProvider, useDriveExplorerContext } from '../../context/DriveExplorerContext';
-import { DownloadProvider } from '../../context/DownloadContext';
+import { DownloadProvider, useDownloadContext } from '../../context/DownloadContext';
+import { DownloadQueueModal } from '../transfer/DownloadQueueModal';
+import { DownloadSettingsModal } from '../settings/DownloadSettingsModal';
 
 interface AppShellProps {
   userProfile: UserProfile | null;
@@ -80,6 +82,22 @@ const AppShellContent: React.FC<AppShellProps> = ({
     toggleSidebar
   } = useShellState();
   const { refreshDirectory, isLoading: isRefreshing } = useDriveExplorerContext();
+  const {
+    transfers,
+    isQueueModalOpen,
+    closeQueueModal,
+    cancelDownload,
+    retryDownload,
+    openContainingFolder,
+    clearCompleted,
+    settings,
+    isSettingsModalOpen,
+    settingsError,
+    openSettingsModal,
+    closeSettingsModal,
+    browseDownloadDirectory,
+    resetDownloadDirectory
+  } = useDownloadContext();
   const userEmail = userProfile?.email || 'user@example.com';
   const isDark = theme === 'dark';
 
@@ -117,6 +135,7 @@ const AppShellContent: React.FC<AppShellProps> = ({
           onCloseMenus={() => dispatch({ type: 'CLOSE_MENUS' })}
           onDisconnectClick={onDisconnect}
           onToggleSidebar={toggleSidebar}
+          onOpenSettings={openSettingsModal}
           onOpenAbout={() => dispatch({ type: 'OPEN_ABOUT_MODAL' })}
           onSetLanguage={onSetLanguage}
           theme={theme}
@@ -216,6 +235,41 @@ const AppShellContent: React.FC<AppShellProps> = ({
       <AboutModal
         isOpen={state.isAboutModalOpen}
         onClose={() => dispatch({ type: 'CLOSE_ABOUT_MODAL' })}
+        language={language}
+        theme={theme}
+      />
+
+      {/* Centered Download Queue Modal (Spec 012 US-5 / FR-7, FR-8, FR-9) */}
+      <DownloadQueueModal
+        isOpen={isQueueModalOpen}
+        transfers={transfers}
+        onClose={closeQueueModal}
+        onCancel={(transferId) => {
+          void cancelDownload(transferId);
+        }}
+        onRetry={(transferId) => {
+          void retryDownload(transferId);
+        }}
+        onOpenFolder={(filePath) => {
+          void openContainingFolder(filePath);
+        }}
+        onClearCompleted={clearCompleted}
+        language={language}
+        theme={theme}
+      />
+
+      {/* Centered Download Settings Modal (Spec 012 US-6 / FR-10, EC-11) */}
+      <DownloadSettingsModal
+        isOpen={isSettingsModalOpen}
+        settings={settings}
+        errorMessage={settingsError}
+        onBrowse={() => {
+          void browseDownloadDirectory();
+        }}
+        onReset={() => {
+          void resetDownloadDirectory();
+        }}
+        onClose={closeSettingsModal}
         language={language}
         theme={theme}
       />

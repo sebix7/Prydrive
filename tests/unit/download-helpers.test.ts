@@ -8,6 +8,8 @@ import {
   hasInFlightTransfers,
   upsertTransferItem,
   getTransferQueueSummary,
+  partitionTransfersByStatus,
+  formatTransferBytes,
   FLOATING_TRIGGER_GRACE_MS
 } from '../../src/shared/download-helpers';
 import type { DownloadTransferItem } from '../../src/shared/types';
@@ -247,6 +249,50 @@ describe('Download Pure Helpers (Spec 012 US-2 / T2 / FR-3.4, FR-4, FR-5, EC-2, 
       expect(summary.activeTransfer).toBeNull();
       expect(summary.currentIndex).toBe(0);
       expect(summary.totalCount).toBe(0);
+    });
+  });
+
+  describe('Download Queue Modal Partitioning & Byte Formatting (Spec 012 US-5 / T5 / FR-7)', () => {
+    const makeItem = (
+      id: string,
+      status: DownloadTransferItem['status']
+    ): DownloadTransferItem => ({
+      id,
+      driveItemId: `d-${id}`,
+      name: `item-${id}.pdf`,
+      isDirectory: false,
+      iconType: 'pdf',
+      status,
+      transferredBytes: 0,
+      totalBytes: 1024,
+      progressPercent: status === 'completed' ? 100 : 0,
+      destinationPath: `/downloads/item-${id}.pdf`
+    });
+
+    it('should partition transfers into active/queued, failed, and completed/cancelled sections', () => {
+      const list = [
+        makeItem('1', 'completed'),
+        makeItem('2', 'downloading'),
+        makeItem('3', 'queued'),
+        makeItem('4', 'failed'),
+        makeItem('5', 'cancelled')
+      ];
+
+      const partitioned = partitionTransfersByStatus(list);
+      expect(partitioned.inFlight.map((i) => i.id)).toEqual(['2', '3']);
+      expect(partitioned.failed.map((i) => i.id)).toEqual(['4']);
+      expect(partitioned.finished.map((i) => i.id)).toEqual(['1', '5']);
+      expect(partitioned.completedCount).toBe(1);
+      expect(partitioned.activeCount).toBe(2);
+      expect(partitioned.hasClearable).toBe(true);
+    });
+
+    it('should format transfer byte sizes cleanly from 0 B up to GB', () => {
+      expect(formatTransferBytes(0)).toBe('0 B');
+      expect(formatTransferBytes(512)).toBe('512 B');
+      expect(formatTransferBytes(1024)).toBe('1.0 KB');
+      expect(formatTransferBytes(1024 * 1024 * 14.2)).toBe('14.2 MB');
+      expect(formatTransferBytes(1024 * 1024 * 1024 * 2.5)).toBe('2.50 GB');
     });
   });
 });

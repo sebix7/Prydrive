@@ -1,13 +1,17 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type {
   DownloadTransferItem,
-  DownloadStartParams
+  DownloadStartParams,
+  DownloadSettings
 } from '../../../shared/types';
 import { upsertTransferItem } from '../../../shared/download-helpers';
 
 export interface DownloadContextType {
   transfers: DownloadTransferItem[];
   isQueueModalOpen: boolean;
+  settings: DownloadSettings | null;
+  isSettingsModalOpen: boolean;
+  settingsError: string | null;
   startDownload: (params: DownloadStartParams) => Promise<void>;
   cancelDownload: (transferId: string) => Promise<void>;
   retryDownload: (transferId: string) => Promise<void>;
@@ -16,11 +20,19 @@ export interface DownloadContextType {
   setQueueModalOpen: (isOpen: boolean) => void;
   openQueueModal: () => void;
   closeQueueModal: () => void;
+  openSettingsModal: () => void;
+  closeSettingsModal: () => void;
+  refreshSettings: () => Promise<void>;
+  browseDownloadDirectory: () => Promise<void>;
+  resetDownloadDirectory: () => Promise<void>;
 }
 
 const defaultDownloadContext: DownloadContextType = {
   transfers: [],
   isQueueModalOpen: false,
+  settings: null,
+  isSettingsModalOpen: false,
+  settingsError: null,
   startDownload: async () => {},
   cancelDownload: async () => {},
   retryDownload: async () => {},
@@ -28,7 +40,12 @@ const defaultDownloadContext: DownloadContextType = {
   clearCompleted: () => {},
   setQueueModalOpen: () => {},
   openQueueModal: () => {},
-  closeQueueModal: () => {}
+  closeQueueModal: () => {},
+  openSettingsModal: () => {},
+  closeSettingsModal: () => {},
+  refreshSettings: async () => {},
+  browseDownloadDirectory: async () => {},
+  resetDownloadDirectory: async () => {}
 };
 
 export const DownloadContext = createContext<DownloadContextType>(defaultDownloadContext);
@@ -44,6 +61,30 @@ export interface DownloadProviderProps {
 export const DownloadProvider: React.FC<DownloadProviderProps> = ({ children }) => {
   const [transfers, setTransfers] = useState<DownloadTransferItem[]>([]);
   const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
+  const [settings, setSettings] = useState<DownloadSettings | null>(null);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [settingsError, setSettingsError] = useState<string | null>(null);
+
+  const refreshSettings = useCallback(async (): Promise<void> => {
+    if (!window.api?.download?.getSettings) {
+      return;
+    }
+    try {
+      const result = await window.api.download.getSettings();
+      if (result.success && result.data) {
+        setSettings(result.data);
+        setSettingsError(null);
+      } else if (result.error) {
+        setSettingsError(result.error.message);
+      }
+    } catch (err) {
+      setSettingsError((err as Error).message || 'Failed to read download settings');
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshSettings();
+  }, [refreshSettings]);
 
   useEffect(() => {
     if (!window.api?.download?.onProgress) {
@@ -100,7 +141,7 @@ export const DownloadProvider: React.FC<DownloadProviderProps> = ({ children }) 
 
   const clearCompleted = useCallback((): void => {
     setTransfers((prev) =>
-      prev.filter((item) => item.status === 'downloading' || item.status === 'queued')
+      prev.filter((item) => item.status !== 'completed' && item.status !== 'cancelled')
     );
   }, []);
 
@@ -112,11 +153,69 @@ export const DownloadProvider: React.FC<DownloadProviderProps> = ({ children }) 
     setIsQueueModalOpen(false);
   }, []);
 
+  const openSettingsModal = useCallback((): void => {
+    setSettingsError(null);
+    setIsSettingsModalOpen(true);
+    void refreshSettings();
+  }, [refreshSettings]);
+
+  const closeSettingsModal = useCallback((): void => {
+    setIsSettingsModalOpen(false);
+    setSettingsError(null);
+  }, []);
+
+  const browseDownloadDirectory = useCallback(async (): Promise<void> => {
+    if (!window.api?.download?.selectDownloadDirectory || !window.api?.download?.setSettings) {
+      return;
+    }
+    try {
+      const pickResult = await window.api.download.selectDownloadDirectory();
+      if (!pickResult.success) {
+        setSettingsError(pickResult.error?.message || 'Failed to select directory');
+        return;
+      }
+      if (!pickResult.data) {
+        return;
+      }
+      const saveResult = await window.api.download.setSettings({
+        defaultDownloadPath: pickResult.data
+      });
+      if (!saveResult.success) {
+        setSettingsError(saveResult.error?.message || 'Failed to save download settings');
+        return;
+      }
+      await refreshSettings();
+    } catch (err) {
+      setSettingsError((err as Error).message || 'Failed to update download folder');
+    }
+  }, [refreshSettings]);
+
+  const resetDownloadDirectory = useCallback(async (): Promise<void> => {
+    if (!window.api?.download?.setSettings) {
+      return;
+    }
+    try {
+      const saveResult = await window.api.download.setSettings({
+        defaultDownloadPath: settings?.systemDefaultDownloadPath || ''
+      });
+      if (!saveResult.success) {
+        setSettingsError(saveResult.error?.message || 'Failed to reset download folder');
+        return;
+      }
+      await refreshSettings();
+    } catch (err) {
+      setSettingsError((err as Error).message || 'Failed to reset download folder');
+    }
+  }, [refreshSettings, settings?.systemDefaultDownloadPath]);
+
   return (
     <DownloadContext.Provider
       value={{
         transfers,
         isQueueModalOpen,
+        settings,
+        isSettingsModalOpen,
+        settingsError,
         startDownload,
         cancelDownload,
         retryDownload,
@@ -124,7 +223,12 @@ export const DownloadProvider: React.FC<DownloadProviderProps> = ({ children }) 
         clearCompleted,
         setQueueModalOpen: setIsQueueModalOpen,
         openQueueModal,
-        closeQueueModal
+        closeQueueModal,
+        openSettingsModal,
+        closeSettingsModal,
+        refreshSettings,
+        browseDownloadDirectory,
+        resetDownloadDirectory
       }}
     >
       {children}

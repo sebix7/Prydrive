@@ -129,6 +129,7 @@ export interface DownloadTransferItem {
 
 export interface DownloadSettings {
   defaultDownloadPath: string;
+  systemDefaultDownloadPath?: string;
 }
 
 export interface DownloadStartParams {

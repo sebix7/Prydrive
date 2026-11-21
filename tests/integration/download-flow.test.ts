@@ -310,4 +310,146 @@ describe('Download Action Button & Row Clearance Flow (Spec 012 US-1 / T1 / FR-1
       expect(explorerSource).toContain('useDownloadContext');
     });
   });
+
+  describe('Centered Download Queue Modal & Lifecycle Controls (Spec 012 US-5 / T5 / FR-7, FR-8, FR-9, EC-3, EC-4, EC-8, EC-12)', () => {
+    const queueModalSource = (() => {
+      try {
+        return readFileSync(
+          resolve(__dirname, '../../src/renderer/src/components/transfer/DownloadQueueModal.tsx'),
+          'utf-8'
+        );
+      } catch {
+        return '';
+      }
+    })();
+
+    const appShellSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/components/shell/AppShell.tsx'),
+      'utf-8'
+    );
+
+    it('should render centered Swiss Archive DownloadQueueModal with technical strip [ESC] and backdrop dismissal (FR-7.1, FR-9, NFR-1, EC-8)', () => {
+      expect(queueModalSource).toContain('data-testid="download-queue-modal-overlay"');
+      expect(queueModalSource).toContain('data-testid="download-queue-modal"');
+      expect(queueModalSource).toContain('data-testid="download-queue-close-btn"');
+      expect(queueModalSource).toContain('w-[480px]');
+      expect(queueModalSource).toContain('max-h-[540px]');
+      expect(queueModalSource).toContain('[ESC]');
+      expect(queueModalSource).toContain("e.key === 'Escape'");
+      expect(queueModalSource).toContain('border-[#C9C6BD]');
+      expect(queueModalSource).toContain('dark:border-[#2C323D]');
+      expect(queueModalSource).toContain('bg-[#FFFFFF]');
+      expect(queueModalSource).toContain('dark:bg-[#181C23]');
+    });
+
+    it('should provide individual Cancel, Retry, Open Containing Folder, and global Clear Completed controls (FR-7.3 - FR-7.7, EC-3, EC-4)', () => {
+      expect(queueModalSource).toContain('transfer-cancel-btn-');
+      expect(queueModalSource).toContain('transfer-retry-btn-');
+      expect(queueModalSource).toContain('transfer-open-folder-btn-');
+      expect(queueModalSource).toContain('data-testid="download-queue-clear-btn"');
+      expect(queueModalSource).toContain('partitionTransfersByStatus');
+      expect(queueModalSource).toContain('formatTransferBytes');
+    });
+
+    it('should declare bilingual modal titles, status badges, and action labels in English and Spanish (FR-7, FR-12)', () => {
+      expect(getTranslation('en', 'transfers_modal_title')).toBe('TRANSFERS // DOWNLOADS');
+      expect(getTranslation('es', 'transfers_modal_title')).toBe('TRANSFERENCIAS // DESCARGAS');
+      expect(getTranslation('en', 'transfers_cancel')).toBe('Cancel');
+      expect(getTranslation('es', 'transfers_cancel')).toBe('Cancelar');
+      expect(getTranslation('en', 'transfers_retry')).toBe('Retry');
+      expect(getTranslation('es', 'transfers_retry')).toBe('Reintentar');
+      expect(getTranslation('en', 'transfers_open_folder')).toBe('Show in folder');
+      expect(getTranslation('es', 'transfers_open_folder')).toBe('Mostrar en carpeta');
+      expect(getTranslation('en', 'transfers_clear_completed')).toBe('Clear completed');
+      expect(getTranslation('es', 'transfers_clear_completed')).toBe('Limpiar completados');
+    });
+
+    it('should mount DownloadQueueModal in AppShell wired to DownloadContext (FR-7, FR-8)', () => {
+      expect(appShellSource).toContain('DownloadQueueModal');
+      expect(appShellSource).toContain('useDownloadContext');
+      expect(appShellSource).toContain('isQueueModalOpen');
+      expect(appShellSource).toContain('closeQueueModal');
+    });
+  });
+
+  describe('Configurable Default Download Directory & MenuBar Settings (Spec 012 US-6 / T6 / FR-10, NFR-3, EC-11)', () => {
+    const settingsModalSource = (() => {
+      try {
+        return readFileSync(
+          resolve(__dirname, '../../src/renderer/src/components/settings/DownloadSettingsModal.tsx'),
+          'utf-8'
+        );
+      } catch {
+        return '';
+      }
+    })();
+
+    const menuBarSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/components/shell/MenuBar.tsx'),
+      'utf-8'
+    );
+
+    const appShellSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/components/shell/AppShell.tsx'),
+      'utf-8'
+    );
+
+    const downloadContextSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/context/DownloadContext.tsx'),
+      'utf-8'
+    );
+
+    const settingsStorageSource = readFileSync(
+      resolve(__dirname, '../../src/main/core/download-settings-storage.ts'),
+      'utf-8'
+    );
+
+    it('should render Settings gear button in MenuBar strictly between ThemeToggle and About (FR-10)', () => {
+      const themePos = menuBarSource.indexOf('<ThemeToggle');
+      const settingsPos = menuBarSource.indexOf('data-testid="settings-btn"');
+      const aboutPos = menuBarSource.indexOf('data-testid="about-btn"');
+
+      expect(menuBarSource).toContain('Settings');
+      expect(settingsPos).toBeGreaterThan(-1);
+      expect(themePos).toBeLessThan(settingsPos);
+      expect(settingsPos).toBeLessThan(aboutPos);
+    });
+
+    it('should render centered Swiss Archive DownloadSettingsModal with monospace path input, Browse, and Reset controls (FR-10.1 - FR-10.4, NFR-1)', () => {
+      expect(settingsModalSource).toContain('data-testid="download-settings-modal-overlay"');
+      expect(settingsModalSource).toContain('data-testid="download-settings-modal"');
+      expect(settingsModalSource).toContain('w-[440px]');
+      expect(settingsModalSource).toContain('data-testid="settings-download-path-input"');
+      expect(settingsModalSource).toContain('font-mono');
+      expect(settingsModalSource).toContain('select-text');
+      expect(settingsModalSource).toContain('data-testid="settings-browse-btn"');
+      expect(settingsModalSource).toContain('data-testid="settings-reset-btn"');
+      expect(settingsModalSource).toContain('[ESC]');
+      expect(settingsModalSource).toContain("e.key === 'Escape'");
+    });
+
+    it('should expose settings state and native directory picker actions in DownloadContext and wire DownloadSettingsModal in AppShell (FR-10, NFR-3)', () => {
+      expect(downloadContextSource).toContain('isSettingsModalOpen');
+      expect(downloadContextSource).toContain('openSettingsModal');
+      expect(downloadContextSource).toContain('closeSettingsModal');
+      expect(downloadContextSource).toContain('browseDownloadDirectory');
+      expect(downloadContextSource).toContain('resetDownloadDirectory');
+      expect(downloadContextSource).toContain('selectDownloadDirectory');
+
+      expect(appShellSource).toContain('DownloadSettingsModal');
+      expect(appShellSource).toContain('onOpenSettings={openSettingsModal}');
+      expect(settingsStorageSource).toContain('systemDefaultDownloadPath');
+    });
+
+    it('should declare bilingual translations for settings button and DownloadSettingsModal (FR-10, FR-12)', () => {
+      expect(getTranslation('en', 'menu_settings')).toBe('Settings');
+      expect(getTranslation('es', 'menu_settings')).toBe('Ajustes');
+      expect(getTranslation('en', 'settings_modal_title')).toBe('SETTINGS // DOWNLOADS');
+      expect(getTranslation('es', 'settings_modal_title')).toBe('AJUSTES // DESCARGAS');
+      expect(getTranslation('en', 'settings_browse_button')).toBe('Browse...');
+      expect(getTranslation('es', 'settings_browse_button')).toBe('Examinar...');
+      expect(getTranslation('en', 'settings_reset_button')).toBe('Reset');
+      expect(getTranslation('es', 'settings_reset_button')).toBe('Restablecer');
+    });
+  });
 });

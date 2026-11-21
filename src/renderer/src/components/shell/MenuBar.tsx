@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogOut, Info, FolderTree, PanelRight, PanelLeft, RotateCw } from 'lucide-react';
+import { LogOut, Info, FolderTree, PanelRight, PanelLeft, RotateCw, Settings } from 'lucide-react';
 import type { LanguageCode, ThemeMode } from '../../../../shared/types';
 import type { ActiveMenu } from '../../../../shared/shell-state';
 import {
@@ -19,6 +19,7 @@ export interface MenuBarProps {
   onCloseMenus?: () => void;
   onDisconnectClick: () => void;
   onToggleSidebar?: () => void;
+  onOpenSettings?: () => void;
   onOpenAbout: () => void;
   onSetLanguage: (lang: LanguageCode) => void;
   theme?: ThemeMode;
@@ -43,6 +44,7 @@ export interface MenuBarProps {
 export const MenuBar: React.FC<MenuBarProps> = ({
   language,
   onDisconnectClick,
+  onOpenSettings,
   onOpenAbout,
   onSetLanguage,
   theme = 'dark',
@@ -155,6 +157,20 @@ export const MenuBar: React.FC<MenuBarProps> = ({
           onToggle={handleToggleTheme}
           language={language}
         />
+
+        {/* Download Settings button (Spec 012 FR-10) */}
+        {onOpenSettings && (
+          <button
+            type="button"
+            data-testid="settings-btn"
+            onClick={onOpenSettings}
+            title={getTranslation(language, 'menu_settings')}
+            aria-label={getTranslation(language, 'menu_settings')}
+            className="inline-flex items-center justify-center w-[30px] h-[30px] rounded-[4px] border border-[#C9C6BD] dark:border-[#2C323D] bg-[#FFFFFF] dark:bg-[#181C23] text-[#111315] dark:text-[#F3F4F6] hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] hover:border-[#1B44E8] dark:hover:border-[#3B66FF] hover:text-[#1B44E8] dark:hover:text-[#3B66FF] transition-all duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#1B44E8] dark:focus-visible:ring-[#3B66FF] active:scale-95"
+          >
+            <Settings className="w-3.5 h-3.5" />
+          </button>
+        )}
 
         {/* About Prydrive info button (FR-7, EC-7) */}
         <button

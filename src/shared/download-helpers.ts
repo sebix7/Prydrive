@@ -212,3 +212,69 @@ export function getTransferQueueSummary(transfers: DownloadTransferItem[]): Tran
     hasInFlight: false
   };
 }
+
+export interface PartitionedTransfers {
+  inFlight: DownloadTransferItem[];
+  failed: DownloadTransferItem[];
+  finished: DownloadTransferItem[];
+  activeCount: number;
+  completedCount: number;
+  hasClearable: boolean;
+}
+
+/**
+ * Separates transfer entries into logical queue sections for DownloadQueueModal (FR-7.2).
+ */
+export function partitionTransfersByStatus(
+  transfers: DownloadTransferItem[]
+): PartitionedTransfers {
+  const inFlight: DownloadTransferItem[] = [];
+  const failed: DownloadTransferItem[] = [];
+  const finished: DownloadTransferItem[] = [];
+  let completedCount = 0;
+
+  for (const item of transfers) {
+    if (item.status === 'downloading' || item.status === 'queued') {
+      inFlight.push(item);
+    } else if (item.status === 'failed') {
+      failed.push(item);
+    } else {
+      finished.push(item);
+      if (item.status === 'completed') {
+        completedCount++;
+      }
+    }
+  }
+
+  return {
+    inFlight,
+    failed,
+    finished,
+    activeCount: inFlight.length,
+    completedCount,
+    hasClearable: finished.length > 0
+  };
+}
+
+/**
+ * Formats byte counts into compact human-readable units (B, KB, MB, GB) for transfer rows (FR-7.3, EC-2).
+ */
+export function formatTransferBytes(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    return '0 B';
+  }
+  const kb = 1024;
+  const mb = kb * 1024;
+  const gb = mb * 1024;
+
+  if (bytes < kb) {
+    return `${Math.round(bytes)} B`;
+  }
+  if (bytes < mb) {
+    return `${(bytes / kb).toFixed(1)} KB`;
+  }
+  if (bytes < gb) {
+    return `${(bytes / mb).toFixed(1)} MB`;
+  }
+  return `${(bytes / gb).toFixed(2)} GB`;
+}

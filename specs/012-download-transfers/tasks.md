@@ -45,13 +45,23 @@
     5. *Rapid Click Queue Upserts & IPC Sync (EC-7)*: Verify `DownloadContext` subscribes to `window.api.download.onProgress` and immutably upserts transfers via `upsertTransferItem` without duplicates or progress regression.
     6. *Sidebar Collapse/Expand Repositioning*: Verify that because the trigger is anchored `absolute bottom-3 right-3` inside the `FileExplorer` canvas wrapper, expanding or collapsing the right telemetry sidebar smoothly moves the widget alongside the explorer boundary.
 
-- [ ] **T5. Implement centered Download Queue Modal with full lifecycle controls.** US-5 (FR-7, FR-8, FR-9, EC-3, EC-4, EC-8, EC-12)
+- [x] **T5. Implement centered Download Queue Modal with full lifecycle controls.** US-5 (FR-7, FR-8, FR-9, EC-3, EC-4, EC-8, EC-12)
   - Depends on: T4
   - Done when: Clicking the floating transfer trigger opens `DownloadQueueModal.tsx` in a centered Swiss Archive dialog with technical strip `[ESC]`, displaying active, queued, completed, and failed transfers with live progress indicators; provides individual action buttons to Cancel active downloads, Retry failed downloads, and Open containing folder (`Mostrar en carpeta`) via `shell.showItemInFolder`; provides a global Clear Completed action; freezes the 4-second auto-hide grace period while open; and closes upon `Escape`, clicking `[ESC]`, or clicking outside; verified via automated integration tests in `tests/integration/download-flow.test.ts`.
+  - Test Scenarios:
+    1. *Centered Swiss Archive Dialog & Technical Header (FR-7.1, NFR-1, EC-8)*: Verify clicking `FloatingTransferTrigger` opens `DownloadQueueModal` (`w-[480px]`, `max-h-[540px]`) displaying `TRANSFERS // DOWNLOADS` (`en`) / `TRANSFERENCIAS // DESCARGAS` (`es`) with `[ESC]` button, preserving instant light/dark theme parity.
+    2. *Sectioned Transfer Rows & Live Progress (FR-7.2 – FR-7.6)*: Verify active downloads display live progress bar, percentage, and formatted byte ratio (`transferred / total`); queued items show queue position (`#2`); completed items show completion timestamp, formatted size, and optional skipped-files warning; failed items show error summary.
+    3. *Granular Lifecycle Actions (FR-7.3 – FR-7.7, EC-3, EC-4)*: Verify Cancel (`X`) aborts active/queued transfers, Retry (`RotateCw`) re-enqueues failed/cancelled transfers, Open Containing Folder (`FolderOpen`) opens local file explorer via `shell.showItemInFolder`, and Clear Completed removes finished entries from the list.
+    4. *Auto-Hide Grace Period Freeze & Dismissal (FR-8, FR-9)*: Verify opening the modal pauses the floating trigger's 4-second auto-hide timer until dismissed via `Escape`, clicking `[ESC]`, or clicking the outer backdrop overlay.
 
-- [ ] **T6. Implement configurable default download directory in MenuBar settings.** US-6 (FR-10, NFR-3, EC-11)
+- [x] **T6. Implement configurable default download directory in MenuBar settings.** US-6 (FR-10, NFR-3, EC-11)
   - Depends on: T5
   - Done when: `MenuBar.tsx` renders a Settings button (`Settings` icon) between Theme and About in the top utility cluster; clicking it opens `DownloadSettingsModal.tsx` displaying the current default download path in monospace text; allows users to examine and change the destination directory via native OS folder picker (`dialog.showOpenDialog`) or reset to system `Downloads`; persisted via `download-settings-storage.ts` in `userData`; verified via automated integration tests in `tests/integration/download-flow.test.ts`.
+  - Test Scenarios:
+    1. *MenuBar Settings Button Placement (FR-10)*: Verify `MenuBar.tsx` renders `data-testid="settings-btn"` with `<Settings className="w-3.5 h-3.5" />` strictly between `<ThemeToggle />` and `data-testid="about-btn"` (`[Refresh] -> [Language] -> [Theme] -> [Settings] -> [About] -> [Disconnect]`).
+    2. *DownloadSettingsModal Inspection & Browse (FR-10.1 – FR-10.3, NFR-3)*: Verify clicking Settings opens centered `DownloadSettingsModal` (`w-[440px]`) displaying the current directory in a selectable read-only monospace input; clicking `Browse...` / `Examinar...` launches the native OS directory picker via IPC and persists the chosen folder in `userData/download-settings.json`.
+    3. *Restore System Default Directory (FR-10.4)*: Verify `Reset` / `Restablecer` is disabled when already using the OS default `Downloads` folder and, when a custom folder is set, restores `systemDefaultDownloadPath` and persists the change cleanly.
+    4. *Persistence Across App Restarts & New Downloads*: Verify subsequent downloads immediately land in the newly configured directory and the preference persists across restarts.
 
 - [ ] **T7. Implement complete bilingual localization parity for all download and transfer controls.** US-7 (FR-12)
   - Depends on: T6

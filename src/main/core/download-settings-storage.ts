@@ -21,30 +21,44 @@ export class DownloadSettingsStorage {
         : process.cwd();
     }
     return {
-      defaultDownloadPath: defaultPath
+      defaultDownloadPath: defaultPath,
+      systemDefaultDownloadPath: defaultPath
     };
   }
 
   getSettings(): DownloadSettings {
+    const defaults = this.getDefaultSettings();
     if (!fs.existsSync(this.settingsFilePath)) {
-      return this.getDefaultSettings();
+      return defaults;
     }
 
     try {
       const content = fs.readFileSync(this.settingsFilePath, 'utf-8');
       const parsed = JSON.parse(content) as DownloadSettings;
       if (parsed.defaultDownloadPath && typeof parsed.defaultDownloadPath === 'string') {
-        return parsed;
+        return {
+          defaultDownloadPath: parsed.defaultDownloadPath,
+          systemDefaultDownloadPath: defaults.systemDefaultDownloadPath
+        };
       }
     } catch {
       // Fallback on corrupt settings
     }
 
-    return this.getDefaultSettings();
+    return defaults;
   }
 
   saveSettings(settings: DownloadSettings): void {
-    const serialized = JSON.stringify(settings, null, 2);
+    const defaults = this.getDefaultSettings();
+    const targetPath =
+      settings.defaultDownloadPath && settings.defaultDownloadPath.trim().length > 0
+        ? settings.defaultDownloadPath.trim()
+        : defaults.defaultDownloadPath;
+
+    const payload: DownloadSettings = {
+      defaultDownloadPath: targetPath
+    };
+    const serialized = JSON.stringify(payload, null, 2);
     const tempPath = `${this.settingsFilePath}.tmp`;
     fs.writeFileSync(tempPath, serialized, 'utf-8');
     fs.renameSync(tempPath, this.settingsFilePath);
