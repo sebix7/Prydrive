@@ -228,6 +228,11 @@ describe('Download Action Button & Row Clearance Flow (Spec 012 US-1 / T1 / FR-1
       expect(explorerSource).toContain('exportTriggerRef.current.getBoundingClientRect()');
       expect(explorerSource).toContain('triggerElement={exportTriggerRef.current}');
     });
+
+    it('should use localized close aria-label in WorkspaceExportMenu instead of hardcoded English (FR-12)', () => {
+      expect(exportMenuSource).not.toContain('aria-label="Close"');
+      expect(exportMenuSource).toContain("aria-label={getTranslation(language, 'about_close')}");
+    });
   });
 
   describe('Floating Transfer Trigger & Hover Expansion (Spec 012 US-4 / T4 / FR-6, NFR-1, EC-7)', () => {

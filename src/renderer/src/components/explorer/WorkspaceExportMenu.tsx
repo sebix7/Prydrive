@@ -112,7 +112,7 @@ export const WorkspaceExportMenu: React.FC<WorkspaceExportMenuProps> = ({
           type="button"
           onClick={onClose}
           className="font-mono text-[9px] px-1 py-0.5 rounded-[2px] hover:bg-[#ECEAE3] dark:hover:bg-[#1E232C] hover:text-[#111315] dark:hover:text-[#F3F4F6] text-[#7C8087] dark:text-[#6B7280] transition-colors cursor-pointer"
-          aria-label="Close"
+          aria-label={getTranslation(language, 'about_close')}
         >
           [ESC]
         </button>

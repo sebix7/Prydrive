@@ -444,4 +444,181 @@ describe('Bilingual Localization Dictionary (US-6 / T6 / FR-15)', () => {
       expect(getTranslation('es', 'category_file')).toBe('Archivo');
     });
   });
+
+  describe('Download Transfers Manager & Settings Localization Parity (Spec 012 US-7 / T7 / FR-12)', () => {
+    const requiredDownloadKeys: TranslationKey[] = [
+      // Row download action tooltip
+      'download_tooltip',
+      // Floating transfer trigger & hover pill
+      'transfer_floating_active',
+      'transfer_queue_count',
+      // Download queue modal & statuses
+      'transfers_modal_title',
+      'transfers_section_active',
+      'transfers_section_failed',
+      'transfers_section_completed',
+      'transfers_empty',
+      'transfers_status_queued',
+      'transfers_status_completed',
+      'transfers_status_failed',
+      'transfers_status_cancelled',
+      'transfers_cancel',
+      'transfers_retry',
+      'transfers_open_folder',
+      'transfers_clear_completed',
+      'transfers_footer_summary',
+      'transfers_warning_partial',
+      // MenuBar Settings & Download Settings modal
+      'menu_settings',
+      'settings_modal_title',
+      'settings_download_path_label',
+      'settings_download_path_hint',
+      'settings_browse_button',
+      'settings_reset_button',
+      'settings_save_button',
+      // Google Workspace export menu
+      'export_menu_title',
+      'export_format_pdf',
+      'export_format_docx',
+      'export_format_xlsx',
+      'export_format_pptx'
+    ];
+
+    it('should have all 30 download, transfer, export, and settings keys defined and non-empty in English and Spanish (FR-12)', () => {
+      expect(requiredDownloadKeys).toHaveLength(30);
+      requiredDownloadKeys.forEach((key) => {
+        expect(translations.en[key]).toBeDefined();
+        expect(translations.es[key]).toBeDefined();
+        expect(translations.en[key].trim().length).toBeGreaterThan(0);
+        expect(translations.es[key].trim().length).toBeGreaterThan(0);
+      });
+    });
+
+    it('should preserve identical interpolation placeholders across English and Spanish for all download keys (FR-12)', () => {
+      const extractPlaceholders = (text: string): string[] =>
+        (text.match(/\{[a-zA-Z0-9_]+\}/g) || []).sort();
+
+      requiredDownloadKeys.forEach((key) => {
+        expect(extractPlaceholders(translations.es[key])).toEqual(
+          extractPlaceholders(translations.en[key])
+        );
+      });
+    });
+
+    it('should accurately translate row tooltip and floating transfer trigger strings in English and Spanish (FR-2, FR-6, FR-12)', () => {
+      expect(getTranslation('en', 'download_tooltip')).toBe('Download');
+      expect(getTranslation('es', 'download_tooltip')).toBe('Descargar');
+
+      expect(getTranslation('en', 'transfer_floating_active')).toBe('Active downloads');
+      expect(getTranslation('es', 'transfer_floating_active')).toBe('Descargas activas');
+
+      expect(getTranslation('en', 'transfer_queue_count', { current: 2, total: 5 })).toBe('2 of 5');
+      expect(getTranslation('es', 'transfer_queue_count', { current: 2, total: 5 })).toBe('2 de 5');
+    });
+
+    it('should accurately translate Download Queue Modal headers, sections, statuses, and controls in English and Spanish (FR-7, FR-12)', () => {
+      expect(getTranslation('en', 'transfers_modal_title')).toBe('TRANSFERS // DOWNLOADS');
+      expect(getTranslation('es', 'transfers_modal_title')).toBe('TRANSFERENCIAS // DESCARGAS');
+
+      expect(getTranslation('en', 'transfers_section_active')).toBe('In progress & queued');
+      expect(getTranslation('es', 'transfers_section_active')).toBe('En curso y en cola');
+
+      expect(getTranslation('en', 'transfers_section_failed')).toBe('Failed');
+      expect(getTranslation('es', 'transfers_section_failed')).toBe('Fallidas');
+
+      expect(getTranslation('en', 'transfers_section_completed')).toBe('Completed');
+      expect(getTranslation('es', 'transfers_section_completed')).toBe('Completadas');
+
+      expect(getTranslation('en', 'transfers_empty')).toBe(
+        'No download transfers in this session.'
+      );
+      expect(getTranslation('es', 'transfers_empty')).toBe(
+        'No hay transferencias de descarga en esta sesión.'
+      );
+
+      expect(getTranslation('en', 'transfers_status_queued')).toBe('Queued');
+      expect(getTranslation('es', 'transfers_status_queued')).toBe('En cola');
+
+      expect(getTranslation('en', 'transfers_status_completed')).toBe('Completed');
+      expect(getTranslation('es', 'transfers_status_completed')).toBe('Completado');
+
+      expect(getTranslation('en', 'transfers_status_failed')).toBe('Download failed');
+      expect(getTranslation('es', 'transfers_status_failed')).toBe('Descarga fallida');
+
+      expect(getTranslation('en', 'transfers_status_cancelled')).toBe('Cancelled');
+      expect(getTranslation('es', 'transfers_status_cancelled')).toBe('Cancelado');
+
+      expect(getTranslation('en', 'transfers_cancel')).toBe('Cancel');
+      expect(getTranslation('es', 'transfers_cancel')).toBe('Cancelar');
+
+      expect(getTranslation('en', 'transfers_retry')).toBe('Retry');
+      expect(getTranslation('es', 'transfers_retry')).toBe('Reintentar');
+
+      expect(getTranslation('en', 'transfers_open_folder')).toBe('Show in folder');
+      expect(getTranslation('es', 'transfers_open_folder')).toBe('Mostrar en carpeta');
+
+      expect(getTranslation('en', 'transfers_clear_completed')).toBe('Clear completed');
+      expect(getTranslation('es', 'transfers_clear_completed')).toBe('Limpiar completados');
+
+      expect(
+        getTranslation('en', 'transfers_footer_summary', { completed: 3, active: 1 })
+      ).toBe('3 completed, 1 active');
+      expect(
+        getTranslation('es', 'transfers_footer_summary', { completed: 3, active: 1 })
+      ).toBe('3 completadas, 1 activas');
+
+      expect(getTranslation('en', 'transfers_warning_partial')).toBe(
+        'Completed with skipped files'
+      );
+      expect(getTranslation('es', 'transfers_warning_partial')).toBe(
+        'Completado con archivos omitidos'
+      );
+    });
+
+    it('should accurately translate Google Workspace export menu options in English and Spanish (FR-5, FR-12)', () => {
+      expect(getTranslation('en', 'export_menu_title')).toBe('Format');
+      expect(getTranslation('es', 'export_menu_title')).toBe('Formato');
+
+      expect(getTranslation('en', 'export_format_pdf')).toBe('PDF Document (.pdf)');
+      expect(getTranslation('es', 'export_format_pdf')).toBe('Documento PDF (.pdf)');
+
+      expect(getTranslation('en', 'export_format_docx')).toBe('Word Document (.docx)');
+      expect(getTranslation('es', 'export_format_docx')).toBe('Documento Word (.docx)');
+
+      expect(getTranslation('en', 'export_format_xlsx')).toBe('Excel Spreadsheet (.xlsx)');
+      expect(getTranslation('es', 'export_format_xlsx')).toBe('Hoja de cálculo Excel (.xlsx)');
+
+      expect(getTranslation('en', 'export_format_pptx')).toBe('PowerPoint Presentation (.pptx)');
+      expect(getTranslation('es', 'export_format_pptx')).toBe('Presentación PowerPoint (.pptx)');
+    });
+
+    it('should accurately translate MenuBar Settings button and DownloadSettingsModal labels in English and Spanish (FR-10, FR-12)', () => {
+      expect(getTranslation('en', 'menu_settings')).toBe('Settings');
+      expect(getTranslation('es', 'menu_settings')).toBe('Ajustes');
+
+      expect(getTranslation('en', 'settings_modal_title')).toBe('SETTINGS // DOWNLOADS');
+      expect(getTranslation('es', 'settings_modal_title')).toBe('AJUSTES // DESCARGAS');
+
+      expect(getTranslation('en', 'settings_download_path_label')).toBe('Default download folder');
+      expect(getTranslation('es', 'settings_download_path_label')).toBe(
+        'Carpeta de descargas predeterminada'
+      );
+
+      expect(getTranslation('en', 'settings_download_path_hint')).toBe(
+        'Files and folder archives will be saved directly to this directory.'
+      );
+      expect(getTranslation('es', 'settings_download_path_hint')).toBe(
+        'Los archivos y carpetas comprimidas se guardarán directamente en este directorio.'
+      );
+
+      expect(getTranslation('en', 'settings_browse_button')).toBe('Browse...');
+      expect(getTranslation('es', 'settings_browse_button')).toBe('Examinar...');
+
+      expect(getTranslation('en', 'settings_reset_button')).toBe('Reset');
+      expect(getTranslation('es', 'settings_reset_button')).toBe('Restablecer');
+
+      expect(getTranslation('en', 'settings_save_button')).toBe('Save');
+      expect(getTranslation('es', 'settings_save_button')).toBe('Guardar');
+    });
+  });
 });

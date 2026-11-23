@@ -63,9 +63,15 @@
     3. *Restore System Default Directory (FR-10.4)*: Verify `Reset` / `Restablecer` is disabled when already using the OS default `Downloads` folder and, when a custom folder is set, restores `systemDefaultDownloadPath` and persists the change cleanly.
     4. *Persistence Across App Restarts & New Downloads*: Verify subsequent downloads immediately land in the newly configured directory and the preference persists across restarts.
 
-- [ ] **T7. Implement complete bilingual localization parity for all download and transfer controls.** US-7 (FR-12)
+- [x] **T7. Implement complete bilingual localization parity for all download and transfer controls.** US-7 (FR-12)
   - Depends on: T6
   - Done when: `src/shared/i18n/translations.ts` defines 100% matched keys across English (`en`) and Spanish (`es`) for all download button tooltips, floating trigger labels, modal headers, progress status strings, export menu options, and settings dialog controls, returning correct localized strings according to active language; verified via automated unit tests in `tests/unit/translations.test.ts`.
+  - Test Scenarios:
+    1. *100% Key & Placeholder Parity (FR-12)*: Verify all 30 Spec 012 keys (`download_tooltip`, `transfer_*`, `transfers_*`, `menu_settings`, `settings_*`, `export_*`) exist, are non-empty, and share identical `{placeholder}` tokens across English (`en`) and Spanish (`es`).
+    2. *Row Action, Floating Trigger & Queue Counter Localization*: Verify `download_tooltip`, `transfer_floating_active`, and parameterized `transfer_queue_count` (`2 of 5` / `2 de 5`) translate accurately when toggling between `en` and `es`.
+    3. *Download Queue Modal & Status Badges Localization*: Verify modal header (`TRANSFERS // DOWNLOADS` / `TRANSFERENCIAS // DESCARGAS`), section titles, empty state, status labels (`queued`, `completed`, `failed`, `cancelled`), action buttons (`Cancel`, `Retry`, `Show in folder`, `Clear completed`), footer summary interpolation, and partial-warning string translate cleanly in both languages.
+    4. *Google Workspace Export Menu & Accessible Close Label Localization*: Verify `export_menu_title`, all 4 export format labels (PDF, Word, Excel, PowerPoint), and the `[ESC]` close button `aria-label` in `WorkspaceExportMenu.tsx` use localized translations rather than hardcoded English strings.
+    5. *MenuBar Settings & DownloadSettingsModal Localization*: Verify `menu_settings`, `settings_modal_title`, path label, hint copy, `Browse...` / `Examinar...`, `Reset` / `Restablecer`, and `Save` / `Guardar` resolve cleanly in both `en` and `es`.
 
 - [x] **T8. Implement shared in-memory OAuth2Client caching and invalidation in GoogleAuthClient.** US-8 (FR-13, EC-13, EC-14)
   - Depends on: T2
