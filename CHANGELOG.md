@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.11.0](https://github.com/sebix7/Prydrive/compare/v0.10.0...v0.11.0) (2026-11-24)
+
+
+### Features
+
+* **download:** add download queue modal and folder settings dialog ([384cd7f](https://github.com/sebix7/Prydrive/commit/384cd7f88e9fbaa16cc29ab202707fa2ff6082a5))
+* **download:** add floating transfer trigger and oauth client caching ([17688e4](https://github.com/sebix7/Prydrive/commit/17688e482da2187fbb188976875ab66c122c4b57))
+* **download:** implement main process sequential streaming pipeline and queue manager ([2ee71a7](https://github.com/sebix7/Prydrive/commit/2ee71a7c5b4a1e142761c1d7372a4bd051afaca3))
+* **explorer:** add row download action button with event decoupling and clearance ([c8bd8a5](https://github.com/sebix7/Prydrive/commit/c8bd8a52d412843b332ca88a7308e7579fa4bf4b))
+* **explorer:** implement google workspace export format selection menu ([45548f1](https://github.com/sebix7/Prydrive/commit/45548f132bd94181297b1024d2e81516b2b965f9))
+* **i18n:** complete bilingual localization parity for download transfers ([b91f479](https://github.com/sebix7/Prydrive/commit/b91f4796a18ca72bf9b91993241706e2e0fe10bd))
+
+
+### Documentation
+
+* **memory:** record v0.10.0 item details popover release ([db3fb06](https://github.com/sebix7/Prydrive/commit/db3fb066c3877e414e579acd3da4ddd362409640))
+
 ## [0.10.0](https://github.com/sebix7/Prydrive/compare/v0.9.1...v0.10.0) (2026-11-19)
 
 
