@@ -132,6 +132,23 @@ export function hasInFlightTransfers(transfers: DownloadTransferItem[]): boolean
 }
 
 /**
+ * Finds an existing queued transfer matching (driveItemId, exportMimeType) to omit duplicate queued entries (FR-14.1, FR-14.2).
+ */
+export function findExistingQueuedTransfer(
+  transfers: DownloadTransferItem[],
+  driveItemId: string,
+  exportMimeType?: string
+): DownloadTransferItem | undefined {
+  const targetExportMime = exportMimeType || undefined;
+  return transfers.find(
+    (item) =>
+      item.status === 'queued' &&
+      item.driveItemId === driveItemId &&
+      (item.exportMimeType || undefined) === targetExportMime
+  );
+}
+
+/**
  * Duration in milliseconds before the floating transfer trigger hides after all transfers finish (FR-6.3).
  */
 export const FLOATING_TRIGGER_GRACE_MS = 4000;

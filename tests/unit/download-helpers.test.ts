@@ -6,6 +6,7 @@ import {
   resolveExportExtension,
   filterActiveTransfers,
   hasInFlightTransfers,
+  findExistingQueuedTransfer,
   upsertTransferItem,
   getTransferQueueSummary,
   partitionTransfersByStatus,
@@ -293,6 +294,62 @@ describe('Download Pure Helpers (Spec 012 US-2 / T2 / FR-3.4, FR-4, FR-5, EC-2, 
       expect(formatTransferBytes(1024)).toBe('1.0 KB');
       expect(formatTransferBytes(1024 * 1024 * 14.2)).toBe('14.2 MB');
       expect(formatTransferBytes(1024 * 1024 * 1024 * 2.5)).toBe('2.50 GB');
+    });
+  });
+
+  describe('findExistingQueuedTransfer (Spec 012 US-9 / T9 / FR-14, EC-15, EC-16, EC-17)', () => {
+    const makeTransfer = (
+      id: string,
+      driveItemId: string,
+      status: DownloadTransferItem['status'],
+      exportMimeType?: string
+    ): DownloadTransferItem => ({
+      id,
+      driveItemId,
+      name: `file-${id}.pdf`,
+      isDirectory: false,
+      iconType: 'pdf',
+      status,
+      transferredBytes: 0,
+      totalBytes: 1024,
+      progressPercent: 0,
+      destinationPath: `/downloads/file-${id}.pdf`,
+      exportMimeType
+    });
+
+    it('should return the existing queued transfer when driveItemId and exportMimeType match (FR-14.1)', () => {
+      const queuedItem = makeTransfer('t-2', 'drive-1', 'queued');
+      const queue = [makeTransfer('t-1', 'drive-0', 'downloading'), queuedItem];
+
+      expect(findExistingQueuedTransfer(queue, 'drive-1')).toBe(queuedItem);
+    });
+
+    it('should return undefined when matching item is downloading, completed, failed, or cancelled (FR-14.2, EC-17)', () => {
+      const queue = [
+        makeTransfer('t-1', 'drive-downloading', 'downloading'),
+        makeTransfer('t-2', 'drive-completed', 'completed'),
+        makeTransfer('t-3', 'drive-failed', 'failed'),
+        makeTransfer('t-4', 'drive-cancelled', 'cancelled')
+      ];
+
+      expect(findExistingQueuedTransfer(queue, 'drive-downloading')).toBeUndefined();
+      expect(findExistingQueuedTransfer(queue, 'drive-completed')).toBeUndefined();
+      expect(findExistingQueuedTransfer(queue, 'drive-failed')).toBeUndefined();
+      expect(findExistingQueuedTransfer(queue, 'drive-cancelled')).toBeUndefined();
+    });
+
+    it('should distinguish Google Workspace exports by exportMimeType (EC-16)', () => {
+      const queuedPdf = makeTransfer('t-pdf', 'doc-1', 'queued', 'application/pdf');
+      const queue = [queuedPdf];
+
+      expect(findExistingQueuedTransfer(queue, 'doc-1', 'application/pdf')).toBe(queuedPdf);
+      expect(
+        findExistingQueuedTransfer(
+          queue,
+          'doc-1',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        )
+      ).toBeUndefined();
     });
   });
 });

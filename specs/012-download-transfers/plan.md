@@ -16,6 +16,7 @@
     - `calculateTransferPercent`: Deterministic progress percentage computation (0-100).
     - `resolveWorkspaceExportOptions`: Pure mapper from Google Docs, Sheets, Slides MIME types to available export formats.
     - `resolveNextAvailableFilename`: Pure collision resolution algorithm generating `name (1).ext`, `name (2).ext` if target exists.
+    - `findExistingQueuedTransfer`: Pure lookup identifying whether a `(driveItemId, exportMimeType)` entry is already waiting in `queued` status (FR-14.1, FR-14.2).
     - `filterActiveTransfers`: Pure filter returning currently running or queued transfers.
     - `hasInFlightTransfers`: Pure predicate determining whether floating trigger should be visible.
 - `src/shared/i18n/translations.ts`:
@@ -32,6 +33,7 @@
 - `src/main/core/download-queue-manager.ts`:
   - Centralized singleton managing the sequential FIFO queue in the Node.js runtime.
   - Manages active streams, enforces 1-at-a-time execution, tracks bytes transferred, handles cancellation and partial file cleanup.
+  - Deduplicates pending requests by `(driveItemId, exportMimeType)` when an entry is already `queued`, allows at most one queued re-download for an item currently `downloading`, and reserves in-flight filenames (`downloading` + `queued`) alongside disk files to prevent overwrites (FR-14).
 - `src/main/operations/download-stream.ts`:
   - Stream pipeline for binary files: pipes `drive.files.get({ fileId, alt: 'media' })` directly to `fs.createWriteStream`.
   - Stream pipeline for Google Workspace files: pipes `drive.files.export({ fileId, mimeType })` directly to `fs.createWriteStream`.
@@ -220,7 +222,15 @@ CLASS DownloadQueueManager:
     STATE abortControllers = {}  // Map of transferId -> AbortController
 
     FUNCTION enqueue(itemParams):
-        LET transfer = createTransferRecord(itemParams, status: 'queued')
+        LET existingQueued = findExistingQueuedTransfer(queue, itemParams.driveItemId, itemParams.exportMimeType)
+        IF existingQueued !== null THEN:
+            RETURN existingQueued // Omit duplicate queued request (FR-14.1, FR-14.2)
+
+        LET reservedNames = queue
+            .filter(t => (t.status === 'downloading' || t.status === 'queued') && path.dirname(t.destinationPath) === destDir)
+            .map(t => path.basename(t.destinationPath))
+        LET finalFilename = resolveNextAvailableFilename([...diskFiles, ...reservedNames], desiredFilename)
+        LET transfer = createTransferRecord(itemParams, finalFilename, status: 'queued')
         queue.push(transfer)
         emitProgress(transfer)
         processQueue()
@@ -365,6 +375,7 @@ Row Trailing Action Container:
 | **Freeze Auto-Hide Timer While Modal Is Open** | Hiding floating button strictly after 4 seconds regardless of modal state | If the user opens the modal to open downloaded files, hiding the trigger widget beneath their active interaction causes disorientation and broken UI state. |
 | **Row Trailing Padding `pr-16` (64px)** | Retaining `pr-9` (36px) | Adding a second 26px button requires extra trailing clearance so that neither the download button nor the details button is occluded by the lateral sidebar toggle chevron button `<`. |
 | **Shared In-Memory `OAuth2Client` Reuse per `refreshToken`** | Instantiating a new `OAuth2Client` on every Drive call | Eliminates redundant `oauth2.googleapis.com/token` round-trips on every folder click or download while keeping short-lived access tokens strictly in RAM (zero plaintext disk writes per Principle 5). |
+| **Queued Item Deduplication + In-Flight Filename Reservation** | Blocking downloads even while actively streaming, or allowing unbounded duplicates | Omits accidental duplicate `queued` entries while allowing a single intentional re-queue of an actively streaming item, reserving in-flight filenames so disk overwrites never happen (FR-14, EC-15..EC-17). |
 
 ---
 
@@ -386,6 +397,10 @@ Row Trailing Action Container:
    - Returns the identical cached `OAuth2Client` instance on consecutive calls with the same `refreshToken`.
    - Replaces the cached `OAuth2Client` immediately when a different `refreshToken` is passed.
    - Invalidates the cached `OAuth2Client` when `clearCachedClient()` is invoked (on disconnect) or when a `401` / `invalid_grant` error occurs.
+5. `findExistingQueuedTransfer` & `DownloadQueueManager` deduplication (`tests/unit/download-helpers.test.ts`, `tests/unit/download-stream.test.ts`):
+   - Omits duplicate `enqueue()` calls when a `(driveItemId, exportMimeType)` entry is already `queued`.
+   - Allows enqueuing at most one `queued` copy when an item is currently `downloading`, assigning a collision-safe incremented filename (`file (1).ext` / `folder (1).zip`) without overwriting the active download.
+   - Treats distinct Google Workspace `exportMimeType` values as separate queue entries and permits re-enqueuing after a previous transfer finishes (`completed`, `failed`, or `cancelled`).
 
 ### B. Bilingual Localization Parity Tests (`tests/unit/translations.test.ts`)
 - Asserts that all newly added `download_*`, `transfers_*`, `settings_*`, and `export_*` keys maintain 100% parity across English and Spanish.
@@ -420,6 +435,7 @@ Row Trailing Action Container:
 | **US-6 (Configurable Default Download Directory)** | FR-10, NFR-3, EC-11 | `DownloadSettingsModal.tsx`, `MenuBar.tsx`, `download-settings-storage.ts` | `tests/integration/download-flow.test.ts` |
 | **US-7 (Bilingual Localization Parity)** | FR-12 | `translations.ts` | `tests/unit/translations.test.ts` |
 | **US-8 (Cached OAuth Client & Folder Navigation Performance)** | FR-13, EC-13, EC-14 | `google-client.ts`, `auth-ipc.ts`, `index.ts` | `tests/unit/google-client.test.ts` |
+| **US-9 (Queue Deduplication & Collision-Safe Re-Enqueuing)** | FR-14, EC-15, EC-16, EC-17 | `download-helpers.ts`, `download-queue-manager.ts` | `tests/unit/download-helpers.test.ts`, `tests/unit/download-stream.test.ts` |
 
 ### Story Dependency Flow for `tasks.md`:
 ```mermaid
@@ -431,4 +447,5 @@ flowchart TD
     US5 --> US6["US-6: Configurable Download Directory (T6)"]
     US6 --> US7["US-7: Bilingual Localization Parity (T7)"]
     US2 --> US8["US-8: Cached OAuth Client Performance (T8)"]
+    US2 --> US9["US-9: Queue Deduplication & Collision-Safe Re-Enqueuing (T9)"]
 ```

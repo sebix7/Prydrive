@@ -19,6 +19,7 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
 - **US-6 (Configurable Default Download Directory):** As a user, I want a settings button in the top bar to inspect and modify my default download directory so that files land in my preferred folder without prompting on every download.
 - **US-7 (Bilingual Localization Parity):** As an international user, I want all download button tooltips, transfer state badges, progress indicators, modal controls, export menus, and settings dialogs to be fully localized in English (`en`) and Spanish (`es`).
 - **US-8 (Cached OAuth Client & Folder Navigation Performance):** As an authenticated user navigating directories and initiating downloads, I want Google API requests to reuse an in-memory authenticated OAuth client and access token so that folder listings and downloads avoid redundant token exchange round-trips on every click.
+- **US-9 (Queue Deduplication & Collision-Safe Re-Enqueuing):** As a user clicking download across files and folders while transfers are running, I want duplicate clicks on items already waiting in the queue to be omitted while still allowing at most one queued re-download of an item that is currently downloading, without ever overwriting files on disk.
 
 ## Definitions
 - **Download Action Button:** A `26px × 26px` square button with visible 1px structural border and download icon (`Download`) positioned at the trailing end of every real file and folder row immediately preceding the details button.
@@ -67,6 +68,10 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
   1. WHEN a Drive API operation is requested using the same `refreshToken`, THE SYSTEM SHALL reuse the cached `OAuth2Client` and its valid in-memory `access_token`, avoiding redundant OAuth token exchange round-trips on every folder navigation or download request.
   2. WHEN the user disconnects or initiates a request with a different `refreshToken`, THE SYSTEM SHALL immediately clear and replace the cached `OAuth2Client` instance.
   3. IF a Drive API request using the cached client fails with an authentication or revocation error (`401` / `invalid_grant`), THEN THE SYSTEM SHALL clear the cached `OAuth2Client` so subsequent operations re-authenticate cleanly.
+- **FR-14:** THE SYSTEM SHALL deduplicate pending download requests by item identity (`driveItemId` + `exportMimeType`) while preserving collision-safe filenames across active and queued transfers:
+  1. IF a download request targets an item (`driveItemId` + `exportMimeType`) that already has an entry in `queued` status, THEN THE SYSTEM SHALL omit creating a duplicate entry and return the existing `queued` transfer record without altering queue order.
+  2. WHEN a download request targets an item (`driveItemId` + `exportMimeType`) that is currently in `downloading` status and has no existing `queued` entry, THE SYSTEM SHALL allow enqueuing exactly one additional `queued` transfer for that item; any further requests for the same item while that `queued` entry remains pending SHALL be omitted.
+  3. THE SYSTEM SHALL include reserved filenames of all in-flight (`downloading` and `queued`) transfers targeting the same destination directory alongside existing disk files when resolving `resolveNextAvailableFilename`, ensuring a re-enqueued copy receives an incremented filename (e.g., `file (1).ext` / `folder (1).zip`) and never overwrites an active download.
 
 ## Non-Functional Requirements
 - **NFR-1 (Archival Visual Alignment):** All newly introduced controls (row download button, floating trigger, expanded hover pill, export menu, queue modal, and settings modal) must strictly adhere to Swiss Archive design tokens (`1px` structural borders, `4px` button radius, `6px` modal/trigger card radius, `#C9C6BD`/`#2C323D` borders, `#FFFFFF`/`#181C23` surfaces, and monospace data typography).
@@ -88,6 +93,9 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
 - **EC-12:** Queue state lifecycle $\rightarrow$ Transfer queue entries are maintained in-memory for the active session and cleanly reset upon application restart.
 - **EC-13:** User disconnects and signs in with a different Google account $\rightarrow$ The cached `OAuth2Client` is immediately invalidated on disconnect and whenever a different `refreshToken` is provided, preventing cross-account credential leakage.
 - **EC-14:** Cached in-memory `access_token` expires after ~1 hour of session activity $\rightarrow$ The reused `OAuth2Client` detects expiration transparently and refreshes the `access_token` automatically via its bound `refresh_token` without user interaction.
+- **EC-15:** User clicks download multiple times on a file or folder that is currently `downloading` $\rightarrow$ The first extra click enqueues 1 `queued` copy with an incremented non-colliding filename (`name (1).ext` / `folder (1).zip`); subsequent clicks are silently omitted while that `queued` copy remains in the queue.
+- **EC-16:** User clicks download on a Google Workspace document selecting two distinct export formats (e.g., `PDF` then `DOCX`) while another download is running $\rightarrow$ Both `(driveItemId, exportMimeType)` pairs are distinct and allowed into the queue; requesting `PDF` a second time while `PDF` is already `queued` is omitted.
+- **EC-17:** User clicks download on an item whose previous transfer already ended (`completed`, `failed`, or `cancelled`) and has no `queued` entry $\rightarrow$ Enqueues normally as a fresh transfer with collision-safe naming.
 
 ## Out of Scope
 - File upload transfers (deferred to a subsequent dedicated specification).
@@ -96,6 +104,7 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
 - Peer-to-peer or LAN transfer sharing.
 - Persisting short-lived OAuth `access_token` values to disk (only encrypted `refresh_token` persistence via `safeStorage` is permitted).
 - Disk-persisted directory listing cache across application restarts.
+- Visual toast or banner alert when a duplicate click on an already-queued item is silently omitted.
 
 ## Completion Criteria
 - Each real file and folder row displays a `26px × 26px` Download Action Button with 1px structural borders and localized tooltip.
@@ -111,6 +120,7 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
 - Top menu bar features a settings button opening `DownloadSettingsModal` to view and change default download directory via native directory picker.
 - Virtual parent row (`"..."`) has no download button.
 - Authenticated Google Drive API operations reuse a shared in-memory `OAuth2Client` per active `refreshToken` and invalidate it cleanly on disconnect or token change.
+- Duplicate download requests for items already in `queued` status are omitted, while items currently in `downloading` status can be re-enqueued at most once with a collision-safe non-overwriting filename.
 - 100% bilingual parity for all download-related labels and dialogs in `en` and `es`.
 - 100% of automated unit and integration tests passing with zero TypeScript errors.
 
@@ -169,3 +179,8 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
     - *Question / Need*: Navigating folders and listing Drive contents incurred two sequential network round-trips per operation because `GoogleAuthClient` instantiated a fresh `OAuth2Client` with only `refresh_token` on every call, forcing an OAuth token exchange (`oauth2.googleapis.com/token`) before every `drive.files.list`, `about.get`, or download request.
     - *Agreement*: Cache and reuse a single authenticated `OAuth2Client` instance in Main Process memory keyed by the active `refreshToken`, sharing it across `AuthIpcController`, `StorageIpcController`, and `DownloadQueueManager`, and immediately invalidating it on disconnect, token change, or `401` / `invalid_grant` errors.
     - *Why*: Cuts directory listing and download startup latency roughly in half while keeping short-lived access tokens strictly in memory (zero plaintext disk persistence) and preserving automatic `googleapis` token refresh on expiration.
+- **2026-11-23 (Requirement Change — `/sdd-change`):**
+  - **Decision 13 (Queued Item Deduplication & Single Re-Enqueue While Downloading):**
+    - *Question / Need*: Clicking download multiple times on an item waiting in the queue could create duplicate queued transfers and overwrite the same target file on disk when two queued entries resolved to the same filename before disk write began.
+    - *Agreement*: Omit duplicate download requests when an entry with the same `(driveItemId, exportMimeType)` is already in `queued` status (returning the existing queued item). If the item is currently in `downloading` status and has no `queued` entry yet, permit adding it to the queue at most once, resolving its filename against both existing disk files and reserved in-flight (`downloading` / `queued`) filenames in the destination directory so it never overwrites the active download.
+    - *Why*: Prevents accidental duplicate queue clutter and eliminates filename overwrite races while still honoring intentional re-downloads of a currently streaming item.

@@ -245,4 +245,177 @@ describe('Folder Archive Streaming Progress & Resilience (Spec 012 US-2 / FR-4, 
       // Ignore cleanup errors
     }
   });
+
+  describe('Queue Deduplication & Collision-Safe Re-Enqueuing (Spec 012 US-9 / T9 / FR-14, EC-15, EC-16, EC-17)', () => {
+    it('should omit duplicate queued requests, allow at most one queued re-download while downloading with non-overwriting filename, and distinguish Workspace export formats', async () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'prydrive-dedup-test-'));
+
+      let releaseFirstDownload!: () => void;
+      const firstDownloadGate = new Promise<void>((resolve) => {
+        releaseFirstDownload = resolve;
+      });
+      let firstDownloadStarted!: () => void;
+      const firstStartedPromise = new Promise<void>((resolve) => {
+        firstDownloadStarted = resolve;
+      });
+      let getCallCount = 0;
+
+      const mockDrive = {
+        files: {
+          get: async ({ fileId }: { fileId: string }) => {
+            getCallCount++;
+            if (getCallCount === 1) {
+              firstDownloadStarted();
+              await firstDownloadGate;
+            }
+            return {
+              data: Readable.from([Buffer.from(`content-${fileId}-${getCallCount}`)])
+            };
+          },
+          export: async ({ fileId, mimeType }: { fileId: string; mimeType: string }) => ({
+            data: Readable.from([Buffer.from(`export-${fileId}-${mimeType}`)])
+          })
+        }
+      } as unknown as drive_v3.Drive;
+
+      const fakeSettings = {
+        getSettings: () => ({ defaultDownloadPath: tempDir })
+      };
+      const fakeTokenStorage = {
+        loadSession: async () => ({ refreshToken: 'mock-rt', email: 'a@b.com', savedAt: Date.now() })
+      };
+      const fakeGoogleClient = {
+        getDriveClient: () => mockDrive
+      };
+
+      const manager = new DownloadQueueManager(
+        fakeSettings as never,
+        fakeTokenStorage as never,
+        fakeGoogleClient as never
+      );
+
+      // 1. Start downloading report.pdf (remains actively downloading while gated before disk write)
+      const firstActive = manager.enqueue({
+        driveItemId: 'file-a',
+        name: 'report.pdf',
+        isDirectory: false,
+        iconType: 'pdf',
+        totalBytes: 20
+      });
+      await firstStartedPromise;
+
+      // 2. Re-enqueue the actively downloading file once -> ALLOWED with collision-safe name 'report (1).pdf' (FR-14.2, FR-14.3, EC-15)
+      const reQueuedA1 = manager.enqueue({
+        driveItemId: 'file-a',
+        name: 'report.pdf',
+        isDirectory: false,
+        iconType: 'pdf',
+        totalBytes: 20
+      });
+      expect(reQueuedA1.id).not.toBe(firstActive.id);
+      expect(reQueuedA1.status).toBe('queued');
+      expect(reQueuedA1.name).toBe('report (1).pdf');
+      expect(reQueuedA1.destinationPath).not.toBe(firstActive.destinationPath);
+
+      // 3. Click the same file AGAIN while its queued copy already exists -> OMITTED (FR-14.1, FR-14.2)
+      const reQueuedA2 = manager.enqueue({
+        driveItemId: 'file-a',
+        name: 'report.pdf',
+        isDirectory: false,
+        iconType: 'pdf',
+        totalBytes: 20
+      });
+      expect(reQueuedA2.id).toBe(reQueuedA1.id);
+
+      // 4. Enqueue another file twice while queued -> OMITTED on second click (FR-14.1)
+      const queuedB1 = manager.enqueue({
+        driveItemId: 'file-b',
+        name: 'notes.txt',
+        isDirectory: false,
+        iconType: 'file',
+        totalBytes: 15
+      });
+      const queuedB2 = manager.enqueue({
+        driveItemId: 'file-b',
+        name: 'notes.txt',
+        isDirectory: false,
+        iconType: 'file',
+        totalBytes: 15
+      });
+      expect(queuedB2.id).toBe(queuedB1.id);
+
+      // 5. Enqueue same Google Doc in two distinct export formats -> BOTH allowed; repeating PDF -> OMITTED (EC-16)
+      const docPdf1 = manager.enqueue({
+        driveItemId: 'doc-1',
+        name: 'Proposal',
+        isDirectory: false,
+        iconType: 'document',
+        totalBytes: null,
+        exportMimeType: 'application/pdf'
+      });
+      const docDocx = manager.enqueue({
+        driveItemId: 'doc-1',
+        name: 'Proposal',
+        isDirectory: false,
+        iconType: 'document',
+        totalBytes: null,
+        exportMimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      });
+      const docPdf2 = manager.enqueue({
+        driveItemId: 'doc-1',
+        name: 'Proposal',
+        isDirectory: false,
+        iconType: 'document',
+        totalBytes: null,
+        exportMimeType: 'application/pdf'
+      });
+      expect(docDocx.id).not.toBe(docPdf1.id);
+      expect(docPdf2.id).toBe(docPdf1.id);
+
+      // Total queue must have exactly 5 entries: active A, queued A(1), queued B, queued Doc PDF, queued Doc DOCX
+      expect(manager.getQueue()).toHaveLength(5);
+
+      // Release downloads and verify both report.pdf and report (1).pdf coexist on disk without overwrite
+      const allDone = new Promise<void>((resolve) => {
+        manager.onProgress(() => {
+          const allFinished = manager
+            .getQueue()
+            .every((item) => item.status === 'completed' || item.status === 'failed');
+          if (allFinished) resolve();
+        });
+      });
+      releaseFirstDownload();
+      await allDone;
+
+      expect(fs.existsSync(path.join(tempDir, 'report.pdf'))).toBe(true);
+      expect(fs.existsSync(path.join(tempDir, 'report (1).pdf'))).toBe(true);
+      expect(fs.readFileSync(path.join(tempDir, 'report.pdf'), 'utf-8')).not.toBe(
+        fs.readFileSync(path.join(tempDir, 'report (1).pdf'), 'utf-8')
+      );
+
+      // 6. Once completed, clicking download again enqueues cleanly as 'report (2).pdf' (EC-17)
+      const afterDone = new Promise<void>((resolve) => {
+        manager.onProgress((item) => {
+          if (item.name === 'report (2).pdf' && item.status === 'completed') {
+            resolve();
+          }
+        });
+      });
+      const freshAfterComplete = manager.enqueue({
+        driveItemId: 'file-a',
+        name: 'report.pdf',
+        isDirectory: false,
+        iconType: 'pdf',
+        totalBytes: 20
+      });
+      expect(freshAfterComplete.name).toBe('report (2).pdf');
+      await afterDone;
+
+      try {
+        fs.rmSync(tempDir, { recursive: true, force: true });
+      } catch {
+        // Ignore cleanup errors
+      }
+    });
+  });
 });

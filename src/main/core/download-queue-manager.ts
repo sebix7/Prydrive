@@ -7,7 +7,8 @@ import type {
 import {
   calculateTransferPercent,
   resolveNextAvailableFilename,
-  resolveExportExtension
+  resolveExportExtension,
+  findExistingQueuedTransfer
 } from '../../shared/download-helpers';
 import { DownloadSettingsStorage } from './download-settings-storage';
 import { TokenStorage } from './token-storage';
@@ -63,6 +64,16 @@ export class DownloadQueueManager {
   }
 
   enqueue(params: DownloadStartParams): DownloadTransferItem {
+    // Omit duplicate requests for items already waiting in queued status (FR-14.1, FR-14.2)
+    const existingQueued = findExistingQueuedTransfer(
+      this.queue,
+      params.driveItemId,
+      params.exportMimeType
+    );
+    if (existingQueued) {
+      return existingQueued;
+    }
+
     const settings = this.settingsStorage.getSettings();
     const destDir = settings.defaultDownloadPath;
 
@@ -91,7 +102,20 @@ export class DownloadQueueManager {
       existingFiles = [];
     }
 
-    const finalFilename = resolveNextAvailableFilename(existingFiles, desiredFilename);
+    // Include filenames reserved by in-flight transfers targeting the same directory so active downloads are never overwritten (FR-14.3)
+    const normalizedDestDir = path.resolve(destDir);
+    const reservedInFlightNames = this.queue
+      .filter(
+        (entry) =>
+          (entry.status === 'downloading' || entry.status === 'queued') &&
+          path.resolve(path.dirname(entry.destinationPath)) === normalizedDestDir
+      )
+      .map((entry) => path.basename(entry.destinationPath));
+
+    const finalFilename = resolveNextAvailableFilename(
+      [...existingFiles, ...reservedInFlightNames],
+      desiredFilename
+    );
     const destinationPath = path.join(destDir, finalFilename);
 
     const item: DownloadTransferItem = {
