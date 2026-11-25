@@ -34,6 +34,7 @@
   - Centralized singleton managing the sequential FIFO queue in the Node.js runtime.
   - Manages active streams, enforces 1-at-a-time execution, tracks bytes transferred, handles cancellation and partial file cleanup.
   - Deduplicates pending requests by `(driveItemId, exportMimeType)` when an entry is already `queued`, allows at most one queued re-download for an item currently `downloading`, and reserves in-flight filenames (`downloading` + `queued`) alongside disk files to prevent overwrites (FR-14).
+  - Exposes `cancelAllAndClear()` to immediately abort any active transfer, remove partial files, cancel all queued entries, and reset the in-memory queue upon account sign-out (FR-15).
 - `src/main/operations/download-stream.ts`:
   - Stream pipeline for binary files: pipes `drive.files.get({ fileId, alt: 'media' })` directly to `fs.createWriteStream`.
   - Stream pipeline for Google Workspace files: pipes `drive.files.export({ fileId, mimeType })` directly to `fs.createWriteStream`.
@@ -45,9 +46,9 @@
   - Caches and reuses a single in-memory authenticated `OAuth2Client` (`cachedAuthClient`) keyed by `cachedRefreshToken` across `getDriveClient`, `listDirectory`, `fetchStorageQuota`, and `fetchUserProfile` (FR-13).
   - Exposes `getAuthenticatedClient(refreshToken)` and `clearCachedClient()`, invalidating automatically when `refreshToken` changes, on `AUTH_DISCONNECT`, or on `401` / `invalid_grant` errors (EC-13, EC-14).
 - `src/main/ipc/auth-ipc.ts`:
-  - Clears the cached OAuth2Client via `googleClient.clearCachedClient()` during `AUTH_DISCONNECT`.
+  - Clears the cached OAuth2Client via `googleClient.clearCachedClient()` and invokes the injected `onDisconnect` callback (`sharedDownloadQueue.cancelAllAndClear()`) during `AUTH_DISCONNECT` (FR-13, FR-15).
 - `src/main/index.ts`:
-  - Instantiates a single shared `GoogleAuthClient` instance inside `app.whenReady()` and injects it into `AuthIpcController`, `StorageIpcController`, and `DownloadQueueManager` (`DownloadIpcController`).
+  - Instantiates a single shared `GoogleAuthClient` instance inside `app.whenReady()` and injects it into `AuthIpcController`, `StorageIpcController`, and `DownloadQueueManager` (`DownloadIpcController`), wiring `onDisconnect: () => sharedDownloadQueue.cancelAllAndClear()`.
 
 ### C. Preload Security Bridge (`src/preload/`)
 - `src/preload/index.ts` & `src/preload/index.d.ts`:
@@ -280,6 +281,17 @@ CLASS DownloadQueueManager:
         ELSE IF item.status === 'queued' THEN:
             item.status = 'cancelled'
             emitProgress(item)
+
+    FUNCTION cancelAllAndClear():
+        FOR EACH item IN queue:
+            IF item.status === 'downloading' THEN:
+                abortControllers[item.id]?.abort()
+                cleanupPartialFile(item.destinationPath)
+                item.status = 'cancelled'
+            ELSE IF item.status === 'queued' THEN:
+                item.status = 'cancelled'
+        abortControllers.clear()
+        queue = [] // Empties queue so processQueue finally does not start next item (FR-15)
 ```
 
 ### B. Floating Trigger Visibility & Grace Period State Machine
@@ -376,6 +388,7 @@ Row Trailing Action Container:
 | **Row Trailing Padding `pr-16` (64px)** | Retaining `pr-9` (36px) | Adding a second 26px button requires extra trailing clearance so that neither the download button nor the details button is occluded by the lateral sidebar toggle chevron button `<`. |
 | **Shared In-Memory `OAuth2Client` Reuse per `refreshToken`** | Instantiating a new `OAuth2Client` on every Drive call | Eliminates redundant `oauth2.googleapis.com/token` round-trips on every folder click or download while keeping short-lived access tokens strictly in RAM (zero plaintext disk writes per Principle 5). |
 | **Queued Item Deduplication + In-Flight Filename Reservation** | Blocking downloads even while actively streaming, or allowing unbounded duplicates | Omits accidental duplicate `queued` entries while allowing a single intentional re-queue of an actively streaming item, reserving in-flight filenames so disk overwrites never happen (FR-14, EC-15..EC-17). |
+| **Disconnect Hook (`onDisconnect`) Cancelling & Clearing Queue** | Letting active streams continue silently or coupling `AuthIpcController` directly to `DownloadQueueManager` | An injected callback keeps `AuthIpcController` decoupled and testable while guaranteeing immediate stream abortion, partial-file deletion, and clean per-session queue isolation on disconnect (FR-15, EC-18..EC-20). |
 
 ---
 
@@ -401,6 +414,10 @@ Row Trailing Action Container:
    - Omits duplicate `enqueue()` calls when a `(driveItemId, exportMimeType)` entry is already `queued`.
    - Allows enqueuing at most one `queued` copy when an item is currently `downloading`, assigning a collision-safe incremented filename (`file (1).ext` / `folder (1).zip`) without overwriting the active download.
    - Treats distinct Google Workspace `exportMimeType` values as separate queue entries and permits re-enqueuing after a previous transfer finishes (`completed`, `failed`, or `cancelled`).
+6. `DownloadQueueManager.cancelAllAndClear()` & Disconnect Wiring (`tests/unit/download-stream.test.ts`, `tests/integration/auth-flow.test.ts`):
+   - Aborts active download stream immediately, deletes partial file from disk, cancels pending queued entries so none start afterward, and empties `getQueue()`.
+   - Operates as a safe no-op when queue is empty.
+   - Invokes `onDisconnect` callback inside `AuthIpcController`'s `AUTH_DISCONNECT` handler and verifies `src/main/index.ts` wires `sharedDownloadQueue.cancelAllAndClear()`.
 
 ### B. Bilingual Localization Parity Tests (`tests/unit/translations.test.ts`)
 - Asserts that all newly added `download_*`, `transfers_*`, `settings_*`, and `export_*` keys maintain 100% parity across English and Spanish.
@@ -436,6 +453,7 @@ Row Trailing Action Container:
 | **US-7 (Bilingual Localization Parity)** | FR-12 | `translations.ts` | `tests/unit/translations.test.ts` |
 | **US-8 (Cached OAuth Client & Folder Navigation Performance)** | FR-13, EC-13, EC-14 | `google-client.ts`, `auth-ipc.ts`, `index.ts` | `tests/unit/google-client.test.ts` |
 | **US-9 (Queue Deduplication & Collision-Safe Re-Enqueuing)** | FR-14, EC-15, EC-16, EC-17 | `download-helpers.ts`, `download-queue-manager.ts` | `tests/unit/download-helpers.test.ts`, `tests/unit/download-stream.test.ts` |
+| **US-10 (Cancel Active & Queued Downloads on Disconnect)** | FR-15, EC-18, EC-19, EC-20 | `download-queue-manager.ts`, `auth-ipc.ts`, `index.ts` | `tests/unit/download-stream.test.ts`, `tests/integration/auth-flow.test.ts` |
 
 ### Story Dependency Flow for `tasks.md`:
 ```mermaid
@@ -448,4 +466,5 @@ flowchart TD
     US6 --> US7["US-7: Bilingual Localization Parity (T7)"]
     US2 --> US8["US-8: Cached OAuth Client Performance (T8)"]
     US2 --> US9["US-9: Queue Deduplication & Collision-Safe Re-Enqueuing (T9)"]
+    US2 --> US10["US-10: Cancel Downloads on Disconnect (T10)"]
 ```

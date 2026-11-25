@@ -20,6 +20,7 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
 - **US-7 (Bilingual Localization Parity):** As an international user, I want all download button tooltips, transfer state badges, progress indicators, modal controls, export menus, and settings dialogs to be fully localized in English (`en`) and Spanish (`es`).
 - **US-8 (Cached OAuth Client & Folder Navigation Performance):** As an authenticated user navigating directories and initiating downloads, I want Google API requests to reuse an in-memory authenticated OAuth client and access token so that folder listings and downloads avoid redundant token exchange round-trips on every click.
 - **US-9 (Queue Deduplication & Collision-Safe Re-Enqueuing):** As a user clicking download across files and folders while transfers are running, I want duplicate clicks on items already waiting in the queue to be omitted while still allowing at most one queued re-download of an item that is currently downloading, without ever overwriting files on disk.
+- **US-10 (Cancel Active & Queued Downloads on Disconnect):** As an authenticated user disconnecting my Google account, I want any in-flight download stream to be immediately aborted with partial files cleaned up and all pending queued transfers cancelled and cleared so that no background transfers continue or leak across account sessions.
 
 ## Definitions
 - **Download Action Button:** A `26px × 26px` square button with visible 1px structural border and download icon (`Download`) positioned at the trailing end of every real file and folder row immediately preceding the details button.
@@ -72,6 +73,10 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
   1. IF a download request targets an item (`driveItemId` + `exportMimeType`) that already has an entry in `queued` status, THEN THE SYSTEM SHALL omit creating a duplicate entry and return the existing `queued` transfer record without altering queue order.
   2. WHEN a download request targets an item (`driveItemId` + `exportMimeType`) that is currently in `downloading` status and has no existing `queued` entry, THE SYSTEM SHALL allow enqueuing exactly one additional `queued` transfer for that item; any further requests for the same item while that `queued` entry remains pending SHALL be omitted.
   3. THE SYSTEM SHALL include reserved filenames of all in-flight (`downloading` and `queued`) transfers targeting the same destination directory alongside existing disk files when resolving `resolveNextAvailableFilename`, ensuring a re-enqueued copy receives an incremented filename (e.g., `file (1).ext` / `folder (1).zip`) and never overwrites an active download.
+- **FR-15:** WHEN the user disconnects their Google account (`AUTH_DISCONNECT`), THE SYSTEM SHALL immediately terminate and reset the download queue in the Electron Main Process before completing sign-out:
+  1. THE SYSTEM SHALL abort any currently active (`downloading`) file, Workspace export, or folder `.zip` archive stream via its `AbortController` and delete any partial file on disk cleanly.
+  2. THE SYSTEM SHALL cancel all pending (`queued`) transfers so none are started after sign-out.
+  3. THE SYSTEM SHALL clear the in-memory transfer queue so prior session entries never leak into a subsequent sign-in session.
 
 ## Non-Functional Requirements
 - **NFR-1 (Archival Visual Alignment):** All newly introduced controls (row download button, floating trigger, expanded hover pill, export menu, queue modal, and settings modal) must strictly adhere to Swiss Archive design tokens (`1px` structural borders, `4px` button radius, `6px` modal/trigger card radius, `#C9C6BD`/`#2C323D` borders, `#FFFFFF`/`#181C23` surfaces, and monospace data typography).
@@ -96,6 +101,9 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
 - **EC-15:** User clicks download multiple times on a file or folder that is currently `downloading` $\rightarrow$ The first extra click enqueues 1 `queued` copy with an incremented non-colliding filename (`name (1).ext` / `folder (1).zip`); subsequent clicks are silently omitted while that `queued` copy remains in the queue.
 - **EC-16:** User clicks download on a Google Workspace document selecting two distinct export formats (e.g., `PDF` then `DOCX`) while another download is running $\rightarrow$ Both `(driveItemId, exportMimeType)` pairs are distinct and allowed into the queue; requesting `PDF` a second time while `PDF` is already `queued` is omitted.
 - **EC-17:** User clicks download on an item whose previous transfer already ended (`completed`, `failed`, or `cancelled`) and has no `queued` entry $\rightarrow$ Enqueues normally as a fresh transfer with collision-safe naming.
+- **EC-18:** User clicks Disconnect while a large file or recursive folder `.zip` archive is actively downloading $\rightarrow$ The active stream is immediately aborted (`AbortError`), file descriptors are closed, the partial local file/archive is deleted from disk, and no further queued items are started.
+- **EC-19:** User disconnects while multiple transfers are `queued`, then signs in again with the same or a different Google account without restarting the app $\rightarrow$ The queue starts completely empty with zero residual transfers from the prior session and zero cross-account leakage.
+- **EC-20:** User disconnects when no downloads are active or queued (idle queue) $\rightarrow$ Queue cancellation and reset completes cleanly as a safe no-op without blocking disconnect.
 
 ## Out of Scope
 - File upload transfers (deferred to a subsequent dedicated specification).
@@ -105,6 +113,7 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
 - Persisting short-lived OAuth `access_token` values to disk (only encrypted `refresh_token` persistence via `safeStorage` is permitted).
 - Disk-persisted directory listing cache across application restarts.
 - Visual toast or banner alert when a duplicate click on an already-queued item is silently omitted.
+- Pausing and resuming active downloads across sign-out/sign-in cycles, or adding a separate active-download warning banner inside the Disconnect confirmation modal.
 
 ## Completion Criteria
 - Each real file and folder row displays a `26px × 26px` Download Action Button with 1px structural borders and localized tooltip.
@@ -121,6 +130,7 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
 - Virtual parent row (`"..."`) has no download button.
 - Authenticated Google Drive API operations reuse a shared in-memory `OAuth2Client` per active `refreshToken` and invalidate it cleanly on disconnect or token change.
 - Duplicate download requests for items already in `queued` status are omitted, while items currently in `downloading` status can be re-enqueued at most once with a collision-safe non-overwriting filename.
+- Disconnecting the Google account immediately aborts any active download stream, deletes partial files from disk, cancels all queued entries, and clears the Main Process transfer queue.
 - 100% bilingual parity for all download-related labels and dialogs in `en` and `es`.
 - 100% of automated unit and integration tests passing with zero TypeScript errors.
 
@@ -184,3 +194,8 @@ This specification defines a comprehensive **Download Transfers Manager** for Pr
     - *Question / Need*: Clicking download multiple times on an item waiting in the queue could create duplicate queued transfers and overwrite the same target file on disk when two queued entries resolved to the same filename before disk write began.
     - *Agreement*: Omit duplicate download requests when an entry with the same `(driveItemId, exportMimeType)` is already in `queued` status (returning the existing queued item). If the item is currently in `downloading` status and has no `queued` entry yet, permit adding it to the queue at most once, resolving its filename against both existing disk files and reserved in-flight (`downloading` / `queued`) filenames in the destination directory so it never overwrites the active download.
     - *Why*: Prevents accidental duplicate queue clutter and eliminates filename overwrite races while still honoring intentional re-downloads of a currently streaming item.
+- **2026-11-24 (Requirement Change — `/sdd-change`):**
+  - **Decision 14 (Cancel All Downloads & Reset Queue on Account Disconnect):**
+    - *Question / Need*: Clicking Disconnect previously cleared OAuth credentials and unmounted the explorer UI while leaving any active download stream running silently in the Main Process and retaining prior queue entries in memory across re-logins.
+    - *Agreement*: Wire `AuthIpcController` (`AUTH_DISCONNECT`) to invoke a queue cancellation/reset hook (`DownloadQueueManager.cancelAllAndClear()`) injected from `src/main/index.ts`, aborting any active stream, deleting partial files, cancelling all queued items, and resetting the in-memory queue before wiping credentials.
+    - *Why*: Guarantees immediate resource release on sign-out, prevents silent background downloads after disconnecting, and strictly isolates transfer state per authenticated session.

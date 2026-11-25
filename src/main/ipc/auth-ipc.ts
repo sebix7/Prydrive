@@ -13,15 +13,18 @@ export class AuthIpcController {
   private readonly tokenStorage: TokenStorage;
   private readonly googleClient: GoogleAuthClient;
   private readonly networkCheck: () => Promise<boolean>;
+  private readonly onDisconnect?: () => void;
 
   constructor(
     tokenStorage?: TokenStorage,
     googleClient?: GoogleAuthClient,
-    networkCheck?: () => Promise<boolean>
+    networkCheck?: () => Promise<boolean>,
+    onDisconnect?: () => void
   ) {
     this.tokenStorage = tokenStorage || new TokenStorage();
     this.googleClient = googleClient || new GoogleAuthClient();
     this.networkCheck = networkCheck || isNetworkAvailable;
+    this.onDisconnect = onDisconnect;
   }
 
   register(): void {
@@ -189,6 +192,7 @@ export class AuthIpcController {
       IPC_CHANNELS.AUTH_DISCONNECT,
       async (): Promise<IpcResult<void>> => {
         try {
+          this.onDisconnect?.();
           this.googleClient.clearCachedClient();
           await this.tokenStorage.wipeSession();
           return { success: true };

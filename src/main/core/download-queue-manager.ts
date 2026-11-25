@@ -222,6 +222,13 @@ export class DownloadQueueManager {
     } catch (err) {
       if ((err as Error).name === 'AbortError') {
         nextItem.status = 'cancelled';
+        try {
+          if (fs.existsSync(nextItem.destinationPath)) {
+            fs.unlinkSync(nextItem.destinationPath);
+          }
+        } catch {
+          // Ignore partial file cleanup failures
+        }
       } else {
         console.error('[DownloadQueueManager] Download failed:', (err as Error).message || err);
         nextItem.status = 'failed';
@@ -236,8 +243,12 @@ export class DownloadQueueManager {
       }
     } finally {
       this.abortControllers.delete(nextItem.id);
-      this.emitProgress(nextItem);
-      this.activeTransfer = null;
+      if (this.queue.includes(nextItem)) {
+        this.emitProgress(nextItem);
+      }
+      if (this.activeTransfer === nextItem) {
+        this.activeTransfer = null;
+      }
       // Continue next queued item in FIFO order
       void this.processQueue();
     }
@@ -286,5 +297,33 @@ export class DownloadQueueManager {
     this.queue = this.queue.filter(
       (item) => item.status === 'downloading' || item.status === 'queued'
     );
+  }
+
+  /**
+   * Immediately aborts any active transfer, removes partial files, cancels queued items,
+   * and empties the in-memory queue (e.g. on account disconnect) (FR-15, EC-18, EC-19, EC-20).
+   */
+  cancelAllAndClear(): void {
+    for (const item of this.queue) {
+      if (item.status === 'downloading') {
+        const controller = this.abortControllers.get(item.id);
+        if (controller) {
+          controller.abort();
+        }
+        item.status = 'cancelled';
+        try {
+          if (fs.existsSync(item.destinationPath)) {
+            fs.unlinkSync(item.destinationPath);
+          }
+        } catch {
+          // File descriptor may still be closing; processQueue catch block cleans up after close
+        }
+      } else if (item.status === 'queued') {
+        item.status = 'cancelled';
+      }
+    }
+    this.abortControllers.clear();
+    this.activeTransfer = null;
+    this.queue = [];
   }
 }

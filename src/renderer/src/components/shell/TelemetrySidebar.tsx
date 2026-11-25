@@ -141,7 +141,7 @@ export const TelemetrySidebar: React.FC<TelemetrySidebarProps> = ({
               data-testid="sidebar-disconnect-btn"
               tabIndex={isExpanded ? 0 : -1}
               onClick={onDisconnect}
-              className="w-full py-2.5 px-3 rounded-[4px] border border-[rgba(220,38,38,0.25)] dark:border-[rgba(239,68,68,0.30)] bg-[rgba(220,38,38,0.08)] dark:bg-[rgba(239,68,68,0.12)] text-[#DC2626] dark:text-[#EF4444] hover:bg-[#DC2626] dark:hover:bg-[#EF4444] hover:text-white font-display text-xs font-semibold flex items-center justify-center gap-2 transition-all duration-150 cursor-pointer active:scale-[0.99]"
+              className="w-full py-2.5 px-3 rounded-[4px] border border-[rgba(220,38,38,0.25)] dark:border-[rgba(239,68,68,0.30)] bg-[rgba(220,38,38,0.08)] dark:bg-[rgba(239,68,68,0.12)] text-[#DC2626] dark:text-[#EF4444] hover:bg-[#DC2626] dark:hover:bg-[#EF4444] hover:text-white dark:hover:text-white font-display text-xs font-semibold flex items-center justify-center gap-2 transition-all duration-150 cursor-pointer active:scale-[0.99]"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>{getTranslation(language, 'disconnect')}</span>

@@ -192,7 +192,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
             onClick={onDisconnectClick}
             title={getTranslation(language, 'disconnect')}
             aria-label={getTranslation(language, 'disconnect')}
-            className="inline-flex items-center justify-center w-[30px] h-[30px] rounded-[4px] border border-[rgba(220,38,38,0.25)] dark:border-[rgba(239,68,68,0.30)] bg-[rgba(220,38,38,0.08)] dark:bg-[rgba(239,68,68,0.12)] text-[#DC2626] dark:text-[#EF4444] hover:bg-[#DC2626] dark:hover:bg-[#EF4444] hover:text-white transition-all duration-150 focus:outline-none active:scale-95"
+            className="inline-flex items-center justify-center w-[30px] h-[30px] rounded-[4px] border border-[rgba(220,38,38,0.25)] dark:border-[rgba(239,68,68,0.30)] bg-[rgba(220,38,38,0.08)] dark:bg-[rgba(239,68,68,0.12)] text-[#DC2626] dark:text-[#EF4444] hover:bg-[#DC2626] dark:hover:bg-[#EF4444] hover:text-white dark:hover:text-white transition-all duration-150 focus:outline-none active:scale-95"
           >
             <LogOut className="w-3.5 h-3.5" />
           </button>

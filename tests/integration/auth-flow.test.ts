@@ -270,4 +270,37 @@ describe('Auth Flow Integration (US-1 / T1)', () => {
     const saved = await tokenStorage.loadSession();
     expect(saved).toBeNull();
   });
+
+  it('should invoke injected onDisconnect callback to cancel downloads during AUTH_DISCONNECT and wire it in main/index.ts (Spec 012 US-10 / T10 / FR-15)', async () => {
+    const onDisconnectSpy = vi.fn();
+    registeredHandlers.clear();
+
+    const controllerWithHook = new AuthIpcController(
+      tokenStorage,
+      googleClient,
+      async () => isNetworkOnline,
+      onDisconnectSpy
+    );
+    controllerWithHook.register();
+
+    await tokenStorage.saveSession({
+      refreshToken: 'mock_active_refresh_token',
+      email: 'user@example.com',
+      savedAt: Date.now()
+    });
+
+    const disconnectHandler = registeredHandlers.get(IPC_CHANNELS.AUTH_DISCONNECT);
+    const result = (await disconnectHandler!()) as IpcResult<void>;
+
+    expect(result.success).toBe(true);
+    expect(onDisconnectSpy).toHaveBeenCalledTimes(1);
+    expect(await tokenStorage.loadSession()).toBeNull();
+
+    // Verify src/main/index.ts wires sharedDownloadQueue.cancelAllAndClear() into AuthIpcController
+    const mainIndexSource = fs.readFileSync(
+      path.resolve(__dirname, '../../src/main/index.ts'),
+      'utf-8'
+    );
+    expect(mainIndexSource).toContain('cancelAllAndClear()');
+  });
 });

@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import {
   shellReducer,
   initialShellState,
@@ -76,5 +78,19 @@ describe('Telemetry Sidebar & Divider Toggle (US-4 / T4)', () => {
     expect(shouldAutoCollapseSidebar(804)).toBe(false);
     expect(shouldAutoCollapseSidebar(803)).toBe(true);
     expect(shouldAutoCollapseSidebar(600)).toBe(true);
+  });
+
+  it('should preserve readable white text on hover in dark mode for both sidebar and topbar disconnect buttons', () => {
+    const sidebarSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/components/shell/TelemetrySidebar.tsx'),
+      'utf-8'
+    );
+    const menuBarSource = readFileSync(
+      resolve(__dirname, '../../src/renderer/src/components/shell/MenuBar.tsx'),
+      'utf-8'
+    );
+
+    expect(sidebarSource).toContain('dark:hover:bg-[#EF4444] hover:text-white dark:hover:text-white');
+    expect(menuBarSource).toContain('dark:hover:bg-[#EF4444] hover:text-white dark:hover:text-white');
   });
 });

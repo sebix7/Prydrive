@@ -73,7 +73,12 @@ app.whenReady().then(() => {
   );
 
   // Register IPC controllers
-  const authController = new AuthIpcController(sharedTokenStorage, sharedGoogleClient);
+  const authController = new AuthIpcController(
+    sharedTokenStorage,
+    sharedGoogleClient,
+    undefined,
+    () => sharedDownloadQueue.cancelAllAndClear()
+  );
   authController.register();
 
   const storageController = new StorageIpcController(sharedTokenStorage, sharedGoogleClient);

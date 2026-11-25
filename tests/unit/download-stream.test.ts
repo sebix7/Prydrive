@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach } from 'vitest';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { Readable } from 'stream';
+import { PassThrough, Readable } from 'stream';
 import type { drive_v3 } from 'googleapis';
 import { streamFolderArchiveDownload } from '../../src/main/operations/download-stream';
 import { DownloadQueueManager } from '../../src/main/core/download-queue-manager';
@@ -415,6 +415,105 @@ describe('Folder Archive Streaming Progress & Resilience (Spec 012 US-2 / FR-4, 
         fs.rmSync(tempDir, { recursive: true, force: true });
       } catch {
         // Ignore cleanup errors
+      }
+    });
+  });
+
+  describe('Cancel Active & Queued Downloads on Disconnect (Spec 012 US-10 / T10 / FR-15, EC-18, EC-19, EC-20)', () => {
+    it('should abort active stream, delete partial file, cancel queued items, and empty queue on cancelAllAndClear (FR-15, EC-18, EC-19)', async () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'prydrive-disconnect-test-'));
+      const fetchedIds: string[] = [];
+
+      let chunkWrittenResolve!: () => void;
+      const chunkWrittenPromise = new Promise<void>((resolve) => {
+        chunkWrittenResolve = resolve;
+      });
+      let streamClosed = false;
+      const openStreams: PassThrough[] = [];
+
+      const mockDrive = {
+        files: {
+          get: async ({ fileId }: { fileId: string }) => {
+            fetchedIds.push(fileId);
+            const slowStream = new PassThrough();
+            slowStream.on('close', () => {
+              streamClosed = true;
+            });
+            openStreams.push(slowStream);
+            slowStream.write(Buffer.from('partial-bytes-written-to-disk'));
+            setTimeout(() => chunkWrittenResolve(), 30);
+            return { data: slowStream };
+          }
+        }
+      } as unknown as drive_v3.Drive;
+
+      const fakeSettings = {
+        getSettings: () => ({ defaultDownloadPath: tempDir })
+      };
+      const fakeTokenStorage = {
+        loadSession: async () => ({ refreshToken: 'mock-rt', email: 'a@b.com', savedAt: Date.now() })
+      };
+      const fakeGoogleClient = {
+        getDriveClient: () => mockDrive
+      };
+
+      const manager = new DownloadQueueManager(
+        fakeSettings as never,
+        fakeTokenStorage as never,
+        fakeGoogleClient as never
+      );
+
+      try {
+        const activeItem = manager.enqueue({
+          driveItemId: 'file-a',
+          name: 'movie.bin',
+          isDirectory: false,
+          iconType: 'video',
+          totalBytes: 10000
+        });
+        manager.enqueue({
+          driveItemId: 'file-b',
+          name: 'queued-1.pdf',
+          isDirectory: false,
+          iconType: 'pdf',
+          totalBytes: 500
+        });
+        manager.enqueue({
+          driveItemId: 'file-c',
+          name: 'queued-2.pdf',
+          isDirectory: false,
+          iconType: 'pdf',
+          totalBytes: 500
+        });
+
+        // Wait until active download has actually written partial bytes to disk
+        await chunkWrittenPromise;
+        expect(fs.existsSync(activeItem.destinationPath)).toBe(true);
+        expect(manager.getQueue()).toHaveLength(3);
+
+        // Simulate disconnect: abort active stream, cancel queued items, and clear queue
+        manager.cancelAllAndClear();
+
+        expect(manager.getQueue()).toEqual([]);
+
+        // Allow aborted stream teardown & cleanup to settle
+        await new Promise((r) => setTimeout(r, 80));
+
+        expect(streamClosed).toBe(true);
+        expect(fs.existsSync(activeItem.destinationPath)).toBe(false);
+        // Queued items must never have been requested from Google Drive
+        expect(fetchedIds).toEqual(['file-a']);
+
+        // Calling cancelAllAndClear again on an idle/empty queue must be a safe no-op (EC-20)
+        expect(() => manager.cancelAllAndClear()).not.toThrow();
+        expect(manager.getQueue()).toEqual([]);
+      } finally {
+        openStreams.forEach((s) => s.destroy());
+        try {
+          fs.rmSync(tempDir, { recursive: true, force: true });
+        } catch {
+          // Ignore cleanup errors
+        }
       }
     });
   });

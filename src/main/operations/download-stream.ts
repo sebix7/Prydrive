@@ -97,14 +97,18 @@ export async function streamFileDownload(options: FileDownloadOptions): Promise<
     const onAbort = (): void => {
       if (completed) return;
       cleanup();
-      // Destroy active streams immediately
+      // Destroy active streams immediately and wait for write stream fd release before rejecting
       if ('destroy' in readStream && typeof readStream.destroy === 'function') {
         readStream.destroy();
       }
-      writeStream.destroy();
       const abortErr = new Error('The operation was aborted');
       abortErr.name = 'AbortError';
-      reject(abortErr);
+      if (writeStream.closed || writeStream.destroyed) {
+        reject(abortErr);
+        return;
+      }
+      writeStream.once('close', () => reject(abortErr));
+      writeStream.destroy();
     };
 
     if (signal) {
